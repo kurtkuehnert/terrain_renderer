@@ -7,8 +7,8 @@ fn main() {
         .insert_resource(Msaa { samples: 4 })
         .insert_resource(ClearColor(Color::rgb(0.058, 0.078, 0.098)))
         .insert_resource(WindowDescriptor {
-            width: 800.,
-            height: 600.,
+            width: 1400.,
+            height: 1000.,
             title: "Map Generation".to_string(),
             ..Default::default()
         })
