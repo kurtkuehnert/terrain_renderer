@@ -1,18 +1,52 @@
+use crate::map_data::MapData;
+use bevy::core::Byteable;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 use bevy::render::pipeline::PipelineDescriptor;
 use bevy::render::render_graph::{base, AssetRenderResourcesNode, RenderGraph};
-use bevy::render::renderer::RenderResources;
+use bevy::render::renderer::{RenderResource, RenderResources};
 use bevy::render::shader::ShaderStages;
 
 /// The material of a map, with a custom vertex color attribute.
-#[derive(RenderResources, Default, TypeUuid)]
+#[derive(RenderResource, RenderResources, TypeUuid)]
 #[uuid = "0320b9b8-b3a3-4baa-8bfa-c94008177b17"]
-pub struct MapMaterial {}
+#[render_resources(from_self)]
+pub struct MapMaterial {
+    #[render_resources(buffer)]
+    pub colors: [[f32; 4]; 5],
+    // uses array of vec4 because the glsl layout for arrays of scalars (floats) has an alignment of vec4 so it is wasting space anyway
+    #[render_resources(buffer)]
+    pub layer_heights: [[f32; 4]; 5],
+    pub map_height: f32,
+    pub layer_count: i32,
+}
+unsafe impl Byteable for MapMaterial {}
 
 impl MapMaterial {
-    /// The name of the shader attribute, which specifies the color of each map vertex.
-    pub const ATTRIBUTE_COLOR: &'static str = "Vertex_Color";
+    pub fn new(map_data: &MapData) -> Self {
+        let mut colors = [[0.0; 4]; 5];
+        map_data
+            .colors
+            .iter()
+            .enumerate()
+            .for_each(|(i, color)| colors[i] = color.as_linear_rgba_f32());
+
+        let mut layer_heights = [[1.0; 4]; 5];
+        map_data
+            .heights
+            .iter()
+            .enumerate()
+            .for_each(|(i, &height)| layer_heights[i] = [height, 0.0, 0.0, 0.0]);
+
+        let map_material = Self {
+            colors,
+            layer_heights,
+            map_height: map_data.map_height,
+            layer_count: map_data.heights.len() as i32,
+        };
+
+        map_material
+    }
 }
 
 /// The pipeline used to render a map.
@@ -25,9 +59,9 @@ pub struct MapPipeline {
 impl MapPipeline {
     /// The name of the map material node in the render graph.
     const MAP_MATERIAL_NODE: &'static str = "map_material_node";
-    // The file path of the vertex shader
+    /// The file path of the vertex shader
     const VERTEX_SHADER: &'static str = "shaders/map/vertex.vert";
-    // The file path of the fragment shader
+    /// The file path of the fragment shader
     const FRAGMENT_SHADER: &'static str = "shaders/map/fragment.frag";
 }
 

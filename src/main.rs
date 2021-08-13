@@ -1,4 +1,4 @@
-use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor};
+use bevy::prelude::*;
 use bevy::DefaultPlugins;
 use game_plugin::GamePlugin;
 
@@ -14,5 +14,11 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(GamePlugin)
+        .add_startup_system(window_setup.system())
         .run();
+}
+
+fn window_setup(mut windows: ResMut<Windows>) {
+    let window = windows.get_primary_mut().unwrap();
+    window.set_position(IVec2::new(2000, 100));
 }
