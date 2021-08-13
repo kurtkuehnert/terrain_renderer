@@ -49,7 +49,9 @@ pub struct MapData {
     pub noise_data: NoiseData,
     pub colors: Vec<Color>,
     #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
-    pub heights: Vec<f32>,
+    pub layer_heights: Vec<f32>,
+    #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
+    pub blend_values: Vec<f32>,
 }
 
 impl Default for MapData {
@@ -65,7 +67,8 @@ impl Default for MapData {
                 Color::GRAY,
                 Color::WHITE,
             ],
-            heights: vec![0.2, 0.35, 0.5, 0.8],
+            layer_heights: vec![0.2, 0.35, 0.5, 0.8],
+            blend_values: vec![0.05, 0.05, 0.1, 0.15],
         }
     }
 }

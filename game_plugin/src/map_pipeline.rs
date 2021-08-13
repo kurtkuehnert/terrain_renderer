@@ -17,6 +17,8 @@ pub struct MapMaterial {
     // uses array of vec4 because the glsl layout for arrays of scalars (floats) has an alignment of vec4 so it is wasting space anyway
     #[render_resources(buffer)]
     pub layer_heights: [[f32; 4]; 5],
+    #[render_resources(buffer)]
+    pub blend_values: [[f32; 4]; 5],
     pub map_height: f32,
     pub layer_count: i32,
 }
@@ -33,16 +35,25 @@ impl MapMaterial {
 
         let mut layer_heights = [[1.0; 4]; 5];
         map_data
-            .heights
+            .layer_heights
             .iter()
             .enumerate()
             .for_each(|(i, &height)| layer_heights[i] = [height, 0.0, 0.0, 0.0]);
 
+        let mut blend_values = [[0.0; 4]; 5];
+
+        map_data
+            .blend_values
+            .iter()
+            .enumerate()
+            .for_each(|(i, &blend)| blend_values[i] = [blend, 0.0, 0.0, 0.0]);
+
         let map_material = Self {
             colors,
             layer_heights,
+            blend_values,
             map_height: map_data.map_height,
-            layer_count: map_data.heights.len() as i32,
+            layer_count: map_data.layer_heights.len() as i32,
         };
 
         map_material
