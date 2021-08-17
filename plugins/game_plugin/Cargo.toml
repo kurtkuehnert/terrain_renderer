@@ -1,0 +1,15 @@
+[package]
+name = "game_plugin"
+version = "0.1.0"
+publish = false
+edition = "2018"
+
+[features]
+default = [
+    "bevy/dynamic",
+]
+
+[dependencies]
+bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
+bevy-inspector-egui = { git = "https://github.com/jakobhellermann/bevy-inspector-egui", branch = "bevy-main" }
+map_plugin = { path = "../map_plugin" }

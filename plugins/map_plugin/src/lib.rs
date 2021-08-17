@@ -1,10 +1,14 @@
-use crate::map_data::{MapData, NoiseData};
+use crate::map_data::MapData;
 use crate::map_pipeline::{MapMaterial, MapPipeline};
 use bevy::core::FixedTimestep;
 use bevy::prelude::*;
 use bevy::render::pipeline::RenderPipeline;
 use bevy::render::render_graph::base::MainPass;
 use bevy_inspector_egui::InspectableRegistry;
+
+mod map_data;
+mod map_generation;
+mod map_pipeline;
 
 /// A bundle containing all the components required to spawn a map.
 #[derive(Bundle, Default)]
@@ -24,23 +28,18 @@ struct MapBundle {
 pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.add_asset::<MapMaterial>()
             .init_resource::<MapPipeline>()
-            .add_startup_system(setup.system())
-            .add_system(
-                update_map
-                    .system()
-                    .with_run_criteria(FixedTimestep::step(0.1)),
-            );
+            .add_startup_system(setup)
+            .add_system(update_map.with_run_criteria(FixedTimestep::step(0.1)));
 
         // getting registry from world
         let mut registry = app
-            .world_mut()
+            .world
             .get_resource_or_insert_with(InspectableRegistry::default);
 
-        // register components to be able to edit them in the inspector
-        registry.register::<NoiseData>();
+        // register components to be able to edit them in the inspector (works recursively)
         registry.register::<MapData>();
     }
 }
@@ -56,6 +55,7 @@ fn setup(
     let render_pipelines =
         RenderPipelines::from_pipelines(vec![RenderPipeline::new(map_pipeline.pipeline.clone())]);
 
+    /*
     // prepare the map
     let map_data = MapData::default();
     let (mesh, material) = map_data.generate();
@@ -71,6 +71,7 @@ fn setup(
         transform: Transform::from_xyz(0.0, -10.0, 0.0),
         ..Default::default()
     });
+     */
 
     let map_data = MapData::default();
     let (mesh, material) = map_data.generate();
@@ -82,7 +83,7 @@ fn setup(
         map_data,
         mesh,
         render_pipelines,
-        transform: Transform::from_xyz(0.0, -10.0, -60.0),
+        transform: Transform::from_xyz(-15.0, -20.0, -120.0),
         ..Default::default()
     });
 }

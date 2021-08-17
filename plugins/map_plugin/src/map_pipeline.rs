@@ -1,5 +1,5 @@
 use crate::map_data::MapData;
-use bevy::core::Byteable;
+use bevy::core::Bytes;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 use bevy::render::pipeline::PipelineDescriptor;
@@ -7,56 +7,56 @@ use bevy::render::render_graph::{base, AssetRenderResourcesNode, RenderGraph};
 use bevy::render::renderer::{RenderResource, RenderResources};
 use bevy::render::shader::ShaderStages;
 
+const MAX_LAYER_COUNT: usize = 5;
+
 /// The material of a map, with a custom vertex color attribute.
-#[derive(RenderResource, RenderResources, TypeUuid)]
+#[derive(Bytes, RenderResource, RenderResources, TypeUuid)]
 #[uuid = "0320b9b8-b3a3-4baa-8bfa-c94008177b17"]
 #[render_resources(from_self)]
 pub struct MapMaterial {
     #[render_resources(buffer)]
-    pub colors: [[f32; 4]; 5],
+    pub colors: [[f32; 4]; MAX_LAYER_COUNT],
     // uses array of vec4 because the glsl layout for arrays of scalars (floats) has an alignment of vec4 so it is wasting space anyway
     #[render_resources(buffer)]
-    pub layer_heights: [[f32; 4]; 5],
+    pub layer_heights: [[f32; 4]; MAX_LAYER_COUNT],
     #[render_resources(buffer)]
-    pub blend_values: [[f32; 4]; 5],
+    pub blend_values: [[f32; 4]; MAX_LAYER_COUNT],
     pub map_height: f32,
     pub layer_count: i32,
 }
-unsafe impl Byteable for MapMaterial {}
 
 impl MapMaterial {
     pub fn new(map_data: &MapData) -> Self {
-        let mut colors = [[0.0; 4]; 5];
-        map_data
-            .colors
+        let material_data = &map_data.material_data;
+
+        let mut colors = [[0.0; 4]; MAX_LAYER_COUNT];
+        material_data
+            .layer_colors
             .iter()
             .enumerate()
             .for_each(|(i, color)| colors[i] = color.as_linear_rgba_f32());
 
-        let mut layer_heights = [[1.0; 4]; 5];
-        map_data
+        let mut layer_heights = [[1.0; 4]; MAX_LAYER_COUNT];
+        material_data
             .layer_heights
             .iter()
             .enumerate()
             .for_each(|(i, &height)| layer_heights[i] = [height, 0.0, 0.0, 0.0]);
 
-        let mut blend_values = [[0.0; 4]; 5];
-
-        map_data
+        let mut blend_values = [[0.0; 4]; MAX_LAYER_COUNT];
+        material_data
             .blend_values
             .iter()
             .enumerate()
             .for_each(|(i, &blend)| blend_values[i] = [blend, 0.0, 0.0, 0.0]);
 
-        let map_material = Self {
+        Self {
             colors,
             layer_heights,
             blend_values,
             map_height: map_data.map_height,
-            layer_count: map_data.layer_heights.len() as i32,
-        };
-
-        map_material
+            layer_count: material_data.layer_heights.len() as i32,
+        }
     }
 }
 
