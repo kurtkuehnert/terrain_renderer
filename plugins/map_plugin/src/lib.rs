@@ -1,9 +1,11 @@
 use crate::map_data::MapData;
 use crate::map_pipeline::{MapMaterial, MapPipeline};
 use bevy::core::FixedTimestep;
+use bevy::pbr::render_graph::PBR_PIPELINE_HANDLE;
 use bevy::prelude::*;
 use bevy::render::pipeline::RenderPipeline;
 use bevy::render::render_graph::base::MainPass;
+use bevy::render::wireframe::Wireframe;
 use bevy_inspector_egui::InspectableRegistry;
 
 mod map_data;
@@ -49,12 +51,14 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<MapMaterial>>,
+    mut standard_materials: ResMut<Assets<StandardMaterial>>,
     map_pipeline: Res<MapPipeline>,
 ) {
     // create the render pipelines for the maps
-    let render_pipelines =
-        RenderPipelines::from_pipelines(vec![RenderPipeline::new(map_pipeline.pipeline.clone())]);
-
+    let render_pipelines = RenderPipelines::from_pipelines(vec![
+        // RenderPipeline::new(PBR_PIPELINE_HANDLE.typed()),
+        RenderPipeline::new(map_pipeline.pipeline.clone()),
+    ]);
     /*
     // prepare the map
     let map_data = MapData::default();
@@ -78,14 +82,17 @@ fn setup(
     let mesh = meshes.add(mesh);
     let material = materials.add(material);
 
-    commands.spawn_bundle(MapBundle {
-        material,
-        map_data,
-        mesh,
-        render_pipelines,
-        transform: Transform::from_xyz(-15.0, -20.0, -120.0),
-        ..Default::default()
-    });
+    commands
+        .spawn_bundle(MapBundle {
+            material,
+            map_data,
+            mesh,
+            render_pipelines,
+            transform: Transform::from_xyz(-15.0, -20.0, -120.0),
+            ..Default::default()
+        })
+        .insert(standard_materials.add(StandardMaterial::default()))
+        .insert(Wireframe);
 }
 
 /// Updates the mesh and the material of the map, if the map data of it changed.

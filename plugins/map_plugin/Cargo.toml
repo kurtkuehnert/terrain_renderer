@@ -16,3 +16,4 @@ nalgebra-glm = "0.14.0"
 noise = "0.7.0"
 rand = "0.8.4"
 itertools = "0.10.1"
+bytemuck = { version = "1.7.2", features = ["extern_crate_alloc"] }

@@ -4,6 +4,7 @@ use game_plugin::GamePlugin;
 
 /// Builds and runs the entire game.
 fn main() {
+    env_logger::init();
     App::new()
         .insert_resource(Msaa { samples: 4 })
         .insert_resource(ClearColor(Color::rgb(0.058, 0.078, 0.098)))

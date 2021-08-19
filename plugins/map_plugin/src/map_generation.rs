@@ -2,6 +2,7 @@ use crate::map_data::{MapData, NoiseData};
 use bevy::prelude::*;
 use bevy::render::mesh::Indices;
 use bevy::render::pipeline::PrimitiveTopology;
+use bytemuck::allocation::cast_vec;
 use itertools::Itertools;
 use nalgebra_glm::smoothstep;
 use noise::{NoiseFn, OpenSimplex};
@@ -76,8 +77,8 @@ fn generate_noise_map(data: &NoiseData) -> Vec<Vec<f32>> {
 pub struct MapShape<'a> {
     map_data: &'a MapData,
     indices: Vec<u32>,
-    positions: Vec<[f32; 3]>,
-    normals: Vec<[f32; 3]>,
+    positions: Vec<Vec3>,
+    normals: Vec<Vec3>,
     uvs: Vec<[f32; 2]>,
 }
 
@@ -91,13 +92,10 @@ impl<'a> MapShape<'a> {
         let side_length = (CHUNK_SIZE - 1) / simplification_increment + 1;
         let vertex_count = side_length * side_length;
 
-        let mut map_shape = MapShape {
-            map_data: data,
-            indices: Vec::with_capacity((side_length - 1) * (side_length - 1) * 6),
-            positions: Vec::with_capacity(vertex_count),
-            normals: Vec::with_capacity(vertex_count),
-            uvs: Vec::with_capacity(vertex_count),
-        };
+        let mut indices = Vec::with_capacity((side_length - 1) * (side_length - 1) * 6);
+        let mut positions = Vec::with_capacity(vertex_count);
+        let mut normals = vec![Vec3::ZERO; vertex_count];
+        let mut uvs = Vec::with_capacity(vertex_count);
 
         let noise_map = generate_noise_map(&data.noise_data);
 
@@ -116,46 +114,83 @@ impl<'a> MapShape<'a> {
 
             // add the indices
             if x < CHUNK_SIZE - 1 && y < CHUNK_SIZE - 1 {
-                map_shape.add_quad(
+                Self::add_quad(
+                    &mut indices,
                     vertex_index as u32,
                     vertex_index as u32 + 1,
                     (vertex_index + side_length) as u32 + 1,
                     (vertex_index + side_length) as u32,
+                    data.wireframe,
                 );
             }
 
             // calculate and add the position, normal and uv for the vertex to the shape
-            map_shape
-                .positions
-                .push([x as f32, noise_height * data.map_height, y as f32]);
-            map_shape.normals.push([0.0, 1.0, 0.0]);
-            map_shape.uvs.push([0.0, 1.0]);
+            positions.push(Vec3::new(
+                x as f32,
+                noise_height * data.map_height,
+                y as f32,
+            ));
+            uvs.push([0.0, 1.0]);
         }
 
-        map_shape
+        // calculate the normals in the center of each triangle and combine them in each vertex
+        if !data.wireframe {
+            indices.chunks_exact(3).for_each(|triangle| {
+                let i1 = triangle[0] as usize;
+                let i2 = triangle[1] as usize;
+                let i3 = triangle[2] as usize;
+
+                let pos1 = positions[i1];
+                let pos2 = positions[i2];
+                let pos3 = positions[i3];
+
+                let vec12 = pos2 - pos1;
+                let vec13 = pos3 - pos1;
+
+                let normal = vec12.cross(vec13);
+
+                normals[i1] += normal;
+                normals[i2] += normal;
+                normals[i3] += normal;
+            });
+        }
+
+        // normalize the normals
+
+        normals
+            .iter_mut()
+            .for_each(|normal| *normal = normal.normalize());
+
+        MapShape {
+            map_data: data,
+            indices,
+            positions,
+            normals,
+            uvs,
+        }
     }
 
     /// Adds all of the indices for a quad to the shape.
-    fn add_quad(&mut self, i1: u32, i2: u32, i3: u32, i4: u32) {
-        if self.map_data.wireframe {
-            self.indices.push(i4);
-            self.indices.push(i3);
-            self.indices.push(i1);
-            self.indices.push(i4);
-            self.indices.push(i1);
-            self.indices.push(i2);
-            self.indices.push(i2);
-            self.indices.push(i3);
-            self.indices.push(i3);
-            self.indices.push(i1);
+    fn add_quad(indices: &mut Vec<u32>, i1: u32, i2: u32, i3: u32, i4: u32, wireframe: bool) {
+        if wireframe {
+            indices.push(i4);
+            indices.push(i3);
+            indices.push(i1);
+            indices.push(i4);
+            indices.push(i1);
+            indices.push(i2);
+            indices.push(i2);
+            indices.push(i3);
+            indices.push(i3);
+            indices.push(i1);
         } else {
-            self.indices.push(i1);
-            self.indices.push(i2);
-            self.indices.push(i3);
+            indices.push(i1);
+            indices.push(i2);
+            indices.push(i3);
 
-            self.indices.push(i1);
-            self.indices.push(i3);
-            self.indices.push(i4);
+            indices.push(i1);
+            indices.push(i3);
+            indices.push(i4);
         }
     }
 }
@@ -171,8 +206,14 @@ impl<'a> From<MapShape<'a>> for Mesh {
 
         // set the attributes of the mesh
         mesh.set_indices(Some(Indices::U32(map_shape.indices)));
-        mesh.set_attribute(Mesh::ATTRIBUTE_POSITION, map_shape.positions);
-        mesh.set_attribute(Mesh::ATTRIBUTE_NORMAL, map_shape.normals);
+        mesh.set_attribute(
+            Mesh::ATTRIBUTE_POSITION,
+            cast_vec::<Vec3, [f32; 3]>(map_shape.positions),
+        );
+        mesh.set_attribute(
+            Mesh::ATTRIBUTE_NORMAL,
+            cast_vec::<Vec3, [f32; 3]>(map_shape.normals),
+        );
         mesh.set_attribute(Mesh::ATTRIBUTE_UV_0, map_shape.uvs);
 
         mesh
