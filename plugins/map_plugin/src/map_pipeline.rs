@@ -64,7 +64,7 @@ impl MapMaterial {
 #[derive(Clone)]
 pub struct MapPipeline {
     /// The handle for retrieving the pipeline.
-    pub pipeline: Handle<PipelineDescriptor>,
+    pub handle: Handle<PipelineDescriptor>,
 }
 
 impl MapPipeline {
@@ -112,6 +112,6 @@ impl FromWorld for MapPipeline {
             .add_node_edge(Self::MAP_MATERIAL_NODE, base::node::MAIN_PASS)
             .unwrap();
 
-        MapPipeline { pipeline }
+        MapPipeline { handle: pipeline }
     }
 }

@@ -1,7 +1,6 @@
 use crate::map_data::MapData;
 use crate::map_pipeline::{MapMaterial, MapPipeline};
 use bevy::core::FixedTimestep;
-use bevy::pbr::render_graph::PBR_PIPELINE_HANDLE;
 use bevy::prelude::*;
 use bevy::render::pipeline::RenderPipeline;
 use bevy::render::render_graph::base::MainPass;
@@ -51,14 +50,12 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<MapMaterial>>,
-    mut standard_materials: ResMut<Assets<StandardMaterial>>,
     map_pipeline: Res<MapPipeline>,
 ) {
     // create the render pipelines for the maps
-    let render_pipelines = RenderPipelines::from_pipelines(vec![
-        // RenderPipeline::new(PBR_PIPELINE_HANDLE.typed()),
-        RenderPipeline::new(map_pipeline.pipeline.clone()),
-    ]);
+    let render_pipelines =
+        RenderPipelines::from_pipelines(vec![RenderPipeline::new(map_pipeline.handle.clone())]);
+
     /*
     // prepare the map
     let map_data = MapData::default();
@@ -82,27 +79,30 @@ fn setup(
     let mesh = meshes.add(mesh);
     let material = materials.add(material);
 
-    commands
-        .spawn_bundle(MapBundle {
-            material,
-            map_data,
-            mesh,
-            render_pipelines,
-            transform: Transform::from_xyz(-15.0, -20.0, -120.0),
-            ..Default::default()
-        })
-        .insert(standard_materials.add(StandardMaterial::default()))
-        .insert(Wireframe);
+    commands.spawn_bundle(MapBundle {
+        material,
+        map_data,
+        mesh,
+        render_pipelines,
+        transform: Transform::from_xyz(-15.0, -20.0, -120.0),
+        ..Default::default()
+    });
 }
 
 /// Updates the mesh and the material of the map, if the map data of it changed.
 fn update_map(
+    mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<MapMaterial>>,
-    query: Query<(&Handle<Mesh>, &Handle<MapMaterial>, &MapData), Changed<MapData>>,
+    query: Query<(Entity, &Handle<Mesh>, &Handle<MapMaterial>, &MapData), Changed<MapData>>,
 ) {
     // regenerate the mesh and the material of the map
-    for (mesh, material, map_data) in query.iter() {
+    for (entity, mesh, material, map_data) in query.iter() {
+        if map_data.wireframe {
+            commands.entity(entity).insert(Wireframe);
+        } else {
+            commands.entity(entity).remove::<Wireframe>();
+        }
         let mesh = meshes.get_mut(mesh).unwrap();
         let material = materials.get_mut(material).unwrap();
         let (new_mesh, new_material) = map_data.generate();

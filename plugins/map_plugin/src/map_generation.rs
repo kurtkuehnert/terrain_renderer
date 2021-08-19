@@ -74,16 +74,15 @@ fn generate_noise_map(data: &NoiseData) -> Vec<Vec<f32>> {
 }
 
 /// Intermediate map representation storing the entire mesh data of a map.
-pub struct MapShape<'a> {
-    map_data: &'a MapData,
+pub struct MapShape {
     indices: Vec<u32>,
     positions: Vec<Vec3>,
     normals: Vec<Vec3>,
     uvs: Vec<[f32; 2]>,
 }
 
-impl<'a> MapShape<'a> {
-    pub fn new(data: &'a MapData) -> Self {
+impl MapShape {
+    pub fn new(data: &MapData) -> Self {
         let simplification_increment = if data.level_of_detail == 0 {
             1
         } else {
@@ -114,14 +113,12 @@ impl<'a> MapShape<'a> {
 
             // add the indices
             if x < CHUNK_SIZE - 1 && y < CHUNK_SIZE - 1 {
-                Self::add_quad(
-                    &mut indices,
-                    vertex_index as u32,
-                    vertex_index as u32 + 1,
-                    (vertex_index + side_length) as u32 + 1,
-                    (vertex_index + side_length) as u32,
-                    data.wireframe,
-                );
+                indices.push(vertex_index as u32);
+                indices.push(vertex_index as u32 + 1);
+                indices.push((vertex_index + side_length) as u32 + 1);
+                indices.push(vertex_index as u32);
+                indices.push((vertex_index + side_length) as u32 + 1);
+                indices.push((vertex_index + side_length) as u32);
             }
 
             // calculate and add the position, normal and uv for the vertex to the shape
@@ -130,79 +127,46 @@ impl<'a> MapShape<'a> {
                 noise_height * data.map_height,
                 y as f32,
             ));
-            uvs.push([0.0, 1.0]);
+            uvs.push([0.0, 0.0]);
         }
 
         // calculate the normals in the center of each triangle and combine them in each vertex
-        if !data.wireframe {
-            indices.chunks_exact(3).for_each(|triangle| {
-                let i1 = triangle[0] as usize;
-                let i2 = triangle[1] as usize;
-                let i3 = triangle[2] as usize;
+        indices.chunks_exact(3).for_each(|triangle| {
+            let i1 = triangle[0] as usize;
+            let i2 = triangle[1] as usize;
+            let i3 = triangle[2] as usize;
 
-                let pos1 = positions[i1];
-                let pos2 = positions[i2];
-                let pos3 = positions[i3];
+            let pos1 = positions[i1];
+            let pos2 = positions[i2];
+            let pos3 = positions[i3];
 
-                let vec12 = pos2 - pos1;
-                let vec13 = pos3 - pos1;
+            let vec12 = pos2 - pos1;
+            let vec13 = pos3 - pos1;
 
-                let normal = vec12.cross(vec13);
+            let normal = vec13.cross(vec12);
 
-                normals[i1] += normal;
-                normals[i2] += normal;
-                normals[i3] += normal;
-            });
-        }
+            normals[i1] += normal;
+            normals[i2] += normal;
+            normals[i3] += normal;
+        });
 
         // normalize the normals
-
         normals
             .iter_mut()
             .for_each(|normal| *normal = normal.normalize());
 
         MapShape {
-            map_data: data,
             indices,
             positions,
             normals,
             uvs,
         }
     }
-
-    /// Adds all of the indices for a quad to the shape.
-    fn add_quad(indices: &mut Vec<u32>, i1: u32, i2: u32, i3: u32, i4: u32, wireframe: bool) {
-        if wireframe {
-            indices.push(i4);
-            indices.push(i3);
-            indices.push(i1);
-            indices.push(i4);
-            indices.push(i1);
-            indices.push(i2);
-            indices.push(i2);
-            indices.push(i3);
-            indices.push(i3);
-            indices.push(i1);
-        } else {
-            indices.push(i1);
-            indices.push(i2);
-            indices.push(i3);
-
-            indices.push(i1);
-            indices.push(i3);
-            indices.push(i4);
-        }
-    }
 }
 
-impl<'a> From<MapShape<'a>> for Mesh {
+impl From<MapShape> for Mesh {
     fn from(map_shape: MapShape) -> Self {
-        // select type of mesh: wireframe or filled
-        let mut mesh = if map_shape.map_data.wireframe {
-            Mesh::new(PrimitiveTopology::LineList)
-        } else {
-            Mesh::new(PrimitiveTopology::TriangleList)
-        };
+        let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
         // set the attributes of the mesh
         mesh.set_indices(Some(Indices::U32(map_shape.indices)));

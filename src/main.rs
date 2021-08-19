@@ -1,4 +1,7 @@
 use bevy::prelude::{App, ClearColor, Color, IVec2, Msaa, ResMut, WindowDescriptor, Windows};
+use bevy::render::wireframe::WireframePlugin;
+use bevy::wgpu::WgpuFeature::NonFillPolygonMode;
+use bevy::wgpu::{WgpuFeatures, WgpuOptions};
 use bevy::DefaultPlugins;
 use game_plugin::GamePlugin;
 
@@ -14,8 +17,15 @@ fn main() {
             title: "Map Generation".into(),
             ..Default::default()
         })
+        .insert_resource(WgpuOptions {
+            features: WgpuFeatures {
+                features: vec![NonFillPolygonMode],
+            },
+            ..Default::default()
+        })
         .add_plugins(DefaultPlugins)
         .add_plugin(GamePlugin)
+        .add_plugin(WireframePlugin)
         .add_startup_system(setup)
         .run();
 }
