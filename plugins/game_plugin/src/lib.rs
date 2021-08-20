@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::render::camera::PerspectiveProjection;
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 use map_plugin::MapPlugin;
 
@@ -10,6 +11,7 @@ impl Plugin for GamePlugin {
         app.add_plugin(WorldInspectorPlugin::new())
             .add_plugin(MapPlugin)
             .insert_resource(WorldInspectorParams {
+                sort_components: true,
                 despawnable_entities: true,
                 ..Default::default()
             })
@@ -17,7 +19,7 @@ impl Plugin for GamePlugin {
     }
 }
 
-/// Creates the main camera for the game.
+/// Creates the main camera and some lights for the game.
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -25,42 +27,38 @@ fn setup(
 ) {
     // camera
     commands.spawn_bundle(PerspectiveCameraBundle {
-        transform: Transform::from_xyz(-30.0, 5.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(1.0, 1000.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
+        perspective_projection: PerspectiveProjection {
+            far: 2000.0,
+            ..Default::default()
+        },
         ..Default::default()
     });
 
     // point light
     commands
         .spawn_bundle(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Icosphere {
-                radius: 1.0,
-                subdivisions: 4,
-            })),
+            mesh: meshes.add(Mesh::from(shape::Icosphere::default())),
             material: materials.add(Color::WHITE.into()),
             transform: Transform::from_xyz(50.0, 0.0, 0.0),
             ..Default::default()
         })
         .insert(PointLight {
             intensity: 80.0,
-            range: 100.0,
             ..Default::default()
         });
 
     // point light
     commands
         .spawn_bundle(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Icosphere {
-                radius: 1.0,
-                subdivisions: 4,
-            })),
+            mesh: meshes.add(Mesh::from(shape::Icosphere::default())),
             material: materials.add(Color::WHITE.into()),
             transform: Transform::from_xyz(30.0, 0.0, 30.0),
             ..Default::default()
         })
         .insert(PointLight {
-            intensity: 20.0,
-            range: 100.0,
-            color: Color::YELLOW,
+            intensity: 30.0,
+            color: Color::ORANGE,
             ..Default::default()
         });
 }

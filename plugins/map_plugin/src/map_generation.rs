@@ -3,14 +3,14 @@ use bevy::prelude::*;
 use bevy::render::mesh::Indices;
 use bevy::render::pipeline::PrimitiveTopology;
 use bytemuck::allocation::cast_vec;
-use itertools::Itertools;
+use itertools::iproduct;
 use nalgebra_glm::smoothstep;
 use noise::{NoiseFn, OpenSimplex};
 use rand::prelude::*;
 
 const MAX_OFFSET: f64 = 1000.0;
-const CHUNK_SIZE: usize = 241;
-
+pub const CHUNK_SIZE: usize = 240; // side length of a map chunk, vertex count is one more
+pub const HALF_CHUNK_SIZE: f32 = CHUNK_SIZE as f32 / 2.0;
 /// Generates a noise map with heights in range [0, 1] from the supplied noise data.
 fn generate_noise_map(data: &NoiseData) -> Vec<Vec<f32>> {
     // prepare the noise and the random number generator
@@ -21,21 +21,23 @@ fn generate_noise_map(data: &NoiseData) -> Vec<Vec<f32>> {
     let octave_offsets: Vec<(f64, f64)> = (0..data.octaves)
         .map(|_| {
             (
-                rng.gen_range(-MAX_OFFSET..MAX_OFFSET),
-                rng.gen_range(-MAX_OFFSET..MAX_OFFSET),
+                rng.gen_range(-MAX_OFFSET..=MAX_OFFSET),
+                rng.gen_range(-MAX_OFFSET..=MAX_OFFSET),
             )
         })
         .collect();
 
-    let scale = data.scale.max(0.001); // sanity check the scale
-    let half_size = CHUNK_SIZE as f64 / 2.0;
+    // sanity check the scale
+    let scale = data.scale.max(0.001);
+    // offset by half the chunk size for scaling by the center
+    let half_size = (CHUNK_SIZE + 1) as f64 / 2.0;
     let mut max_height = f32::MIN;
     let mut min_height = f32::MAX;
 
     // generate the noise map
-    let mut map: Vec<Vec<f32>> = (0..CHUNK_SIZE)
+    let mut map: Vec<Vec<f32>> = (0..=CHUNK_SIZE)
         .map(|y| {
-            (0..CHUNK_SIZE)
+            (0..=CHUNK_SIZE)
                 .map(|x| {
                     let mut noise_height = 0.0;
                     let mut amplitude = 1.0;
@@ -88,7 +90,7 @@ impl MapShape {
         } else {
             data.level_of_detail * 2
         };
-        let side_length = (CHUNK_SIZE - 1) / simplification_increment + 1;
+        let side_length = CHUNK_SIZE / simplification_increment + 1;
         let vertex_count = side_length * side_length;
 
         let mut indices = Vec::with_capacity((side_length - 1) * (side_length - 1) * 6);
@@ -98,21 +100,17 @@ impl MapShape {
 
         let noise_map = generate_noise_map(&data.noise_data);
 
-        let side_indices = (0..CHUNK_SIZE).step_by(simplification_increment);
+        let side_indices = (0..=CHUNK_SIZE).step_by(simplification_increment);
 
         // calculate all the indices, positions, normals and uvs
-        for (vertex_index, (x, y)) in side_indices
-            .clone()
-            .cartesian_product(side_indices)
-            .enumerate()
-        {
+        for (vertex_index, (x, y)) in iproduct!(side_indices.clone(), side_indices).enumerate() {
             // adjust the noise with the height curve, to flatten the water
             let noise_height = data
                 .height_curve
                 .evaluate(noise_map[y as usize][x as usize]);
 
             // add the indices
-            if x < CHUNK_SIZE - 1 && y < CHUNK_SIZE - 1 {
+            if x < CHUNK_SIZE && y < CHUNK_SIZE {
                 indices.push(vertex_index as u32);
                 indices.push(vertex_index as u32 + 1);
                 indices.push((vertex_index + side_length) as u32 + 1);
@@ -123,9 +121,9 @@ impl MapShape {
 
             // calculate and add the position, normal and uv for the vertex to the shape
             positions.push(Vec3::new(
-                x as f32,
+                x as f32 - HALF_CHUNK_SIZE,
                 noise_height * data.map_height,
-                y as f32,
+                y as f32 - HALF_CHUNK_SIZE,
             ));
             uvs.push([0.0, 0.0]);
         }
@@ -165,7 +163,7 @@ impl MapShape {
 }
 
 impl From<MapShape> for Mesh {
-    fn from(map_shape: MapShape) -> Self {
+    fn from(map_shape: MapShape) -> Mesh {
         let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
         // set the attributes of the mesh

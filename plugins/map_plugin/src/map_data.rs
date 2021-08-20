@@ -4,34 +4,6 @@ use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 use bevy_inspector_egui::Inspectable;
 
-/// Stores all parameters for the noise map generation.
-/// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid)]
-#[uuid = "243f32e0-f3ad-11eb-9a03-0242ac130003"]
-pub struct NoiseData {
-    pub seed: u64,
-    #[inspectable(min = 0.0, max = 100.0)]
-    pub scale: f64,
-    #[inspectable(min = 1, max = 6)]
-    pub octaves: u32,
-    #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
-    pub persistence: f32,
-    #[inspectable(min = 1.0, max = 10.0, speed = 0.01)]
-    pub lacunarity: f64,
-}
-
-impl Default for NoiseData {
-    fn default() -> Self {
-        Self {
-            seed: 0,
-            scale: 40.0,
-            octaves: 4,
-            persistence: 0.5,
-            lacunarity: 3.0,
-        }
-    }
-}
-
 /// Stores the parameters for the height adjustment of the map.
 /// It is adjustable via the inspector.
 #[derive(Inspectable, TypeUuid)]
@@ -62,6 +34,33 @@ impl HeightCurve {
                 (input - self.water_level) / (1.0 - self.water_level),
                 self.slope,
             )
+        }
+    }
+}
+/// Stores all parameters for the noise map generation.
+/// It is adjustable via the inspector.
+#[derive(Inspectable, TypeUuid)]
+#[uuid = "243f32e0-f3ad-11eb-9a03-0242ac130003"]
+pub struct NoiseData {
+    pub seed: u64,
+    #[inspectable(min = 0.0, max = 100.0)]
+    pub scale: f64,
+    #[inspectable(min = 1, max = 6)]
+    pub octaves: u32,
+    #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
+    pub persistence: f32,
+    #[inspectable(min = 1.0, max = 10.0, speed = 0.01)]
+    pub lacunarity: f64,
+}
+
+impl Default for NoiseData {
+    fn default() -> Self {
+        Self {
+            seed: 0,
+            scale: 40.0,
+            octaves: 4,
+            persistence: 0.5,
+            lacunarity: 3.0,
         }
     }
 }
@@ -105,9 +104,9 @@ pub struct MapData {
     #[inspectable(min = 0, max = 6)]
     pub level_of_detail: usize,
     #[inspectable(collapse)]
-    pub noise_data: NoiseData,
-    #[inspectable(collapse)]
     pub height_curve: HeightCurve,
+    #[inspectable(collapse)]
+    pub noise_data: NoiseData,
     #[inspectable(collapse)]
     pub material_data: MaterialData,
 }
@@ -118,8 +117,8 @@ impl Default for MapData {
             wireframe: false,
             map_height: 10.0,
             level_of_detail: 0,
-            noise_data: Default::default(),
             height_curve: Default::default(),
+            noise_data: Default::default(),
             material_data: Default::default(),
         }
     }

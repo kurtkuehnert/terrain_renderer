@@ -1,29 +1,17 @@
+use crate::bundles::MapBundle;
+use crate::chunks::update_visible_chunks;
 use crate::map_data::MapData;
-use crate::map_pipeline::{MapMaterial, MapPipeline};
+use crate::map_pipeline::{add_map_graph, MapMaterial};
 use bevy::core::FixedTimestep;
 use bevy::prelude::*;
-use bevy::render::pipeline::RenderPipeline;
-use bevy::render::render_graph::base::MainPass;
 use bevy::render::wireframe::Wireframe;
 use bevy_inspector_egui::InspectableRegistry;
 
+mod bundles;
+mod chunks;
 mod map_data;
 mod map_generation;
 mod map_pipeline;
-
-/// A bundle containing all the components required to spawn a map.
-#[derive(Bundle, Default)]
-struct MapBundle {
-    map_data: MapData,
-    mesh: Handle<Mesh>,
-    material: Handle<MapMaterial>,
-    draw: Draw,
-    visible: Visible,
-    render_pipelines: RenderPipelines,
-    main_pass: MainPass,
-    transform: Transform,
-    global_transform: GlobalTransform,
-}
 
 /// A plugin that procedurally generates a map.
 pub struct MapPlugin;
@@ -31,9 +19,12 @@ pub struct MapPlugin;
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_asset::<MapMaterial>()
-            .init_resource::<MapPipeline>()
             .add_startup_system(setup)
-            .add_system(update_map.with_run_criteria(FixedTimestep::step(0.1)));
+            .add_system(update_map.with_run_criteria(FixedTimestep::step(0.1)))
+            .add_system(update_visible_chunks);
+
+        // add the render pipeline of the map to the graph
+        add_map_graph(&mut app.world);
 
         // getting registry from world
         let mut registry = app
@@ -45,48 +36,14 @@ impl Plugin for MapPlugin {
     }
 }
 
-/// Creates the map and spawns an entity with its mesh and its material.
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<MapMaterial>>,
-    map_pipeline: Res<MapPipeline>,
-) {
-    // create the render pipelines for the maps
-    let render_pipelines =
-        RenderPipelines::from_pipelines(vec![RenderPipeline::new(map_pipeline.handle.clone())]);
-
-    /*
-    // prepare the map
-    let map_data = MapData::default();
-    let (mesh, material) = map_data.generate();
-    let mesh = meshes.add(mesh);
-    let material = materials.add(material);
-
-    // create the map entity
-    commands.spawn_bundle(MapBundle {
-        material,
-        map_data,
-        mesh,
-        render_pipelines: render_pipelines.clone(),
-        transform: Transform::from_xyz(0.0, -10.0, 0.0),
-        ..Default::default()
-    });
-     */
-
-    let map_data = MapData::default();
-    let (mesh, material) = map_data.generate();
-    let mesh = meshes.add(mesh);
-    let material = materials.add(material);
-
-    commands.spawn_bundle(MapBundle {
-        material,
-        map_data,
-        mesh,
-        render_pipelines,
-        transform: Transform::from_xyz(-15.0, -20.0, -120.0),
-        ..Default::default()
-    });
+/// Creates the map.
+fn setup(mut commands: Commands) {
+    commands
+        .spawn_bundle(MapBundle {
+            transform: Transform::from_xyz(0.0, -20.0, 0.0),
+            ..Default::default()
+        })
+        .insert(Name::new("Map"));
 }
 
 /// Updates the mesh and the material of the map, if the map data of it changed.
