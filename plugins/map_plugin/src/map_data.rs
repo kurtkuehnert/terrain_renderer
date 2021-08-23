@@ -1,12 +1,11 @@
-use crate::map_generation::MapShape;
-use crate::map_pipeline::MapMaterial;
+use crate::map_generation::ChunkShape;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 use bevy_inspector_egui::Inspectable;
 
 /// Stores the parameters for the height adjustment of the map.
 /// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid)]
+#[derive(Inspectable, TypeUuid, Copy, Clone)]
 #[uuid = "abe9653e-ff3e-11eb-9a03-0242ac130003"]
 pub struct HeightCurve {
     #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
@@ -39,7 +38,7 @@ impl HeightCurve {
 }
 /// Stores all parameters for the noise map generation.
 /// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid)]
+#[derive(Inspectable, TypeUuid, Copy, Clone)]
 #[uuid = "243f32e0-f3ad-11eb-9a03-0242ac130003"]
 pub struct NoiseData {
     pub seed: u64,
@@ -65,40 +64,11 @@ impl Default for NoiseData {
     }
 }
 
-/// Stores the parameters for the map material.
-/// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid)]
-#[uuid = "5de92f89-23f6-405e-8380-2ff1f1cec95b"]
-pub struct MaterialData {
-    pub layer_colors: Vec<Color>,
-    #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
-    pub layer_heights: Vec<f32>,
-    #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
-    pub blend_values: Vec<f32>,
-}
-
-impl Default for MaterialData {
-    fn default() -> Self {
-        Self {
-            layer_colors: vec![
-                Color::BLUE,
-                Color::GREEN,
-                Color::DARK_GREEN,
-                Color::GRAY,
-                Color::WHITE,
-            ],
-            layer_heights: vec![0.2, 0.35, 0.5, 0.8],
-            blend_values: vec![0.05, 0.05, 0.1, 0.15],
-        }
-    }
-}
-
 /// Stores all parameters of a map.
 /// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid)]
+#[derive(Inspectable, TypeUuid, Copy, Clone)]
 #[uuid = "fd016f46-f3a6-11eb-9a03-0242ac130003"]
 pub struct MapData {
-    pub wireframe: bool,
     #[inspectable(min = 0.0, max = 100.0)]
     pub map_height: f32,
     #[inspectable(min = 0, max = 6)]
@@ -107,19 +77,15 @@ pub struct MapData {
     pub height_curve: HeightCurve,
     #[inspectable(collapse)]
     pub noise_data: NoiseData,
-    #[inspectable(collapse)]
-    pub material_data: MaterialData,
 }
 
 impl Default for MapData {
     fn default() -> Self {
         Self {
-            wireframe: false,
             map_height: 10.0,
             level_of_detail: 0,
             height_curve: Default::default(),
             noise_data: Default::default(),
-            material_data: Default::default(),
         }
     }
 }
@@ -130,7 +96,38 @@ impl MapData {
     }
 
     /// Generates a mesh of the map with the parameters of the map data.
-    pub fn generate(&self) -> (Mesh, MapMaterial) {
-        (MapShape::new(self).into(), MapMaterial::new(self))
+    pub fn generate(&self, chunk_coord: IVec2) -> Mesh {
+        println!("Generating chunk: ({}, {})", chunk_coord.x, chunk_coord.y);
+        ChunkShape::new(self, chunk_coord).into()
+    }
+}
+
+/// Stores the parameters for the map materials.
+/// It is adjustable via the inspector.
+#[derive(Inspectable, TypeUuid)]
+#[uuid = "5de92f89-23f6-405e-8380-2ff1f1cec95b"]
+pub struct MaterialData {
+    pub wireframe: bool,
+    pub layer_colors: Vec<Color>,
+    #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
+    pub layer_heights: Vec<f32>,
+    #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
+    pub blend_values: Vec<f32>,
+}
+
+impl Default for MaterialData {
+    fn default() -> Self {
+        Self {
+            wireframe: false,
+            layer_colors: vec![
+                Color::BLUE,
+                Color::GREEN,
+                Color::DARK_GREEN,
+                Color::DARK_GRAY,
+                Color::WHITE,
+            ],
+            layer_heights: vec![0.2, 0.35, 0.5, 0.8],
+            blend_values: vec![0.05, 0.05, 0.1, 0.15],
+        }
     }
 }

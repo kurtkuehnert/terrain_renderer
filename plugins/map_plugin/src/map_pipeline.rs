@@ -1,4 +1,4 @@
-use crate::map_data::MapData;
+use crate::map_data::MaterialData;
 use bevy::core::Bytes;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
@@ -12,11 +12,11 @@ use bevy::render::shader::ShaderStages;
 const MAX_LAYER_COUNT: usize = 5;
 
 /// The name of the map material node in the render graph.
-const MAP_MATERIAL_NODE: &'static str = "map_material_node";
+const MAP_MATERIAL_NODE: &str = "map_material_node";
 /// The file path of the vertex shader
-const VERTEX_SHADER: &'static str = "shaders/map/vertex.vert";
+const VERTEX_SHADER: &str = "shaders/map/vertex.vert";
 /// The file path of the fragment shader
-const FRAGMENT_SHADER: &'static str = "shaders/map/fragment.frag";
+const FRAGMENT_SHADER: &str = "shaders/map/fragment.frag";
 
 /// The global handle used for accessing the map pipeline.
 pub const MAP_PIPELINE_HANDLE: HandleUntyped =
@@ -59,7 +59,7 @@ pub fn add_map_graph(world: &mut World) {
         .unwrap();
 
     // assign the pipeline to the constant handle
-    pipelines.set_untracked(MAP_PIPELINE_HANDLE, pipeline.clone());
+    pipelines.set_untracked(MAP_PIPELINE_HANDLE, pipeline);
 }
 
 /// The material of a map, with a custom vertex color attribute.
@@ -79,15 +79,13 @@ pub struct MapMaterial {
 }
 
 impl MapMaterial {
-    pub fn new(map_data: &MapData) -> Self {
-        let material_data = &map_data.material_data;
-
+    pub fn new(material_data: &MaterialData, map_height: f32) -> Self {
         let mut layer_colors = [[0.0; 4]; MAX_LAYER_COUNT];
         material_data
             .layer_colors
             .iter()
             .enumerate()
-            .for_each(|(i, color)| layer_colors[i] = color.as_linear_rgba_f32());
+            .for_each(|(i, color)| layer_colors[i] = color.as_rgba_f32());
 
         let mut layer_heights = [[1.0; 4]; MAX_LAYER_COUNT];
         material_data
@@ -107,7 +105,7 @@ impl MapMaterial {
             layer_colors,
             layer_heights,
             blend_values,
-            map_height: map_data.map_height,
+            map_height,
             layer_count: material_data.layer_heights.len() as i32,
         }
     }

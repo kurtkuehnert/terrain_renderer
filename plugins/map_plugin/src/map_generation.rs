@@ -1,4 +1,5 @@
 use crate::map_data::{MapData, NoiseData};
+use bevy::math::DVec2;
 use bevy::prelude::*;
 use bevy::render::mesh::Indices;
 use bevy::render::pipeline::PrimitiveTopology;
@@ -8,19 +9,34 @@ use nalgebra_glm::smoothstep;
 use noise::{NoiseFn, OpenSimplex};
 use rand::prelude::*;
 
+enum NormalizeMode {
+    Local,
+    Global,
+}
+
 const MAX_OFFSET: f64 = 1000.0;
-pub const CHUNK_SIZE: usize = 240; // side length of a map chunk, vertex count is one more
+pub const CHUNK_SIZE: usize = 240 / 4; // side length of a map chunk, vertex count is one more
 pub const HALF_CHUNK_SIZE: f32 = CHUNK_SIZE as f32 / 2.0;
+
 /// Generates a noise map with heights in range [0, 1] from the supplied noise data.
-fn generate_noise_map(data: &NoiseData) -> Vec<Vec<f32>> {
+fn generate_noise_map(
+    data: &NoiseData,
+    chunk_coord: IVec2,
+    normalize_mode: NormalizeMode,
+) -> Vec<Vec<f32>> {
     // prepare the noise and the random number generator
     let noise = OpenSimplex::new();
     let mut rng = StdRng::seed_from_u64(data.seed);
 
+    let mut max_possible_height = 0.0;
+    let mut amplitude = 1.0;
+
     // generate random offsets for each octave
-    let octave_offsets: Vec<(f64, f64)> = (0..data.octaves)
+    let octave_offsets: Vec<DVec2> = (0..data.octaves)
         .map(|_| {
-            (
+            max_possible_height += amplitude;
+            amplitude *= data.persistence;
+            DVec2::new(
                 rng.gen_range(-MAX_OFFSET..=MAX_OFFSET),
                 rng.gen_range(-MAX_OFFSET..=MAX_OFFSET),
             )
@@ -31,6 +47,12 @@ fn generate_noise_map(data: &NoiseData) -> Vec<Vec<f32>> {
     let scale = data.scale.max(0.001);
     // offset by half the chunk size for scaling by the center
     let half_size = (CHUNK_SIZE + 1) as f64 / 2.0;
+    // the offset of the chunk
+    let chunk_offset = DVec2::new(
+        (chunk_coord.x * (CHUNK_SIZE as i32 + 1)) as f64 - half_size,
+        (chunk_coord.y * (CHUNK_SIZE as i32 + 1)) as f64 - half_size,
+    );
+
     let mut max_height = f32::MIN;
     let mut min_height = f32::MAX;
 
@@ -44,10 +66,11 @@ fn generate_noise_map(data: &NoiseData) -> Vec<Vec<f32>> {
                     let mut frequency = 1.0;
 
                     // sum up the height at the position for all octaves
-                    for &(offset_x, offset_y) in &octave_offsets {
-                        let sample_x = (x as f64 - half_size) / scale * frequency + offset_x;
-                        let sample_y = (y as f64 - half_size) / scale * frequency + offset_y;
-                        noise_height += noise.get([sample_x, sample_y]) as f32 * amplitude;
+                    for &octave_offset in &octave_offsets {
+                        let sample = (DVec2::new(x as f64, y as f64) + chunk_offset) / scale
+                            * frequency
+                            + octave_offset;
+                        noise_height += noise.get([sample.x, sample.y]) as f32 * amplitude;
 
                         amplitude *= data.persistence;
                         frequency *= data.lacunarity;
@@ -66,25 +89,36 @@ fn generate_noise_map(data: &NoiseData) -> Vec<Vec<f32>> {
         })
         .collect();
 
+    // dbg!(min_height);
+    // dbg!(max_height);
+    // dbg!(max_possible_height);
+
     // normalize the map height between 0 and 1
     map.iter_mut().for_each(|row| {
-        row.iter_mut()
-            .for_each(|height| *height = smoothstep(min_height, max_height, *height))
+        row.iter_mut().for_each(|height| {
+            *height = match normalize_mode {
+                NormalizeMode::Local => smoothstep(min_height, max_height, *height),
+                NormalizeMode::Global => {
+                    // Todo: fix this
+                    ((*height + 1.0) / (max_possible_height / 1.2)).clamp(0.0, f32::MAX)
+                }
+            }
+        })
     });
 
     map
 }
 
-/// Intermediate map representation storing the entire mesh data of a map.
-pub struct MapShape {
+/// Intermediate chunk representation storing the entire mesh data of a chunk.
+pub struct ChunkShape {
     indices: Vec<u32>,
     positions: Vec<Vec3>,
     normals: Vec<Vec3>,
     uvs: Vec<[f32; 2]>,
 }
 
-impl MapShape {
-    pub fn new(data: &MapData) -> Self {
+impl ChunkShape {
+    pub fn new(data: &MapData, chunk_coord: IVec2) -> Self {
         let simplification_increment = if data.level_of_detail == 0 {
             1
         } else {
@@ -98,7 +132,7 @@ impl MapShape {
         let mut normals = vec![Vec3::ZERO; vertex_count];
         let mut uvs = Vec::with_capacity(vertex_count);
 
-        let noise_map = generate_noise_map(&data.noise_data);
+        let noise_map = generate_noise_map(&data.noise_data, chunk_coord, NormalizeMode::Global);
 
         let side_indices = (0..=CHUNK_SIZE).step_by(simplification_increment);
 
@@ -153,7 +187,7 @@ impl MapShape {
             .iter_mut()
             .for_each(|normal| *normal = normal.normalize());
 
-        MapShape {
+        ChunkShape {
             indices,
             positions,
             normals,
@@ -162,8 +196,8 @@ impl MapShape {
     }
 }
 
-impl From<MapShape> for Mesh {
-    fn from(map_shape: MapShape) -> Mesh {
+impl From<ChunkShape> for Mesh {
+    fn from(map_shape: ChunkShape) -> Mesh {
         let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
         // set the attributes of the mesh

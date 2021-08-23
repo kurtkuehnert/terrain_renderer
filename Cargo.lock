@@ -2340,6 +2340,7 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "bytemuck",
+ "futures-lite",
  "itertools",
  "nalgebra-glm",
  "noise",
