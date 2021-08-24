@@ -27,7 +27,7 @@ fn setup(
 ) {
     // camera
     commands.spawn_bundle(PerspectiveCameraBundle {
-        transform: Transform::from_xyz(1.0, 1000.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(1.0, 1500.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
         perspective_projection: PerspectiveProjection {
             far: 2000.0,
             ..Default::default()

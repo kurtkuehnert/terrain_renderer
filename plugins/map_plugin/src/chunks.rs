@@ -11,7 +11,7 @@ use futures_lite::future;
 use itertools::iproduct;
 
 pub const UPDATE_RATE: f64 = 0.1;
-const MAX_VIEW_DIST: f32 = 300.0;
+const MAX_VIEW_DIST: f32 = 450.0;
 const CHUNK_VIEW_DIST: i32 = (MAX_VIEW_DIST / CHUNK_SIZE as f32 + 0.5) as i32;
 
 /// Marks the entity as a map and stores the entity ids of all visible and loaded chunks.

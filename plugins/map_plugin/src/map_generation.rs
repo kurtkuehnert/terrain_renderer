@@ -14,9 +14,14 @@ enum NormalizeMode {
     Global,
 }
 
-const MAX_OFFSET: f64 = 1000.0;
 pub const CHUNK_SIZE: usize = 240 / 4; // side length of a map chunk, vertex count is one more
 pub const HALF_CHUNK_SIZE: f32 = CHUNK_SIZE as f32 / 2.0;
+
+const MAX_OFFSET: f64 = 1000.0; // offset value for octave noise generation
+
+// values to estimate the maximum possible height of the noise map before normalization (global)
+const AMPLITUDE_HEURISTIC: f32 = 0.7;
+const HEIGHT_HEURISTIC: f32 = 0.9;
 
 /// Generates a noise map with heights in range [0, 1] from the supplied noise data.
 fn generate_noise_map(
@@ -35,7 +40,7 @@ fn generate_noise_map(
     let octave_offsets: Vec<DVec2> = (0..data.octaves)
         .map(|_| {
             max_possible_height += amplitude;
-            amplitude *= data.persistence;
+            amplitude *= data.persistence * AMPLITUDE_HEURISTIC;
             DVec2::new(
                 rng.gen_range(-MAX_OFFSET..=MAX_OFFSET),
                 rng.gen_range(-MAX_OFFSET..=MAX_OFFSET),
@@ -43,8 +48,13 @@ fn generate_noise_map(
         })
         .collect();
 
+    max_possible_height *= HEIGHT_HEURISTIC;
+
+    // approximated spread around zero
+    let spread = max_possible_height / 2.0;
+
     // sanity check the scale
-    let scale = data.scale.max(0.001);
+    let scale = data.scale.max(f64::EPSILON);
     // offset by half the chunk size for scaling by the center
     let half_size = (CHUNK_SIZE + 1) as f64 / 2.0;
     // the offset of the chunk
@@ -89,19 +99,12 @@ fn generate_noise_map(
         })
         .collect();
 
-    // dbg!(min_height);
-    // dbg!(max_height);
-    // dbg!(max_possible_height);
-
     // normalize the map height between 0 and 1
     map.iter_mut().for_each(|row| {
         row.iter_mut().for_each(|height| {
             *height = match normalize_mode {
                 NormalizeMode::Local => smoothstep(min_height, max_height, *height),
-                NormalizeMode::Global => {
-                    // Todo: fix this
-                    ((*height + 1.0) / (max_possible_height / 1.2)).clamp(0.0, f32::MAX)
-                }
+                NormalizeMode::Global => smoothstep(-spread, spread, *height / max_possible_height),
             }
         })
     });

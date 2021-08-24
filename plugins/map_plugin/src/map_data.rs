@@ -97,7 +97,6 @@ impl MapData {
 
     /// Generates a mesh of the map with the parameters of the map data.
     pub fn generate(&self, chunk_coord: IVec2) -> Mesh {
-        println!("Generating chunk: ({}, {})", chunk_coord.x, chunk_coord.y);
         ChunkShape::new(self, chunk_coord).into()
     }
 }
