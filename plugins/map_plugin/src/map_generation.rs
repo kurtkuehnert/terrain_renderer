@@ -9,8 +9,12 @@ use nalgebra_glm::smoothstep;
 use noise::{NoiseFn, OpenSimplex};
 use rand::prelude::*;
 
+/// Describes how a noise map is normalized to the range [0, 1].
 enum NormalizeMode {
+    /// Local is exact on a chunk by chunk bases, but introduces deviations between adjacent chunks.
     Local,
+    /// Global estimates the mapping equally for all chunks,
+    /// but can't guaranty that all values in range [0, 1] are reached.
     Global,
 }
 
@@ -33,6 +37,8 @@ fn generate_noise_map(
     let noise = OpenSimplex::new();
     let mut rng = StdRng::seed_from_u64(data.seed);
 
+    // determine an approximated maximum possible height difference
+    // between the min an max height for global normalization
     let mut max_possible_height = 0.0;
     let mut amplitude = 1.0;
 
@@ -55,14 +61,14 @@ fn generate_noise_map(
 
     // sanity check the scale
     let scale = data.scale.max(f64::EPSILON);
-    // offset by half the chunk size for scaling by the center
-    let half_size = (CHUNK_SIZE + 1) as f64 / 2.0;
-    // the offset of the chunk
+    // the offset the chunk based on its coordinates
+    // and by half the chunk size for compensating the looping from zero to chunk size
     let chunk_offset = DVec2::new(
-        (chunk_coord.x * (CHUNK_SIZE as i32 + 1)) as f64 - half_size,
-        (chunk_coord.y * (CHUNK_SIZE as i32 + 1)) as f64 - half_size,
+        (chunk_coord.x as f64 - 0.5) * CHUNK_SIZE as f64,
+        (chunk_coord.y as f64 - 0.5) * CHUNK_SIZE as f64,
     );
 
+    // determine concrete min and max values for local normalization
     let mut max_height = f32::MIN;
     let mut min_height = f32::MAX;
 
