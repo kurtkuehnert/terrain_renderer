@@ -1,4 +1,4 @@
-use crate::map_data::{MapData, NoiseData};
+use crate::data::{MapData, NoiseData};
 use bevy::math::DVec2;
 use bevy::prelude::*;
 use bevy::render::mesh::Indices;
@@ -10,6 +10,7 @@ use noise::{NoiseFn, OpenSimplex};
 use rand::prelude::*;
 
 /// Describes how a noise map is normalized to the range [0, 1].
+#[allow(dead_code)]
 enum NormalizeMode {
     /// Local is exact on a chunk by chunk bases, but introduces deviations between adjacent chunks.
     Local,
@@ -18,7 +19,8 @@ enum NormalizeMode {
     Global,
 }
 
-pub const CHUNK_SIZE: usize = 240 / 4; // side length of a map chunk, vertex count is one more
+pub const LOD_LEVELS: usize = 7; // count of levels of detail
+pub const CHUNK_SIZE: usize = 240; // side length of a map chunk, vertex count is one more
 pub const HALF_CHUNK_SIZE: f32 = CHUNK_SIZE as f32 / 2.0;
 
 const MAX_OFFSET: f64 = 1000.0; // offset value for octave noise generation
@@ -127,12 +129,8 @@ pub struct ChunkShape {
 }
 
 impl ChunkShape {
-    pub fn new(data: &MapData, chunk_coord: IVec2) -> Self {
-        let simplification_increment = if data.level_of_detail == 0 {
-            1
-        } else {
-            data.level_of_detail * 2
-        };
+    pub fn new(data: &MapData, chunk_coord: IVec2, lod: usize) -> Self {
+        let simplification_increment = if lod == 0 { 1 } else { lod * 2 };
         let side_length = CHUNK_SIZE / simplification_increment + 1;
         let vertex_count = side_length * side_length;
 
@@ -196,7 +194,7 @@ impl ChunkShape {
             .iter_mut()
             .for_each(|normal| *normal = normal.normalize());
 
-        ChunkShape {
+        Self {
             indices,
             positions,
             normals,
@@ -223,4 +221,9 @@ impl From<ChunkShape> for Mesh {
 
         mesh
     }
+}
+
+/// Generates a mesh of the map with the parameters of the map data.
+pub fn generate_chunk(map_data: &MapData, chunk_coord: IVec2, lod: usize) -> Mesh {
+    ChunkShape::new(map_data, chunk_coord, lod).into()
 }

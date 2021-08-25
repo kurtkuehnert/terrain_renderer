@@ -1,6 +1,6 @@
 use crate::chunks::{Chunk, Map};
-use crate::map_data::{MapData, MaterialData};
-use crate::map_pipeline::{MapMaterial, MAP_PIPELINE_HANDLE};
+use crate::data::{LODData, MapData, MaterialData};
+use crate::pipeline::{MapMaterial, MAP_PIPELINE_HANDLE};
 use bevy::prelude::*;
 use bevy::render::pipeline::RenderPipeline;
 use bevy::render::render_graph::base::MainPass;
@@ -27,7 +27,7 @@ impl Default for ChunkBundle {
             material: Default::default(),
             main_pass: Default::default(),
             draw: Default::default(),
-            visible: Visible::default(),
+            visible: Default::default(),
             render_pipelines: RenderPipelines::from_pipelines(vec![RenderPipeline::new(
                 MAP_PIPELINE_HANDLE.typed(),
             )]),
@@ -38,15 +38,12 @@ impl Default for ChunkBundle {
 }
 
 impl ChunkBundle {
-    pub fn new(chunk: Chunk, is_visible: bool) -> Self {
-        ChunkBundle {
+    pub fn new(chunk: Chunk, visible: Visible) -> Self {
+        Self {
             name: Name::new(format!("Chunk ({},{})", chunk.coord.x, chunk.coord.y)),
             transform: Transform::from_xyz(chunk.position.x, 0.0, chunk.position.y),
-            visible: Visible {
-                is_visible,
-                ..Default::default()
-            },
             chunk,
+            visible,
             ..Default::default()
         }
     }
@@ -58,6 +55,7 @@ pub struct MapBundle {
     pub map: Map,
     pub map_data: MapData,
     pub material_data: MaterialData,
+    pub lod_data: LODData,
     pub transform: Transform,
     pub global_transform: GlobalTransform,
 }

@@ -1,7 +1,7 @@
-use crate::map_generation::ChunkShape;
+use crate::generation::LOD_LEVELS;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
-use bevy_inspector_egui::Inspectable;
+use bevy_inspector_egui::{Inspectable, InspectableRegistry};
 
 /// Stores the parameters for the height adjustment of the map.
 /// It is adjustable via the inspector.
@@ -36,13 +36,14 @@ impl HeightCurve {
         }
     }
 }
+
 /// Stores all parameters for the noise map generation.
 /// It is adjustable via the inspector.
 #[derive(Inspectable, TypeUuid, Copy, Clone)]
 #[uuid = "243f32e0-f3ad-11eb-9a03-0242ac130003"]
 pub struct NoiseData {
     pub seed: u64,
-    #[inspectable(min = 0.0, max = 100.0)]
+    #[inspectable(min = 0.0, max = 1000.0)]
     pub scale: f64,
     #[inspectable(min = 1, max = 6)]
     pub octaves: u32,
@@ -56,7 +57,7 @@ impl Default for NoiseData {
     fn default() -> Self {
         Self {
             seed: 0,
-            scale: 40.0,
+            scale: 100.0,
             octaves: 4,
             persistence: 0.5,
             lacunarity: 3.0,
@@ -71,8 +72,6 @@ impl Default for NoiseData {
 pub struct MapData {
     #[inspectable(min = 0.0, max = 100.0)]
     pub map_height: f32,
-    #[inspectable(min = 0, max = 6)]
-    pub level_of_detail: usize,
     #[inspectable(collapse)]
     pub height_curve: HeightCurve,
     #[inspectable(collapse)]
@@ -82,22 +81,10 @@ pub struct MapData {
 impl Default for MapData {
     fn default() -> Self {
         Self {
-            map_height: 10.0,
-            level_of_detail: 0,
+            map_height: 50.0,
             height_curve: Default::default(),
             noise_data: Default::default(),
         }
-    }
-}
-
-impl MapData {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Generates a mesh of the map with the parameters of the map data.
-    pub fn generate(&self, chunk_coord: IVec2) -> Mesh {
-        ChunkShape::new(self, chunk_coord).into()
     }
 }
 
@@ -129,4 +116,34 @@ impl Default for MaterialData {
             blend_values: vec![0.05, 0.05, 0.1, 0.15],
         }
     }
+}
+
+/// Stores the view distance for each level of detail.
+#[derive(Inspectable, TypeUuid)]
+#[uuid = "2e4c971f-1836-4fee-a628-03def3deb75d"]
+pub struct LODData {
+    pub lod_view_distance: [f32; LOD_LEVELS],
+}
+
+impl Default for LODData {
+    fn default() -> Self {
+        let mut lod_view_distance = [200.0; LOD_LEVELS];
+
+        lod_view_distance
+            .iter_mut()
+            .enumerate()
+            .for_each(|(i, distance)| *distance += i as f32 * 100.0);
+
+        Self { lod_view_distance }
+    }
+}
+
+/// Registers all types, that should be inspectable via the inspector plugin.
+pub fn register_inspectable_types(world: &mut World) {
+    let mut registry = world.get_resource_or_insert_with(InspectableRegistry::default);
+
+    // register components to be able to edit them in the inspector (works recursively)
+    registry.register::<MapData>();
+    registry.register::<MaterialData>();
+    registry.register::<LODData>();
 }

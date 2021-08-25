@@ -1,4 +1,4 @@
-use crate::map_data::MaterialData;
+use crate::data::MaterialData;
 use bevy::core::Bytes;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
