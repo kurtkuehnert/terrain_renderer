@@ -288,6 +288,10 @@ pub fn initialize_chunks(
 
             // add the task and the material to the chunk entity
             entity_commands.insert(material);
+
+            if material_data.wireframe {
+                entity_commands.insert(Wireframe);
+            }
         }
     }
 }
