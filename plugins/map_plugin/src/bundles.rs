@@ -38,12 +38,13 @@ impl Default for ChunkBundle {
 }
 
 impl ChunkBundle {
-    pub fn new(chunk: Chunk, visible: Visible) -> Self {
+    pub fn new(chunk: Chunk, visible: Visible, material: Handle<MapMaterial>) -> Self {
         Self {
             name: Name::new(format!("Chunk ({},{})", chunk.coord.x, chunk.coord.y)),
             transform: Transform::from_xyz(chunk.position.x, 0.0, chunk.position.y),
             chunk,
             visible,
+            material,
             ..Default::default()
         }
     }

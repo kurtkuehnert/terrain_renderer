@@ -1,6 +1,6 @@
 use crate::bundles::MapBundle;
 use crate::chunks::{
-    handle_chunk_tasks, initialize_chunks, update_chunk_materials, update_on_change,
+    handle_chunk_tasks, unload_chunks, update_chunk_materials, update_on_change,
     update_visible_chunks, UPDATE_RATE,
 };
 use crate::data::register_inspectable_types;
@@ -22,7 +22,6 @@ impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_asset::<MapMaterial>()
             .add_startup_system(setup)
-            .add_system(initialize_chunks)
             .add_system(update_visible_chunks)
             .add_system(handle_chunk_tasks)
             .add_system_set(
@@ -30,6 +29,7 @@ impl Plugin for MapPlugin {
                     .label("update map")
                     .with_system(update_chunk_materials)
                     .with_system(update_on_change)
+                    .with_system(unload_chunks)
                     .with_run_criteria(FixedTimestep::step(UPDATE_RATE)),
             );
 

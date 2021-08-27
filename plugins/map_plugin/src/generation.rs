@@ -11,7 +11,7 @@ use rand::prelude::*;
 
 /// Describes how a noise map is normalized to the range [0, 1].
 #[allow(dead_code)]
-enum NormalizeMode {
+pub enum NormalizeMode {
     /// Local is exact on a chunk by chunk bases, but introduces deviations between adjacent chunks.
     Local,
     /// Global estimates the mapping equally for all chunks,
@@ -29,12 +29,14 @@ const MAX_OFFSET: f64 = 1000.0; // offset value for octave noise generation
 const AMPLITUDE_HEURISTIC: f32 = 0.7;
 const HEIGHT_HEURISTIC: f32 = 0.9;
 
+pub type NoiseMap = Vec<Vec<f32>>;
+
 /// Generates a noise map with heights in range [0, 1] from the supplied noise data.
-fn generate_noise_map(
+pub fn generate_noise_map(
     data: &NoiseData,
     chunk_coord: IVec2,
     normalize_mode: NormalizeMode,
-) -> Vec<Vec<f32>> {
+) -> NoiseMap {
     // prepare the noise and the random number generator
     let noise = OpenSimplex::new();
     let mut rng = StdRng::seed_from_u64(data.seed);
@@ -75,7 +77,7 @@ fn generate_noise_map(
     let mut min_height = f32::MAX;
 
     // generate the noise map
-    let mut map: Vec<Vec<f32>> = (0..=CHUNK_SIZE)
+    let mut map: NoiseMap = (0..=CHUNK_SIZE)
         .map(|y| {
             (0..=CHUNK_SIZE)
                 .map(|x| {
@@ -129,7 +131,7 @@ pub struct ChunkShape {
 }
 
 impl ChunkShape {
-    pub fn new(data: &MapData, chunk_coord: IVec2, lod: usize) -> Self {
+    pub fn new(map_data: &MapData, noise_map: &NoiseMap, lod: usize) -> Self {
         let simplification_increment = if lod == 0 { 1 } else { lod * 2 };
         let side_length = CHUNK_SIZE / simplification_increment + 1;
         let vertex_count = side_length * side_length;
@@ -139,14 +141,12 @@ impl ChunkShape {
         let mut normals = vec![Vec3::ZERO; vertex_count];
         let mut uvs = Vec::with_capacity(vertex_count);
 
-        let noise_map = generate_noise_map(&data.noise_data, chunk_coord, NormalizeMode::Global);
-
         let side_indices = (0..=CHUNK_SIZE).step_by(simplification_increment);
 
         // calculate all the indices, positions, normals and uvs
         for (vertex_index, (x, y)) in iproduct!(side_indices.clone(), side_indices).enumerate() {
             // adjust the noise with the height curve, to flatten the water
-            let noise_height = data
+            let noise_height = map_data
                 .height_curve
                 .evaluate(noise_map[y as usize][x as usize]);
 
@@ -163,7 +163,7 @@ impl ChunkShape {
             // calculate and add the position, normal and uv for the vertex to the shape
             positions.push(Vec3::new(
                 x as f32 - HALF_CHUNK_SIZE,
-                noise_height * data.map_height,
+                noise_height * map_data.map_height,
                 y as f32 - HALF_CHUNK_SIZE,
             ));
             uvs.push([0.0, 0.0]);
@@ -224,6 +224,22 @@ impl From<ChunkShape> for Mesh {
 }
 
 /// Generates a mesh of the map with the parameters of the map data.
-pub fn generate_chunk(map_data: &MapData, chunk_coord: IVec2, lod: usize) -> Mesh {
-    ChunkShape::new(map_data, chunk_coord, lod).into()
+/// Uses the provided noise map or initializes it.
+pub fn generate_chunk(
+    map_data: &MapData,
+    noise_map: &mut Option<NoiseMap>,
+    chunk_coord: IVec2,
+    lod: usize,
+) -> Mesh {
+    if noise_map.is_none() {
+        *noise_map = Some(generate_noise_map(
+            &map_data.noise_data,
+            chunk_coord,
+            NormalizeMode::Global,
+        ));
+    }
+
+    let noise_map = noise_map.as_ref().unwrap();
+
+    ChunkShape::new(map_data, noise_map, lod).into()
 }
