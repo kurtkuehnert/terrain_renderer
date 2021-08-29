@@ -12,9 +12,16 @@ default = [
 [dependencies]
 bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
 bevy-inspector-egui = { git = "https://github.com/jakobhellermann/bevy-inspector-egui", branch = "bevy-main" }
-nalgebra-glm = "0.14.0"
+nalgebra-glm = "0.15.0"
 noise = "0.7.0"
 rand = "0.8.4"
 itertools = "0.10.1"
 bytemuck = { version = "1.7.2", features = ["extern_crate_alloc"] }
 futures-lite = "1.12.0"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "map_generation"
+harness = false

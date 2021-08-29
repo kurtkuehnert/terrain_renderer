@@ -1,11 +1,15 @@
 use crate::data::MaterialData;
-use bevy::core::Bytes;
-use bevy::prelude::*;
-use bevy::reflect::TypeUuid;
-use bevy::render::pipeline::PipelineDescriptor;
-use bevy::render::render_graph::{base, AssetRenderResourcesNode, RenderGraph};
-use bevy::render::renderer::{RenderResource, RenderResources};
-use bevy::render::shader::ShaderStages;
+use bevy::{
+    core::Bytes,
+    prelude::{AssetServer, Assets, Handle, HandleUntyped, Shader, World},
+    reflect::TypeUuid,
+    render::{
+        pipeline::PipelineDescriptor,
+        render_graph::{base, AssetRenderResourcesNode, RenderGraph},
+        renderer::{RenderResource, RenderResources},
+        shader::ShaderStages,
+    },
+};
 
 /// The count of color layers a map can be shaded with.
 /// Corresponds to the value in the fragment shader.

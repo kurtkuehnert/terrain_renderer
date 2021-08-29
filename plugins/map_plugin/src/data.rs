@@ -1,6 +1,8 @@
 use crate::generation::LOD_LEVELS;
-use bevy::prelude::*;
-use bevy::reflect::TypeUuid;
+use bevy::{
+    prelude::{Color, World},
+    reflect::TypeUuid,
+};
 use bevy_inspector_egui::{Inspectable, InspectableRegistry};
 
 /// Stores the parameters for the height adjustment of the map.

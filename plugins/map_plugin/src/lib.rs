@@ -1,18 +1,22 @@
-use crate::bundles::MapBundle;
-use crate::chunks::systems::{
-    poll_chunk_tasks, unload_chunks, update_materials_on_change, update_mesh_on_change,
-    update_visible_chunks, UPDATE_RATE,
+use crate::{
+    bundles::MapBundle,
+    chunks::systems::{
+        poll_chunk_tasks, unload_chunks, update_materials_on_change, update_mesh_on_change,
+        update_visible_chunks, UPDATE_RATE,
+    },
+    data::register_inspectable_types,
+    pipeline::{add_map_graph, MapMaterial},
 };
-use crate::data::register_inspectable_types;
-use crate::pipeline::{add_map_graph, MapMaterial};
 
-use bevy::core::FixedTimestep;
-use bevy::prelude::*;
+use bevy::{
+    core::{FixedTimestep, Name},
+    prelude::{AddAsset, App, Commands, Plugin, SystemSet},
+};
 
 mod bundles;
 mod chunks;
-mod data;
-mod generation;
+pub mod data;
+pub mod generation;
 mod pipeline;
 
 /// A plugin that procedurally generates a map.

@@ -1,5 +1,10 @@
-use bevy::prelude::*;
-use bevy::render::camera::PerspectiveProjection;
+use bevy::{
+    prelude::{
+        shape, App, Assets, Color, Commands, Mesh, PbrBundle, PerspectiveCameraBundle, Plugin,
+        PointLight, ResMut, StandardMaterial, Transform, Vec3,
+    },
+    render::camera::PerspectiveProjection,
+};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 use map_plugin::MapPlugin;
 

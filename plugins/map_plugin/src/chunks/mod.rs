@@ -1,9 +1,14 @@
-use crate::data::{LODData, MapData};
-use crate::generation::{generate_chunk, NoiseMap, CHUNK_SIZE, HALF_CHUNK_SIZE, LOD_LEVELS};
-use bevy::ecs::system::EntityCommands;
-use bevy::prelude::*;
-use bevy::tasks::{AsyncComputeTaskPool, Task};
-use bevy::utils::HashMap;
+use crate::{
+    data::{LODData, MapData},
+    generation::{generate_chunk, NoiseMap, CHUNK_SIZE, HALF_CHUNK_SIZE, LOD_LEVELS},
+};
+use bevy::{
+    ecs::system::EntityCommands,
+    math::{IVec2, Vec2, Vec3},
+    prelude::{Entity, Handle, Mesh, Transform, Visible},
+    tasks::{AsyncComputeTaskPool, Task},
+    utils::HashMap,
+};
 use std::sync::{Arc, Mutex};
 
 pub mod systems;

@@ -1,13 +1,14 @@
 use crate::data::{MapData, NoiseData};
-use bevy::math::DVec2;
-use bevy::prelude::*;
-use bevy::render::mesh::Indices;
-use bevy::render::pipeline::PrimitiveTopology;
+use bevy::{
+    math::{DVec2, IVec2, Vec2, Vec3},
+    prelude::Mesh,
+    render::{mesh::Indices, pipeline::PrimitiveTopology},
+};
 use bytemuck::allocation::cast_vec;
 use itertools::iproduct;
 use nalgebra_glm::smoothstep;
 use noise::{NoiseFn, OpenSimplex};
-use rand::prelude::*;
+use rand::{prelude::StdRng, Rng, SeedableRng};
 
 /// Count of levels of detail.
 pub const LOD_LEVELS: usize = 7;

@@ -1,12 +1,19 @@
-use crate::bundles::ChunkBundle;
-use crate::chunks::{calculate_relativ_pos, update_visibility_and_mesh, CHUNK_VIEW_DIST};
-use crate::data::{LODData, MapData, MaterialData};
-use crate::generation::CHUNK_SIZE;
-use crate::pipeline::MapMaterial;
-use bevy::prelude::*;
-use bevy::render::camera::Camera;
-use bevy::render::wireframe::Wireframe;
-use bevy::tasks::{AsyncComputeTaskPool, Task};
+use crate::{
+    bundles::ChunkBundle,
+    chunks::{calculate_relativ_pos, update_visibility_and_mesh, CHUNK_VIEW_DIST},
+    data::{LODData, MapData, MaterialData},
+    generation::CHUNK_SIZE,
+    pipeline::MapMaterial,
+};
+use bevy::{
+    math::IVec2,
+    prelude::{
+        Assets, BuildChildren, Changed, Children, Commands, Entity, Handle, Mesh, Parent, Query,
+        Res, ResMut, Transform, Visible, With,
+    },
+    render::{camera::Camera, wireframe::Wireframe},
+    tasks::AsyncComputeTaskPool,
+};
 use futures_lite::future;
 use itertools::iproduct;
 

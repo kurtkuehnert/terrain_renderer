@@ -1,15 +1,15 @@
-use bevy::prelude::{App, ClearColor, Color, IVec2, Msaa, ResMut, WindowDescriptor, Windows};
-use bevy::render::wireframe::WireframePlugin;
-use bevy::wgpu::WgpuFeature::NonFillPolygonMode;
-use bevy::wgpu::{WgpuFeatures, WgpuOptions};
-use bevy::DefaultPlugins;
+use bevy::{
+    prelude::{App, ClearColor, Color, IVec2, ResMut, WindowDescriptor, Windows},
+    render::wireframe::WireframePlugin,
+    wgpu::{WgpuFeature::NonFillPolygonMode, WgpuFeatures, WgpuOptions},
+    DefaultPlugins,
+};
 use game_plugin::GamePlugin;
 
 /// Builds and runs the entire game.
 fn main() {
     env_logger::init();
     App::new()
-        .insert_resource(Msaa { samples: 4 })
         .insert_resource(ClearColor(Color::rgb(0.058, 0.078, 0.098)))
         .insert_resource(WindowDescriptor {
             width: 1400.,

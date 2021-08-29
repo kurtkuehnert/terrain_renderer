@@ -1,9 +1,13 @@
-use crate::chunks::{Chunk, Map};
-use crate::data::{LODData, MapData, MaterialData};
-use crate::pipeline::{MapMaterial, MAP_PIPELINE_HANDLE};
-use bevy::prelude::*;
-use bevy::render::pipeline::RenderPipeline;
-use bevy::render::render_graph::base::MainPass;
+use crate::{
+    chunks::{Chunk, Map},
+    data::{LODData, MapData, MaterialData},
+    pipeline::{MapMaterial, MAP_PIPELINE_HANDLE},
+};
+use bevy::{
+    core::Name,
+    prelude::{Bundle, Draw, GlobalTransform, Handle, RenderPipelines, Transform, Visible},
+    render::{pipeline::RenderPipeline, render_graph::base::MainPass},
+};
 
 /// A bundle containing all the components required to spawn a chunk.
 #[derive(Bundle)]
