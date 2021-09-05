@@ -152,7 +152,21 @@ impl ChunkShape {
             side_vertex_count,
         );
 
+        if map_data.flat_shading {
+            shape.enable_flat_shading();
+        }
+
         shape.calculate_normals();
+
+        if !map_data.flat_shading {
+            shape.adjust_border_normals();
+        }
+
+        // normalize the normals
+        shape
+            .normals
+            .iter_mut()
+            .for_each(|normal| *normal = normal.normalize());
 
         shape
     }
@@ -238,14 +252,29 @@ impl ChunkShape {
         }
     }
 
+    /// Enables flat shading for the mesh, by copying all attributes for all verticies.
+    fn enable_flat_shading(&mut self) {
+        let vertex_count = self.mesh_indices.len();
+
+        let mut positions = Vec::with_capacity(vertex_count);
+        let mut uvs = Vec::with_capacity(vertex_count);
+
+        for (new_index, old_index) in self.mesh_indices.iter_mut().enumerate() {
+            positions.push(self.mesh_positions[*old_index]);
+            uvs.push(self.uvs[*old_index]);
+            *old_index = new_index;
+        }
+
+        self.mesh_positions = positions;
+        self.uvs = uvs;
+        self.normals = vec![Vec3::ZERO; vertex_count];
+    }
+
     /// Calculate the normals in the center of each triangle and combine them in each vertex.
-    /// Uses the borderd positions to correctly match normals between adjecent normals.
     fn calculate_normals(&mut self) {
         let Self {
             mesh_indices,
             mesh_positions,
-            border_indices,
-            border_positions,
             normals,
             ..
         } = self;
@@ -266,6 +295,18 @@ impl ChunkShape {
             normals[index_b] += normal;
             normals[index_c] += normal;
         });
+    }
+
+    /// Uses the borderd positions to correctly match normals between adjecent normals.
+    /// Works similiar to the calculate normals function.
+    fn adjust_border_normals(&mut self) {
+        let Self {
+            mesh_positions,
+            border_indices,
+            border_positions,
+            normals,
+            ..
+        } = self;
 
         // calculate the amounts contributed by the border triangles
         border_indices.chunks_exact(3).for_each(|triangle| {
@@ -299,11 +340,6 @@ impl ChunkShape {
                 normals[index_c.1] += normal;
             }
         });
-
-        // normalize the normals
-        self.normals
-            .iter_mut()
-            .for_each(|normal| *normal = normal.normalize());
     }
 
     /// Calculates the center surafce normal of a triangle from three points.

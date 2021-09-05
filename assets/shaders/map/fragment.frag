@@ -2,7 +2,7 @@
 
 const int MAX_POINT_LIGHTS = 10;
 const int MAX_LAYER_COUNT = 5;
-const float AMBIANT = 0.2;
+const float AMBIANT = 0.1;
 
 struct PointLight {
     vec4 pos;

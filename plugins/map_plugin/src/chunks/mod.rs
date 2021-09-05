@@ -117,8 +117,7 @@ impl Chunk {
     fn reset_chunk(&mut self) {
         self.lod_meshes = Default::default();
 
-        let noise_map = &mut *self.noise_map.lock().unwrap();
-        *noise_map = None;
+        self.noise_map = Arc::new(Mutex::new(None));
     }
 
     /// Checks whether the chunk is outside of the max load distance and hence should onload.

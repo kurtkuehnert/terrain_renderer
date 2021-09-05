@@ -45,25 +45,25 @@ fn setup(
         .spawn_bundle(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Icosphere::default())),
             material: materials.add(Color::WHITE.into()),
-            transform: Transform::from_xyz(50.0, 0.0, 0.0),
+            transform: Transform::from_xyz(0.0, 500.0, 0.0),
             ..Default::default()
         })
         .insert(PointLight {
-            intensity: 80.0,
+            intensity: 50.0,
             ..Default::default()
         });
 
     // point light
-    commands
-        .spawn_bundle(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Icosphere::default())),
-            material: materials.add(Color::WHITE.into()),
-            transform: Transform::from_xyz(30.0, 0.0, 30.0),
-            ..Default::default()
-        })
-        .insert(PointLight {
-            intensity: 30.0,
-            color: Color::ORANGE,
-            ..Default::default()
-        });
+    // commands
+    //     .spawn_bundle(PbrBundle {
+    //         mesh: meshes.add(Mesh::from(shape::Icosphere::default())),
+    //         material: materials.add(Color::WHITE.into()),
+    //         transform: Transform::from_xyz(30.0, 0.0, 30.0),
+    //         ..Default::default()
+    //     })
+    //     .insert(PointLight {
+    //         intensity: 70.0,
+    //         color: Color::ORANGE,
+    //         ..Default::default()
+    //     });
 }

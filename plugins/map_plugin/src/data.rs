@@ -78,6 +78,7 @@ pub struct MapData {
     pub height_curve: HeightCurve,
     #[inspectable(collapse)]
     pub noise_data: NoiseData,
+    pub flat_shading: bool,
 }
 
 impl Default for MapData {
@@ -86,6 +87,7 @@ impl Default for MapData {
             map_height: 50.0,
             height_curve: Default::default(),
             noise_data: Default::default(),
+            flat_shading: true,
         }
     }
 }
@@ -114,8 +116,8 @@ impl Default for MaterialData {
                 Color::DARK_GRAY,
                 Color::WHITE,
             ],
-            layer_heights: vec![0.2, 0.35, 0.5, 0.8],
-            blend_values: vec![0.05, 0.05, 0.1, 0.15],
+            layer_heights: vec![0.2, 0.3, 0.5, 0.8],
+            blend_values: vec![0.02, 0.1, 0.1, 0.2],
         }
     }
 }

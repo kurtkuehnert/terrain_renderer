@@ -138,6 +138,7 @@ pub fn update_materials_on_change(
     // update the materials of all chunks of all maps
     for (chunks, map_data, material_data) in query_maps.iter() {
         for &chunk_entity in chunks.iter() {
+            // Todo: probably validate, that children are chunks
             let mut entity_commands = commands.entity(chunk_entity);
 
             // toggle the wireframe
@@ -163,28 +164,21 @@ pub fn update_mesh_on_change(
     mut commands: Commands,
     thread_pool: Res<AsyncComputeTaskPool>,
     query_maps: Query<(&Children, &MapData), Changed<MapData>>,
-    mut query_chunks: Query<(&mut Chunk, Option<&mut ChunkTask>)>,
+    mut query_chunks: Query<&mut Chunk>,
 ) {
     // spawns a task, which recalculates the mesh, for each chunk of a map if the map data has changed
     for (chunks, map_data) in query_maps.iter() {
         for &chunk_entity in chunks.iter() {
-            if let Ok((mut chunk, task)) = query_chunks.get_mut(chunk_entity) {
-                // Todo: cancel pending task
-                /*
-                if let Some(&task) = task {
-                    task.cancel(); // cancel the pending task and ignore its return value
-                }
-                 */
+            if let Ok(mut chunk) = query_chunks.get_mut(chunk_entity) {
+                let entity_commands = &mut commands.entity(chunk_entity);
+
+                // remove the existing, outdated chunk task, if it exists
+                entity_commands.remove::<ChunkTask>();
 
                 // reset the chunk to clear all outdated meshes
                 chunk.reset_chunk();
 
-                start_chunk_task(
-                    &mut commands.entity(chunk_entity),
-                    &thread_pool,
-                    *map_data,
-                    &mut *chunk,
-                );
+                start_chunk_task(entity_commands, &thread_pool, *map_data, &mut *chunk);
             }
         }
     }
