@@ -1,73 +1,78 @@
 use crate::{
     bundles::ChunkBundle,
-    chunks::{calculate_relativ_pos, update_visibility_and_mesh, CHUNK_VIEW_DIST},
+    chunks::{
+        calculate_relativ_pos, start_chunk_task, update_visibility_and_mesh, Chunk, ChunkTask, Map,
+        CHUNK_VIEW_DIST,
+    },
     data::{LODData, MapData, MaterialData},
     generation::CHUNK_SIZE,
     pipeline::MapMaterial,
+    unwrap_or,
 };
 use bevy::{
-    math::IVec2,
+    math::{IVec2, Vec2},
     prelude::{
         Assets, BuildChildren, Changed, Children, Commands, Entity, Handle, Mesh, Parent, Query,
         Res, ResMut, Transform, Visible, With,
     },
-    render::{camera::Camera, wireframe::Wireframe},
+    render::wireframe::Wireframe,
     tasks::AsyncComputeTaskPool,
 };
 use futures_lite::future;
 use itertools::iproduct;
 
-use super::{start_chunk_task, Chunk, ChunkTask, Map};
-
 /// Interval in seconds, after which the maps are check for new map data and possibly updated.
 pub const UPDATE_RATE: f64 = 0.1;
 
-/// Updates the visibility of every chunk in the view distance and
-/// spawns a new one if it is not yet loaded.
+/// Marks the entity as a viwer of the map, around which chunks will be loaded.
+pub struct Viewer;
+
+/// Updates the visibility of every chunk in the view distance of any viewer
+/// and spawns a new one if it is not yet loaded.
 pub fn update_visible_chunks(
     mut commands: Commands,
-    thread_pool: Res<AsyncComputeTaskPool>,
-    query_camera: Query<&Transform, (With<Camera>, Changed<Transform>)>,
     mut materials: ResMut<Assets<MapMaterial>>,
-    mut query_maps: Query<(
+    thread_pool: Res<AsyncComputeTaskPool>,
+    viewer_query: Query<&Transform, (With<Viewer>, Changed<Transform>)>,
+    mut map_query: Query<(
         Entity,
         &mut Map,
+        &Transform,
         &MapData,
         &MaterialData,
         &LODData,
-        &Transform,
     )>,
-    mut query_chunks: Query<(&mut Chunk, &mut Visible)>,
+    mut chunk_query: Query<(&mut Chunk, &mut Visible)>,
 ) {
-    // fetch the camera position and end the system if there is none
-    let camera_pos = match query_camera.single() {
-        Ok(transform) => &transform.translation,
-        Err(_) => return,
-    };
+    // prevent visible chunks from beeing cleared if the viewer has not moved
+    if viewer_query.is_empty() {
+        return;
+    }
 
-    // update all chunks of the map
-    for (map_entity, mut map, map_data, material_data, lod_data, transform) in query_maps.iter_mut()
+    let (map_entity, mut map, map_transform, map_data, material_data, lod_data) =
+        unwrap_or!(return, map_query.single_mut());
+
+    let Map {
+        ref mut visible_chunks,
+        ref mut loaded_chunk_map,
+    } = *map;
+
+    // reset the visibility for all previously visible chunks
+    for chunk_entity in visible_chunks.iter() {
+        let (_, mut visible) = unwrap_or!(continue, chunk_query.get_mut(*chunk_entity));
+        visible.is_visible = false;
+    }
+
+    visible_chunks.clear();
+
+    // for each viewer update all visible chunks
+    for relative_pos in viewer_query
+        .iter()
+        .map(|transform| calculate_relativ_pos(&transform.translation, map_transform))
     {
-        let Map {
-            ref mut visible_chunks,
-            ref mut loaded_chunk_map,
-        } = *map;
-
-        // calculates the relative position of the camera
-        let relative_pos = calculate_relativ_pos(camera_pos, transform);
-
         // calculate the coordinates of the chunk
         let chunk_x = (relative_pos.x / CHUNK_SIZE as f32).round() as i32;
         let chunk_y = (relative_pos.y / CHUNK_SIZE as f32).round() as i32;
-
-        // reset the visibility for all previously visible chunks
-        for chunk_entity in visible_chunks.iter() {
-            if let Ok((_, mut visible)) = query_chunks.get_mut(*chunk_entity) {
-                visible.is_visible = false;
-            }
-        }
-
-        visible_chunks.clear();
 
         // updates the visibility and loads all chunks in the visibility range of the camera
         for chunk_coord in iproduct!(
@@ -81,18 +86,19 @@ pub fn update_visible_chunks(
                 .entry(chunk_coord)
                 // update the visibility of the current chunk
                 .and_modify(|&mut chunk_entity| {
-                    if let Ok((mut chunk, mut visible)) = query_chunks.get_mut(chunk_entity) {
-                        update_visibility_and_mesh(
-                            &mut commands.entity(chunk_entity),
-                            &thread_pool,
-                            map_data,
-                            lod_data,
-                            visible_chunks,
-                            relative_pos,
-                            &mut chunk,
-                            &mut visible,
-                        )
-                    }
+                    let (mut chunk, mut visible) =
+                        unwrap_or!(return, chunk_query.get_mut(chunk_entity));
+
+                    update_visibility_and_mesh(
+                        &mut commands.entity(chunk_entity),
+                        &thread_pool,
+                        map_data,
+                        lod_data,
+                        visible_chunks,
+                        relative_pos,
+                        &mut chunk,
+                        &mut visible,
+                    )
                 })
                 // spawn a new chunk and initialize its visibility
                 .or_insert_with(|| {
@@ -103,8 +109,7 @@ pub fn update_visible_chunks(
                     // prepare components
                     let mut chunk = Chunk::new(chunk_coord);
                     let mut visible = Visible::default();
-                    let material =
-                        materials.add(MapMaterial::new(material_data, map_data.map_height));
+                    let material = materials.add(MapMaterial::new(material_data, map_data));
 
                     update_visibility_and_mesh(
                         &mut entity_commands,
@@ -133,27 +138,30 @@ pub fn update_visible_chunks(
 pub fn update_materials_on_change(
     mut commands: Commands,
     mut materials: ResMut<Assets<MapMaterial>>,
-    query_maps: Query<(&Children, &MapData, &MaterialData), Changed<MaterialData>>,
+    map_query: Query<(&Children, &MapData, &MaterialData), Changed<MaterialData>>,
+    chunk_query: Query<(), With<Chunk>>,
 ) {
-    // update the materials of all chunks of all maps
-    for (chunks, map_data, material_data) in query_maps.iter() {
-        for &chunk_entity in chunks.iter() {
-            // Todo: probably validate, that children are chunks
-            let mut entity_commands = commands.entity(chunk_entity);
+    let (children, map_data, material_data) = unwrap_or!(return, map_query.single());
 
-            // toggle the wireframe
-            if material_data.wireframe {
-                entity_commands.insert(Wireframe);
-            } else {
-                entity_commands.remove::<Wireframe>();
-            }
+    // update the materials of all chunks
+    for &child in children.iter() {
+        // validate that the child is a chunk
+        unwrap_or!(continue, chunk_query.get(child));
 
-            // create a new map material based on the updated material data of the map
-            let material = materials.add(MapMaterial::new(material_data, map_data.map_height));
+        let mut entity_commands = commands.entity(child);
 
-            // insert the new material into the chunk entity
-            entity_commands.insert(material);
+        // toggle the wireframe
+        if material_data.wireframe {
+            entity_commands.insert(Wireframe);
+        } else {
+            entity_commands.remove::<Wireframe>();
         }
+
+        // create a new map material based on the updated material data of the map
+        let material = materials.add(MapMaterial::new(material_data, map_data));
+
+        // insert the new material into the chunk entity
+        entity_commands.insert(material);
     }
 }
 
@@ -163,43 +171,44 @@ pub fn update_materials_on_change(
 pub fn update_mesh_on_change(
     mut commands: Commands,
     thread_pool: Res<AsyncComputeTaskPool>,
-    query_maps: Query<(&Children, &MapData), Changed<MapData>>,
-    mut query_chunks: Query<&mut Chunk>,
+    map_query: Query<(&Children, &MapData), Changed<MapData>>,
+    mut chunk_query: Query<&mut Chunk>,
 ) {
+    let (children, map_data) = unwrap_or!(return, map_query.single());
+
     // spawns a task, which recalculates the mesh, for each chunk of a map if the map data has changed
-    for (chunks, map_data) in query_maps.iter() {
-        for &chunk_entity in chunks.iter() {
-            if let Ok(mut chunk) = query_chunks.get_mut(chunk_entity) {
-                let entity_commands = &mut commands.entity(chunk_entity);
+    for &child in children.iter() {
+        // validate that the child is a chunk
+        let mut chunk = unwrap_or!(continue, chunk_query.get_mut(child));
 
-                // remove the existing, outdated chunk task, if it exists
-                entity_commands.remove::<ChunkTask>();
+        let entity_commands = &mut commands.entity(child);
 
-                // reset the chunk to clear all outdated meshes
-                chunk.reset_chunk();
+        // remove the existing, outdated chunk task, if it exists
+        entity_commands.remove::<ChunkTask>();
 
-                start_chunk_task(entity_commands, &thread_pool, *map_data, &mut *chunk);
-            }
-        }
+        // reset the chunk to clear all outdated meshes
+        chunk.reset_chunk();
+
+        start_chunk_task(entity_commands, &thread_pool, *map_data, &mut *chunk);
     }
 }
 
 /// Polls all chunk tasks and inserts their meshes into the chunk entity if the task is completed.
-/// Additionally updates the material to represent the new map height.
+/// Additionally updates the material to represent the new map and water heights.
 pub fn poll_chunk_tasks(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<MapMaterial>>,
-    mut query_chunks: Query<(
+    map_query: Query<&MapData>,
+    mut chunk_query: Query<(
         Entity,
         &Parent,
         &mut Chunk,
         &Handle<MapMaterial>,
         &mut ChunkTask,
     )>,
-    query_maps: Query<&MapData>,
 ) {
-    for (entity, parent, mut chunk, material, mut task) in query_chunks.iter_mut() {
+    for (entity, parent, mut chunk, material, mut task) in chunk_query.iter_mut() {
         // poll, whether the task is ready yet
         if let Some((mesh, lod)) = future::block_on(future::poll_once(&mut *task)) {
             let mesh = meshes.add(mesh);
@@ -209,11 +218,12 @@ pub fn poll_chunk_tasks(
             // add new mesh and remove the completed task
             commands.entity(entity).insert(mesh).remove::<ChunkTask>();
 
-            // update the map height of the material with the new height of the map
-            if let Ok(map_data) = query_maps.get(parent.0) {
-                if let Some(mut material) = materials.get_mut(material) {
-                    material.map_height = map_data.map_height;
-                }
+            // update the map and water heights of the material with the new heights of the map
+            if let Some(mut material) = materials.get_mut(material) {
+                let map_data = unwrap_or!(continue, map_query.get(parent.0));
+
+                material.map_height = map_data.map_height;
+                material.water_height = map_data.get_water_height();
             }
         }
     }
@@ -222,36 +232,35 @@ pub fn poll_chunk_tasks(
 /// Unloads all chunks outside of the max load distance.
 pub fn unload_chunks(
     mut commands: Commands,
-    query_camera: Query<&Transform, With<Camera>>,
-    mut query_maps: Query<(&mut Map, &Transform)>,
-    query_chunks: Query<&Chunk>,
+    viewer_query: Query<&Transform, With<Viewer>>,
+    mut map_query: Query<(&mut Map, &Transform)>,
+    chunk_query: Query<&Chunk>,
 ) {
-    // fetch the camera position and end the system if there is none
-    let camera_pos = match query_camera.single() {
-        Ok(transform) => &transform.translation,
-        Err(_) => return,
-    };
+    let (mut map, map_transform) = unwrap_or!(return, map_query.single_mut());
 
-    // update all chunks of the map
-    for (mut map, transform) in query_maps.iter_mut() {
-        let Map {
-            visible_chunks: _,
-            ref mut loaded_chunk_map,
-        } = *map;
+    let Map {
+        visible_chunks: _,
+        ref mut loaded_chunk_map,
+    } = *map;
 
-        // calculates the relative position of the camera
-        let relative_pos = calculate_relativ_pos(camera_pos, transform);
+    let relative_positions: Vec<Vec2> = viewer_query
+        .iter()
+        .map(|transform| calculate_relativ_pos(&transform.translation, map_transform))
+        .collect();
 
-        // only retain chunks that should not be unloaded
-        loaded_chunk_map.retain(|_, &mut chunk_entity| {
-            if let Ok(chunk) = query_chunks.get(chunk_entity) {
-                if chunk.should_unload(relative_pos) {
-                    // despawn entity with all of its components
-                    commands.entity(chunk_entity).despawn();
-                    return false;
-                }
-            }
-            true
-        });
-    }
+    // only retain chunks that should not be unloaded
+    loaded_chunk_map.retain(|_, &mut chunk_entity| {
+        let chunk = unwrap_or!(return false, chunk_query.get(chunk_entity));
+
+        if relative_positions
+            .iter()
+            .all(|&pos| chunk.should_unload(pos))
+        {
+            // despawn entity with all of its components
+            commands.entity(chunk_entity).despawn();
+            return false;
+        }
+
+        true
+    });
 }

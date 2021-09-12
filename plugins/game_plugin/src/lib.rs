@@ -1,9 +1,6 @@
-use bevy::{
-    prelude::{
-        shape, App, Assets, Color, Commands, Mesh, PbrBundle, PerspectiveCameraBundle, Plugin,
-        PointLight, ResMut, StandardMaterial, Transform, Vec3,
-    },
-    render::camera::PerspectiveProjection,
+use bevy::prelude::{
+    shape, App, Assets, Color, Commands, Mesh, PbrBundle, Plugin, PointLight, ResMut,
+    StandardMaterial, Transform,
 };
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 use map_plugin::MapPlugin;
@@ -30,40 +27,16 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // camera
-    commands.spawn_bundle(PerspectiveCameraBundle {
-        transform: Transform::from_xyz(1.0, 1500.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
-        perspective_projection: PerspectiveProjection {
-            far: 4000.0,
-            ..Default::default()
-        },
-        ..Default::default()
-    });
-
     // point light
     commands
         .spawn_bundle(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Icosphere::default())),
             material: materials.add(Color::WHITE.into()),
-            transform: Transform::from_xyz(0.0, 500.0, 0.0),
+            transform: Transform::from_xyz(300.0, 100.0, 0.0),
             ..Default::default()
         })
         .insert(PointLight {
             intensity: 50.0,
             ..Default::default()
         });
-
-    // point light
-    // commands
-    //     .spawn_bundle(PbrBundle {
-    //         mesh: meshes.add(Mesh::from(shape::Icosphere::default())),
-    //         material: materials.add(Color::WHITE.into()),
-    //         transform: Transform::from_xyz(30.0, 0.0, 30.0),
-    //         ..Default::default()
-    //     })
-    //     .insert(PointLight {
-    //         intensity: 70.0,
-    //         color: Color::ORANGE,
-    //         ..Default::default()
-    //     });
 }

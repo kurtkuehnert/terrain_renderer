@@ -19,8 +19,8 @@ pub struct HeightCurve {
 impl Default for HeightCurve {
     fn default() -> Self {
         Self {
-            water_level: 0.25,
-            slope: 1.5,
+            water_level: 0.0,
+            slope: 2.0,
         }
     }
 }
@@ -74,6 +74,8 @@ impl Default for NoiseData {
 pub struct MapData {
     #[inspectable(min = 0.0, max = 100.0)]
     pub map_height: f32,
+    #[inspectable(min = 0.0, max = 1.0, speed = 0.001)]
+    pub water_level: f32,
     #[inspectable(collapse)]
     pub height_curve: HeightCurve,
     #[inspectable(collapse)]
@@ -81,10 +83,17 @@ pub struct MapData {
     pub flat_shading: bool,
 }
 
+impl MapData {
+    pub fn get_water_height(&self) -> f32 {
+        self.map_height * self.water_level
+    }
+}
+
 impl Default for MapData {
     fn default() -> Self {
         Self {
             map_height: 50.0,
+            water_level: 0.2,
             height_curve: Default::default(),
             noise_data: Default::default(),
             flat_shading: true,
@@ -98,6 +107,7 @@ impl Default for MapData {
 #[uuid = "5de92f89-23f6-405e-8380-2ff1f1cec95b"]
 pub struct MaterialData {
     pub wireframe: bool,
+
     pub layer_colors: Vec<Color>,
     #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
     pub layer_heights: Vec<f32>,
@@ -110,14 +120,15 @@ impl Default for MaterialData {
         Self {
             wireframe: false,
             layer_colors: vec![
-                Color::BLUE,
+                Color::DARK_GRAY,
+                Color::YELLOW,
                 Color::GREEN,
                 Color::DARK_GREEN,
                 Color::DARK_GRAY,
                 Color::WHITE,
             ],
-            layer_heights: vec![0.2, 0.3, 0.5, 0.8],
-            blend_values: vec![0.02, 0.1, 0.1, 0.2],
+            layer_heights: vec![0.15, 0.25, 0.3, 0.5, 0.8],
+            blend_values: vec![0.2, 0.1, 0.1, 0.1, 0.2],
         }
     }
 }

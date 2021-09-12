@@ -10,7 +10,7 @@ use game_plugin::GamePlugin;
 fn main() {
     env_logger::init();
     App::new()
-        .insert_resource(ClearColor(Color::rgb(0.058, 0.078, 0.098)))
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.5, 1.0)))
         .insert_resource(WindowDescriptor {
             width: 1400.,
             height: 1000.,

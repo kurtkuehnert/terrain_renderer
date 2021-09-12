@@ -2,10 +2,14 @@ use crate::{
     chunks::{Chunk, Map},
     data::{LODData, MapData, MaterialData},
     pipeline::{MapMaterial, MAP_PIPELINE_HANDLE},
+    water::{
+        pipeline::{WaterMaterial, WaterPass, WATER_PIPELINE_HANDLE},
+        Water,
+    },
 };
 use bevy::{
     core::Name,
-    prelude::{Bundle, Draw, GlobalTransform, Handle, RenderPipelines, Transform, Visible},
+    prelude::{Bundle, Draw, GlobalTransform, Handle, Mesh, RenderPipelines, Transform, Visible},
     render::{pipeline::RenderPipeline, render_graph::base::MainPass},
 };
 
@@ -16,6 +20,7 @@ pub struct ChunkBundle {
     pub name: Name,
     pub material: Handle<MapMaterial>,
     pub main_pass: MainPass,
+    pub water_pass: WaterPass,
     pub draw: Draw,
     pub visible: Visible,
     pub render_pipelines: RenderPipelines,
@@ -30,6 +35,7 @@ impl Default for ChunkBundle {
             name: Name::from("Chunk"),
             material: Default::default(),
             main_pass: Default::default(),
+            water_pass: Default::default(),
             draw: Default::default(),
             visible: Default::default(),
             render_pipelines: RenderPipelines::from_pipelines(vec![RenderPipeline::new(
@@ -63,4 +69,36 @@ pub struct MapBundle {
     pub lod_data: LODData,
     pub transform: Transform,
     pub global_transform: GlobalTransform,
+}
+
+/// A bundle containing all the components required to spawn the water.
+#[derive(Bundle)]
+pub struct WaterBundle {
+    pub water: Water,
+    pub mesh: Handle<Mesh>,
+    pub material: Handle<WaterMaterial>,
+    pub main_pass: MainPass,
+    pub draw: Draw,
+    pub visible: Visible,
+    pub render_pipelines: RenderPipelines,
+    pub transform: Transform,
+    pub global_transform: GlobalTransform,
+}
+
+impl Default for WaterBundle {
+    fn default() -> Self {
+        Self {
+            water: Default::default(),
+            mesh: Default::default(),
+            material: Default::default(),
+            main_pass: Default::default(),
+            draw: Default::default(),
+            visible: Default::default(),
+            render_pipelines: RenderPipelines::from_pipelines(vec![RenderPipeline::new(
+                WATER_PIPELINE_HANDLE.typed(),
+            )]),
+            transform: Default::default(),
+            global_transform: Default::default(),
+        }
+    }
 }

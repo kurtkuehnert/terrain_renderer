@@ -72,8 +72,8 @@ impl Chunk {
 
     //noinspection RsTypeCheck
     /// Updates and returns the visibility of the chunk.
-    fn update_visibility(&mut self, camera_pos: Vec2, lod_data: &LODData) -> Visibility {
-        let distance = self.distance_sqr(camera_pos);
+    fn update_visibility(&mut self, viewer_pos: Vec2, lod_data: &LODData) -> Visibility {
+        let distance = self.distance_sqr(viewer_pos);
 
         let mut current_lod = None;
 
