@@ -24,7 +24,7 @@ layout(set = 0, binding = 1) uniform CameraPosition {
     vec4 CameraPos;
 };
 
-layout(set = 1, binding = 0) uniform Lights {
+layout(set = 2, binding = 0) uniform Lights {
     vec4 AmbientColor;
     uvec4 NumLights; // x = point lights
     PointLight PointLights[MAX_POINT_LIGHTS];
@@ -53,7 +53,7 @@ void main() {
 
     // above && height > water_height || 
     
-    if (!above && height < water_height) {
+    if (!above && height < water_height - 0.2) {
         discard;
     }
 

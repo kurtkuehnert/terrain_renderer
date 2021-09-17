@@ -14,7 +14,7 @@ use std::sync::{Arc, Mutex};
 pub mod systems;
 
 /// Distance after which the chunk is unloaded to free memory.
-const MAX_LOAD_DIST: f32 = 2000.0;
+const MAX_LOAD_DIST: f32 = 5000.0;
 /// Distance after which the chunk is definitely not visible anymore to save GPU resources.
 const MAX_VIEW_DIST: f32 = CHUNK_SIZE as f32 * 6.0;
 /// View distance converted into chunk coordinates.
@@ -70,7 +70,6 @@ impl Chunk {
         }
     }
 
-    //noinspection RsTypeCheck
     /// Updates and returns the visibility of the chunk.
     fn update_visibility(&mut self, viewer_pos: Vec2, lod_data: &LODData) -> Visibility {
         let distance = self.distance_sqr(viewer_pos);
@@ -116,7 +115,6 @@ impl Chunk {
     /// Resets the chunk by clearing all of its lod meshes and unloading its noise map.
     fn reset_chunk(&mut self) {
         self.lod_meshes = Default::default();
-
         self.noise_map = Arc::new(Mutex::new(None));
     }
 
@@ -133,8 +131,8 @@ impl Chunk {
     }
 }
 
-/// Calculates the relativ position of the camera to the map.
-fn calculate_relativ_pos(camera_pos: &Vec3, map_transform: &Transform) -> Vec2 {
+/// Calculates the relative position of the camera to the map.
+fn calculate_relative_pos(camera_pos: &Vec3, map_transform: &Transform) -> Vec2 {
     Vec2::new(
         (camera_pos.x - map_transform.translation.x) / map_transform.scale.x,
         (camera_pos.z - map_transform.translation.z) / map_transform.scale.z,

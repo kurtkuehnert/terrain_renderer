@@ -105,7 +105,7 @@ impl Default for MapData {
 /// It is adjustable via the inspector.
 #[derive(Inspectable, TypeUuid)]
 #[uuid = "5de92f89-23f6-405e-8380-2ff1f1cec95b"]
-pub struct MaterialData {
+pub struct MapMaterialData {
     pub wireframe: bool,
 
     pub layer_colors: Vec<Color>,
@@ -115,7 +115,7 @@ pub struct MaterialData {
     pub blend_values: Vec<f32>,
 }
 
-impl Default for MaterialData {
+impl Default for MapMaterialData {
     fn default() -> Self {
         Self {
             wireframe: false,
@@ -134,6 +134,7 @@ impl Default for MaterialData {
 }
 
 /// Stores the view distance for each level of detail.
+/// It is adjustable via the inspector.
 #[derive(Inspectable, TypeUuid)]
 #[uuid = "2e4c971f-1836-4fee-a628-03def3deb75d"]
 pub struct LODData {
@@ -153,12 +154,35 @@ impl Default for LODData {
     }
 }
 
+/// Stores all parameters for the water materials.
+/// It is adjustable via the inspector.
+#[derive(Inspectable, TypeUuid)]
+#[uuid = "e53ae396-db66-4a9c-a3f1-6865964f7c10"]
+pub struct WaterMaterialData {
+    pub wave_sparsity: f32,
+    #[inspectable(min = 0.0, max = 1.0, speed = 0.001)]
+    pub wave_strength: f32,
+    #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
+    pub wave_speed: f32,
+}
+
+impl Default for WaterMaterialData {
+    fn default() -> Self {
+        Self {
+            wave_sparsity: 100.0,
+            wave_strength: 0.5,
+            wave_speed: 0.15,
+        }
+    }
+}
+
 /// Registers all types, that should be inspectable via the inspector plugin.
 pub fn register_inspectable_types(world: &mut World) {
     let mut registry = world.get_resource_or_insert_with(InspectableRegistry::default);
 
     // register components to be able to edit them in the inspector (works recursively)
     registry.register::<MapData>();
-    registry.register::<MaterialData>();
+    registry.register::<MapMaterialData>();
     registry.register::<LODData>();
+    registry.register::<WaterMaterialData>()
 }

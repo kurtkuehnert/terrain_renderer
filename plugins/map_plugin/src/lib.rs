@@ -7,6 +7,10 @@ use crate::{
     data::register_inspectable_types,
     pipeline::{add_map_pipeline, MapMaterial},
     water::{
+        pipeline::WaterTextures,
+        systems::{set_water_textures_sampler, update_water_materials, update_waves},
+    },
+    water::{
         pipeline::{
             add_water_pipeline, MainCamera, ReflectionCamera, RefractionCamera, WaterMaterial,
             WaterPass, REFLECTION_PASS_CAMERA, REFRACTION_PASS_CAMERA,
@@ -17,11 +21,11 @@ use crate::{
 use bevy::{
     core::{FixedTimestep, Name},
     math::Vec3,
-    pbr::PbrBundle,
+    pbr::{PbrBundle, PointLight},
     prelude::{
-        shape::{Cube, Plane},
+        shape::{self, Cube, Plane},
         AddAsset, App, Assets, BuildChildren, Color, Commands, Mesh, PerspectiveCameraBundle,
-        Plugin, ResMut, StandardMaterial, SystemSet, Transform,
+        Plugin, Res, ResMut, StandardMaterial, SystemSet, Transform,
     },
     render::camera::{ActiveCameras, Camera, PerspectiveProjection},
 };
@@ -45,8 +49,14 @@ impl Plugin for MapPlugin {
             .add_startup_system(setup_cameras)
             .add_system(update_visible_chunks)
             .add_system(poll_chunk_tasks)
-            .add_system(update_reflection_camera)
-            .add_system(update_water_level)
+            .add_system_set(
+                SystemSet::new()
+                    .with_system(update_reflection_camera)
+                    .with_system(update_water_level)
+                    .with_system(update_water_materials)
+                    .with_system(update_waves)
+                    .with_system(set_water_textures_sampler),
+            )
             .add_system_set(
                 SystemSet::new()
                     .with_system(update_materials_on_change)
@@ -67,9 +77,35 @@ impl Plugin for MapPlugin {
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<WaterMaterial>>,
-    mut m: ResMut<Assets<StandardMaterial>>,
+    mut standard_materials: ResMut<Assets<StandardMaterial>>,
+    mut water_materials: ResMut<Assets<WaterMaterial>>,
+    water_textures: Res<WaterTextures>,
 ) {
+    // point light
+    commands
+        .spawn_bundle(PbrBundle {
+            mesh: meshes.add(Mesh::from(shape::Icosphere::default())),
+            material: standard_materials.add(Color::WHITE.into()),
+            transform: Transform::from_xyz(100.0, 40.0, -40.0),
+            ..Default::default()
+        })
+        .insert(PointLight {
+            intensity: 50.0,
+            ..Default::default()
+        });
+
+    // dummy cube
+    commands
+        .spawn_bundle(PbrBundle {
+            transform: Transform::from_translation(Vec3::new(0.0, 80.0, 0.0)),
+            mesh: meshes.add(Cube::new(10.0).into()),
+            material: standard_materials.add(Color::RED.into()),
+            ..Default::default()
+        })
+        .insert(WaterPass)
+        .insert(Name::new("Cube"));
+
+    // water
     let water = commands
         .spawn_bundle(WaterBundle {
             mesh: meshes.add(
@@ -78,34 +114,42 @@ fn setup(
                 }
                 .into(),
             ),
-            material: materials.add(WaterMaterial::default()),
+            material: water_materials.add(WaterMaterial {
+                dudv_texture: water_textures.dudv_texture.clone(),
+                normal_texture: water_textures.normal_texture.clone(),
+                ..Default::default()
+            }),
             ..Default::default()
         })
         .insert(Name::from("Water"))
         .id();
 
+    // map
     commands
         .spawn_bundle(MapBundle::default())
         .insert(Name::new("Map"))
         .push_children(&[water]);
-
-    commands
-        .spawn_bundle(PbrBundle {
-            transform: Transform::from_translation(Vec3::new(0.0, 80.0, 0.0)),
-            mesh: meshes.add(Cube::new(10.0).into()),
-            material: m.add(Color::RED.into()),
-            ..Default::default()
-        })
-        .insert(WaterPass)
-        .insert(Name::new("Cube"));
 }
 
 /// Spawns the main, refraction and reflection camera.
 fn setup_cameras(mut commands: Commands, mut active_cameras: ResMut<ActiveCameras>) {
     let perspective_projection = PerspectiveProjection {
-        far: 4000.0,
+        far: 4000.0, // matches the near and far value in the water shader
         ..Default::default()
     };
+
+    commands
+        .spawn_bundle(PerspectiveCameraBundle {
+            camera: Camera {
+                name: Some(REFLECTION_PASS_CAMERA.to_string()),
+                ..Default::default()
+            },
+            perspective_projection: perspective_projection.clone(),
+            ..Default::default()
+        })
+        .insert(ReflectionCamera)
+        .id();
+    active_cameras.add(REFLECTION_PASS_CAMERA);
 
     let refraction_camera = commands
         .spawn_bundle(PerspectiveCameraBundle {
@@ -120,19 +164,6 @@ fn setup_cameras(mut commands: Commands, mut active_cameras: ResMut<ActiveCamera
         .id();
     active_cameras.add(REFRACTION_PASS_CAMERA);
 
-    let reflection_camera = commands
-        .spawn_bundle(PerspectiveCameraBundle {
-            camera: Camera {
-                name: Some(REFLECTION_PASS_CAMERA.to_string()),
-                ..Default::default()
-            },
-            perspective_projection: perspective_projection.clone(),
-            ..Default::default()
-        })
-        .insert(ReflectionCamera)
-        .id();
-    active_cameras.add(REFLECTION_PASS_CAMERA);
-
     // spawn the main pass camera and add the other two as children
     commands
         .spawn_bundle(PerspectiveCameraBundle {
@@ -143,5 +174,5 @@ fn setup_cameras(mut commands: Commands, mut active_cameras: ResMut<ActiveCamera
         })
         .insert(Viewer) // mark as a viewer
         .insert(MainCamera) // mark as the main camera
-        .push_children(&[refraction_camera, reflection_camera]);
+        .push_children(&[refraction_camera]);
 }

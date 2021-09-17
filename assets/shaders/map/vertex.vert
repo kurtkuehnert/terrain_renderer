@@ -12,7 +12,7 @@ layout(location = 4) out float height;
 layout(set = 0, binding = 0) uniform CameraViewProj {
     mat4 ViewProj;
 };
-layout(set = 2, binding = 0) uniform Transform {
+layout(set = 1, binding = 0) uniform Transform {
     mat4 Model;
 };
 
@@ -21,8 +21,7 @@ void main() {
     v_WorldPosition = world_position.xyz;
     v_WorldNormal = mat3(Model) * Vertex_Normal;
     v_Uv = Vertex_Uv;
-
+    height = Vertex_Position.y;
     gl_Position = ViewProj * world_position;
 
-    height = Vertex_Position.y;
 }

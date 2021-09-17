@@ -1,6 +1,6 @@
 use crate::{
     chunks::{Chunk, Map},
-    data::{LODData, MapData, MaterialData},
+    data::{LODData, MapData, MapMaterialData, WaterMaterialData},
     pipeline::{MapMaterial, MAP_PIPELINE_HANDLE},
     water::{
         pipeline::{WaterMaterial, WaterPass, WATER_PIPELINE_HANDLE},
@@ -65,7 +65,8 @@ impl ChunkBundle {
 pub struct MapBundle {
     pub map: Map,
     pub map_data: MapData,
-    pub material_data: MaterialData,
+    pub material_data: MapMaterialData,
+    pub water_data: WaterMaterialData,
     pub lod_data: LODData,
     pub transform: Transform,
     pub global_transform: GlobalTransform,

@@ -1,4 +1,4 @@
-use crate::data::{MapData, MaterialData};
+use crate::data::{MapData, MapMaterialData};
 use bevy::{
     core::Bytes,
     prelude::{AssetServer, Assets, Handle, HandleUntyped, Shader, World},
@@ -71,7 +71,7 @@ impl MapMaterial {
     /// Corresponds to the value in the fragment shader.
     const MAX_LAYER_COUNT: usize = 16;
 
-    pub fn new(material_data: &MaterialData, map_data: &MapData) -> Self {
+    pub fn new(material_data: &MapMaterialData, map_data: &MapData) -> Self {
         let mut layer_colors = [[0.0; 4]; Self::MAX_LAYER_COUNT];
         material_data
             .layer_colors

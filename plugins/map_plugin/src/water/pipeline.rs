@@ -1,4 +1,5 @@
 use bevy::{
+    core::Bytes,
     prelude::{AssetServer, Assets, Color, Handle, HandleUntyped, Shader, Texture, World},
     reflect::TypeUuid,
     render::{
@@ -11,7 +12,7 @@ use bevy::{
             base::{self, node::MAIN_PASS},
             AssetRenderResourcesNode, CameraNode, PassNode, RenderGraph, TextureNode,
         },
-        renderer::RenderResources,
+        renderer::{RenderResource, RenderResources},
         shader::ShaderStages,
         texture::{
             Extent3d, SamplerDescriptor, TextureDescriptor, TextureDimension, TextureFormat,
@@ -20,12 +21,14 @@ use bevy::{
     },
 };
 
+use crate::data::WaterMaterialData;
+
 /// Marks the entity to be rendered in the water pass.
-/// Thus it will be relected on the water surface.
+/// Thus it will be reflected on the water surface.
 #[derive(Default)]
 pub struct WaterPass;
 
-/// Marks the main camera, which should have a refractrive and reflective camera as children.
+/// Marks the main camera, which should have a refractive and reflective camera as children.
 pub struct MainCamera;
 
 /// Marks the refraction camera.
@@ -39,13 +42,13 @@ const WATER_RESOLUTION: f32 = 2000.0;
 
 pub const REFRACTION_PASS: &str = "refraction_pass";
 pub const REFRACTION_PASS_CAMERA: &str = "refraction_pass_camera";
-const REFRACTION_TEXTURE_NODE: &str = "refraction_texure_node";
-const REFRACTION_DEPTH_TEXTURE_NODE: &str = "refraction_depth_texure_node";
+const REFRACTION_TEXTURE_NODE: &str = "refraction_texture_node";
+const REFRACTION_DEPTH_TEXTURE_NODE: &str = "refraction_depth_texture_node";
 
 pub const REFLECTION_PASS: &str = "reflection_pass";
 pub const REFLECTION_PASS_CAMERA: &str = "reflection_pass_camera";
-const REFLECTION_TEXTURE_NODE: &str = "reflection_texure_node";
-const REFLECTION_DEPTH_TEXTURE_NODE: &str = "reflection_depth_texure_node";
+const REFLECTION_TEXTURE_NODE: &str = "reflection_texture_node";
+const REFLECTION_DEPTH_TEXTURE_NODE: &str = "reflection_depth_texture_node";
 
 const COLOR_ATTACHMENT: &str = "color_attachment";
 const DEPTH: &str = "depth";
@@ -58,10 +61,21 @@ const FRAGMENT_SHADER: &str = "shaders/water/fragment.frag";
 /// The global handle used for accessing the water pipeline.
 pub const WATER_PIPELINE_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(PipelineDescriptor::TYPE_UUID, 18237612412626179);
+/// The global handle used for accessing the refraction texture;
 pub const REFRACTION_TEXTURE_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(Texture::TYPE_UUID, 6378234523452345912);
+/// The global handle used for accessing the reflection texture;
 pub const REFLECTION_TEXTURE_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(Texture::TYPE_UUID, 13378939762009864029);
+/// The global handle used for accessing the (refraction) depth texture;
+pub const DEPTH_TEXTURE_HANDLE: HandleUntyped =
+    HandleUntyped::weak_from_u64(Texture::TYPE_UUID, 4516736718439274029);
+
+/// Stores the dudv and normal textures for the water.
+pub struct WaterTextures {
+    pub dudv_texture: Handle<Texture>,
+    pub normal_texture: Handle<Texture>,
+}
 
 /// Sets up the graph and adds the pipeline used to render the water.
 pub fn add_water_pipeline(world: &mut World) {
@@ -70,6 +84,14 @@ pub fn add_water_pipeline(world: &mut World) {
     asset_server.watch_for_changes().unwrap();
     let vertex_shader: Handle<Shader> = asset_server.load(VERTEX_SHADER);
     let fragment_shader: Handle<Shader> = asset_server.load(FRAGMENT_SHADER);
+
+    // load water textures
+    let dudv_texture: Handle<Texture> = asset_server.load("textures/water_dudv.png");
+    let normal_texture: Handle<Texture> = asset_server.load("textures/water_normal.png");
+    world.insert_resource(WaterTextures {
+        dudv_texture,
+        normal_texture,
+    });
 
     let mut pipelines = world
         .get_resource_mut::<Assets<PipelineDescriptor>>()
@@ -90,7 +112,7 @@ pub fn add_water_pipeline(world: &mut World) {
 
     let size = Extent3d::new(WATER_RESOLUTION as u32, WATER_RESOLUTION as u32, 1);
 
-    // add the refraction and reflaction pass the the render graph
+    // add the refraction and reflection pass the the render graph
     add_pass(
         graph,
         size,
@@ -99,6 +121,7 @@ pub fn add_water_pipeline(world: &mut World) {
         REFRACTION_TEXTURE_NODE,
         REFRACTION_DEPTH_TEXTURE_NODE,
         REFRACTION_TEXTURE_HANDLE,
+        Some(DEPTH_TEXTURE_HANDLE),
     );
     add_pass(
         graph,
@@ -108,11 +131,13 @@ pub fn add_water_pipeline(world: &mut World) {
         REFLECTION_TEXTURE_NODE,
         REFLECTION_DEPTH_TEXTURE_NODE,
         REFLECTION_TEXTURE_HANDLE,
+        None,
     );
 }
 
 /// Creates and adds the refraction or reflection pass to the render graph.
 /// The textures and the corresponding camera are therefore connected to the graph.
+#[allow(clippy::too_many_arguments)]
 fn add_pass(
     graph: &mut RenderGraph,
     size: Extent3d,
@@ -121,6 +146,7 @@ fn add_pass(
     texture_node: &'static str,
     depth_texture_node: &'static str,
     texture_handle: HandleUntyped,
+    depth_handle: Option<HandleUntyped>,
 ) {
     // create a new render pass
     let mut pass_node = PassNode::<&WaterPass>::new(PassDescriptor {
@@ -180,8 +206,8 @@ fn add_pass(
                 format: TextureFormat::Depth32Float,
                 usage: TextureUsage::OUTPUT_ATTACHMENT | TextureUsage::SAMPLED,
             },
-            None,
-            None,
+            Some(SamplerDescriptor::default()),
+            depth_handle.clone(),
         ),
     );
 
@@ -195,16 +221,34 @@ fn add_pass(
 
     // connect the texture to the pass and connect the pass to the main pass
     graph.add_node_edge(texture_node, pass).unwrap();
+
+    if depth_handle.is_some() {
+        graph.add_node_edge(depth_texture_node, pass).unwrap();
+    }
+
     graph.add_node_edge(pass, MAIN_PASS).unwrap();
+}
+
+/// Uniform that stores the wave properties of the water.
+#[derive(Bytes, RenderResource, RenderResources, TypeUuid, Default)]
+#[uuid = "a4f67a98-ac5d-40d4-ad5d-74227d72dcf4"]
+#[render_resources(from_self)]
+pub struct WaveUniform {
+    pub wave_sparsity: f32,
+    pub wave_strength: f32,
+    pub wave_cycle: f32,
 }
 
 /// The material of the water.
 #[derive(RenderResources, TypeUuid)]
 #[uuid = "37955fd8-92b7-4203-9517-ab8b4cb35863"]
-// #[render_resources(from_self)]
 pub struct WaterMaterial {
     pub refraction_texture: Handle<Texture>,
     pub reflection_texture: Handle<Texture>,
+    pub depth_texture: Handle<Texture>,
+    pub dudv_texture: Handle<Texture>,
+    pub normal_texture: Handle<Texture>,
+    pub wave_uniform: WaveUniform,
 }
 
 impl WaterMaterial {
@@ -233,6 +277,18 @@ impl Default for WaterMaterial {
         Self {
             refraction_texture: REFRACTION_TEXTURE_HANDLE.typed(),
             reflection_texture: REFLECTION_TEXTURE_HANDLE.typed(),
+            depth_texture: DEPTH_TEXTURE_HANDLE.typed(),
+            dudv_texture: Default::default(),
+            normal_texture: Default::default(),
+            wave_uniform: Default::default(),
         }
+    }
+}
+
+impl WaterMaterial {
+    /// Updates the material with the water material data of the map.
+    pub fn update(&mut self, data: &WaterMaterialData) {
+        self.wave_uniform.wave_sparsity = data.wave_sparsity;
+        self.wave_uniform.wave_strength = data.wave_strength;
     }
 }

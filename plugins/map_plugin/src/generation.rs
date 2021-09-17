@@ -106,8 +106,8 @@ pub fn generate_noise_map(data: &NoiseData, chunk_coord: IVec2) -> NoiseMap {
 /// Vertex index mapping to the its corresponding position, uv and normal.
 type Index = (IndexType, usize);
 
-/// Signifys whether a vertex is part of the mesh or the border surrounding it.
-/// Verticies of the border are only used to adjust the normals at the edge of the chunks.
+/// Signifies whether a vertex is part of the mesh or the border surrounding it.
+/// Vertices of the border are only used to adjust the normals at the edge of the chunks.
 #[derive(PartialEq, Eq, Clone, Copy)]
 enum IndexType {
     Mesh,
@@ -145,7 +145,7 @@ impl ChunkShape {
             border_positions: Vec::with_capacity(side_vertex_count * 4 + 4),
         };
 
-        shape.calculate_verticies(
+        shape.calculate_vertices(
             map_data,
             noise_map,
             simplification_increment,
@@ -171,9 +171,9 @@ impl ChunkShape {
         shape
     }
 
-    /// Calcualtes the indices, positions and uvs of the mesh.
+    /// Calculates the indices, positions and uvs of the mesh.
     #[allow(clippy::ptr_arg)]
-    fn calculate_verticies(
+    fn calculate_vertices(
         &mut self,
         map_data: &MapData,
         noise_map: &NoiseMap,
@@ -185,7 +185,7 @@ impl ChunkShape {
         // the last index sampled from the noise map
         let last = BORDER_SIZE + CHUNK_SIZE + simplification_increment;
 
-        // iterator over every nth (simplyfication increment) value of a side of the noise map
+        // iterator over every nth (simplification increment) value of a side of the noise map
         let side_indices = (first..=last).step_by(simplification_increment);
 
         // precompute a map storing the indices (mesh or border) for every vertex
@@ -210,10 +210,10 @@ impl ChunkShape {
 
         // compute all the indices, positions, normals and uvs
         for (index, (x, y)) in iproduct!(side_indices.clone(), side_indices).enumerate() {
-            // determin the proper index of the vertex
+            // determine the proper index of the vertex
             let index_a = indices_map[index];
 
-            // position percentage relativ the the mesh (0, 0) -> bottom left, (1, 1) -> top right
+            // position percentage relative the the mesh (0, 0) -> bottom left, (1, 1) -> top right
             let percent = Vec2::new(
                 (x as f32 - BORDER_SIZE as f32) / CHUNK_SIZE as f32,
                 (y as f32 - BORDER_SIZE as f32) / CHUNK_SIZE as f32,
@@ -241,7 +241,7 @@ impl ChunkShape {
 
             // add the indices of the two triangles
             if x < last && y < last {
-                // determin the remaining three vertex indicies
+                // determine the remaining three vertex indices
                 let index_b = indices_map[index + 1];
                 let index_c = indices_map[index + side_vertex_count + 2 + 1];
                 let index_d = indices_map[index + side_vertex_count + 2];
@@ -252,7 +252,7 @@ impl ChunkShape {
         }
     }
 
-    /// Enables flat shading for the mesh, by copying all attributes for all verticies.
+    /// Enables flat shading for the mesh, by copying all attributes for all vertices.
     fn enable_flat_shading(&mut self) {
         let vertex_count = self.mesh_indices.len();
 
@@ -297,8 +297,8 @@ impl ChunkShape {
         });
     }
 
-    /// Uses the borderd positions to correctly match normals between adjecent normals.
-    /// Works similiar to the calculate normals function.
+    /// Uses the borderd positions to correctly match normals between adjacent normals.
+    /// Works similar to the calculate normals function.
     fn adjust_border_normals(&mut self) {
         let Self {
             mesh_positions,
@@ -342,7 +342,7 @@ impl ChunkShape {
         });
     }
 
-    /// Calculates the center surafce normal of a triangle from three points.
+    /// Calculates the center surface normal of a triangle from three points.
     fn calculate_surface_normal(pos_a: Vec3, pos_b: Vec3, pos_c: Vec3) -> Vec3 {
         let vec_ab = pos_b - pos_a;
         let vec_ac = pos_c - pos_a;
@@ -350,7 +350,7 @@ impl ChunkShape {
         vec_ac.cross(vec_ab)
     }
 
-    /// Adds the three indicies into the corresponding buffer.
+    /// Adds the three indices into the corresponding buffer.
     fn add_triangle(&mut self, index_a: Index, index_b: Index, index_c: Index) {
         if index_a.0 == IndexType::Border
             || index_b.0 == IndexType::Border

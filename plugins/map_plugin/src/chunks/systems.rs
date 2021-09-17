@@ -1,10 +1,10 @@
 use crate::{
     bundles::ChunkBundle,
     chunks::{
-        calculate_relativ_pos, start_chunk_task, update_visibility_and_mesh, Chunk, ChunkTask, Map,
-        CHUNK_VIEW_DIST,
+        calculate_relative_pos, start_chunk_task, update_visibility_and_mesh, Chunk, ChunkTask,
+        Map, CHUNK_VIEW_DIST,
     },
-    data::{LODData, MapData, MaterialData},
+    data::{LODData, MapData, MapMaterialData},
     generation::CHUNK_SIZE,
     pipeline::MapMaterial,
     unwrap_or,
@@ -24,7 +24,7 @@ use itertools::iproduct;
 /// Interval in seconds, after which the maps are check for new map data and possibly updated.
 pub const UPDATE_RATE: f64 = 0.1;
 
-/// Marks the entity as a viwer of the map, around which chunks will be loaded.
+/// Marks the entity as a viewer of the map, around which chunks will be loaded.
 pub struct Viewer;
 
 /// Updates the visibility of every chunk in the view distance of any viewer
@@ -39,12 +39,12 @@ pub fn update_visible_chunks(
         &mut Map,
         &Transform,
         &MapData,
-        &MaterialData,
+        &MapMaterialData,
         &LODData,
     )>,
     mut chunk_query: Query<(&mut Chunk, &mut Visible)>,
 ) {
-    // prevent visible chunks from beeing cleared if the viewer has not moved
+    // prevent visible chunks from being cleared if the viewer has not moved
     if viewer_query.is_empty() {
         return;
     }
@@ -68,7 +68,7 @@ pub fn update_visible_chunks(
     // for each viewer update all visible chunks
     for relative_pos in viewer_query
         .iter()
-        .map(|transform| calculate_relativ_pos(&transform.translation, map_transform))
+        .map(|transform| calculate_relative_pos(&transform.translation, map_transform))
     {
         // calculate the coordinates of the chunk
         let chunk_x = (relative_pos.x / CHUNK_SIZE as f32).round() as i32;
@@ -138,7 +138,7 @@ pub fn update_visible_chunks(
 pub fn update_materials_on_change(
     mut commands: Commands,
     mut materials: ResMut<Assets<MapMaterial>>,
-    map_query: Query<(&Children, &MapData, &MaterialData), Changed<MaterialData>>,
+    map_query: Query<(&Children, &MapData, &MapMaterialData), Changed<MapMaterialData>>,
     chunk_query: Query<(), With<Chunk>>,
 ) {
     let (children, map_data, material_data) = unwrap_or!(return, map_query.single());
@@ -245,7 +245,7 @@ pub fn unload_chunks(
 
     let relative_positions: Vec<Vec2> = viewer_query
         .iter()
-        .map(|transform| calculate_relativ_pos(&transform.translation, map_transform))
+        .map(|transform| calculate_relative_pos(&transform.translation, map_transform))
         .collect();
 
     // only retain chunks that should not be unloaded
