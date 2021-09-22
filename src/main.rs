@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{App, ClearColor, Color, IVec2, ResMut, WindowDescriptor, Windows},
+    prelude::{App, IVec2, ResMut, WindowDescriptor, Windows},
     render::wireframe::WireframePlugin,
     wgpu::{WgpuFeature::NonFillPolygonMode, WgpuFeatures, WgpuOptions},
     DefaultPlugins,
@@ -10,7 +10,6 @@ use game_plugin::GamePlugin;
 fn main() {
     env_logger::init();
     App::new()
-        .insert_resource(ClearColor(Color::rgb(0.0, 0.5, 1.0)))
         .insert_resource(WindowDescriptor {
             width: 1400.,
             height: 1000.,

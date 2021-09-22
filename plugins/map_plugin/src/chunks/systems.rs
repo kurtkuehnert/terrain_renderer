@@ -7,7 +7,6 @@ use crate::{
     data::{LODData, MapData, MapMaterialData},
     generation::CHUNK_SIZE,
     pipeline::MapMaterial,
-    unwrap_or,
 };
 use bevy::{
     math::{IVec2, Vec2},
@@ -20,6 +19,7 @@ use bevy::{
 };
 use futures_lite::future;
 use itertools::iproduct;
+use util::unwrap_or;
 
 /// Interval in seconds, after which the maps are check for new map data and possibly updated.
 pub const UPDATE_RATE: f64 = 0.1;
@@ -50,7 +50,7 @@ pub fn update_visible_chunks(
     }
 
     let (map_entity, mut map, map_transform, map_data, material_data, lod_data) =
-        unwrap_or!(return, map_query.single_mut());
+        unwrap_or!(return, map_query.get_single_mut());
 
     let Map {
         ref mut visible_chunks,
@@ -141,7 +141,7 @@ pub fn update_materials_on_change(
     map_query: Query<(&Children, &MapData, &MapMaterialData), Changed<MapMaterialData>>,
     chunk_query: Query<(), With<Chunk>>,
 ) {
-    let (children, map_data, material_data) = unwrap_or!(return, map_query.single());
+    let (children, map_data, material_data) = unwrap_or!(return, map_query.get_single());
 
     // update the materials of all chunks
     for &child in children.iter() {
@@ -174,7 +174,7 @@ pub fn update_mesh_on_change(
     map_query: Query<(&Children, &MapData), Changed<MapData>>,
     mut chunk_query: Query<&mut Chunk>,
 ) {
-    let (children, map_data) = unwrap_or!(return, map_query.single());
+    let (children, map_data) = unwrap_or!(return, map_query.get_single());
 
     // spawns a task, which recalculates the mesh, for each chunk of a map if the map data has changed
     for &child in children.iter() {
@@ -236,7 +236,7 @@ pub fn unload_chunks(
     mut map_query: Query<(&mut Map, &Transform)>,
     chunk_query: Query<&Chunk>,
 ) {
-    let (mut map, map_transform) = unwrap_or!(return, map_query.single_mut());
+    let (mut map, map_transform) = unwrap_or!(return, map_query.get_single_mut());
 
     let Map {
         visible_chunks: _,

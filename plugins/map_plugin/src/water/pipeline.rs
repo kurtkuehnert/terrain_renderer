@@ -81,7 +81,6 @@ pub struct WaterTextures {
 pub fn add_water_pipeline(world: &mut World) {
     // load shaders
     let asset_server = world.get_resource_mut::<AssetServer>().unwrap();
-    asset_server.watch_for_changes().unwrap();
     let vertex_shader: Handle<Shader> = asset_server.load(VERTEX_SHADER);
     let fragment_shader: Handle<Shader> = asset_server.load(FRAGMENT_SHADER);
 
@@ -154,7 +153,7 @@ fn add_pass(
             attachment: TextureAttachment::Input(COLOR_ATTACHMENT.to_string()),
             resolve_target: None,
             ops: Operations {
-                load: LoadOp::Clear(Color::rgb(0.0, 0.5, 1.0)), // Color::rgba(0.0, 0.0, 0.0, 0.0)),
+                load: LoadOp::Clear(Color::rgba(0.0, 0.0, 0.0, 0.0)),
                 store: true,
             },
         }],

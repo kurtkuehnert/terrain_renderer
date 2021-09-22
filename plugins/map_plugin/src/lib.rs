@@ -1,42 +1,35 @@
 use crate::{
-    bundles::{MapBundle, WaterBundle},
     chunks::systems::{
         poll_chunk_tasks, unload_chunks, update_materials_on_change, update_mesh_on_change,
         update_visible_chunks, Viewer, UPDATE_RATE,
     },
     data::register_inspectable_types,
     pipeline::{add_map_pipeline, MapMaterial},
-    water::{
-        pipeline::WaterTextures,
-        systems::{set_water_textures_sampler, update_water_materials, update_waves},
-    },
+    water::systems::{set_water_textures_sampler, update_water_materials, update_waves},
     water::{
         pipeline::{
             add_water_pipeline, MainCamera, ReflectionCamera, RefractionCamera, WaterMaterial,
-            WaterPass, REFLECTION_PASS_CAMERA, REFRACTION_PASS_CAMERA,
+            REFLECTION_PASS_CAMERA, REFRACTION_PASS_CAMERA,
         },
         systems::{update_reflection_camera, update_water_level},
     },
 };
 use bevy::{
-    core::{FixedTimestep, Name},
+    core::FixedTimestep,
     math::Vec3,
-    pbr::{PbrBundle, PointLight},
     prelude::{
-        shape::{self, Cube, Plane},
-        AddAsset, App, Assets, BuildChildren, Color, Commands, Mesh, PerspectiveCameraBundle,
-        Plugin, Res, ResMut, StandardMaterial, SystemSet, Transform,
+        AddAsset, App, BuildChildren, Commands, PerspectiveCameraBundle, Plugin, ResMut, SystemSet,
+        Transform,
     },
     render::camera::{ActiveCameras, Camera, PerspectiveProjection},
 };
 
-mod bundles;
+pub mod bundles;
 mod chunks;
 pub mod data;
 pub mod generation;
-mod macros;
-mod pipeline;
-mod water;
+pub mod pipeline;
+pub mod water;
 
 /// A plugin that procedurally generates a map.
 pub struct MapPlugin;
@@ -45,7 +38,6 @@ impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_asset::<MapMaterial>()
             .add_asset::<WaterMaterial>()
-            .add_startup_system(setup)
             .add_startup_system(setup_cameras)
             .add_system(update_visible_chunks)
             .add_system(poll_chunk_tasks)
@@ -71,64 +63,6 @@ impl Plugin for MapPlugin {
 
         register_inspectable_types(&mut app.world);
     }
-}
-
-/// Creates the map with the water.
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut standard_materials: ResMut<Assets<StandardMaterial>>,
-    mut water_materials: ResMut<Assets<WaterMaterial>>,
-    water_textures: Res<WaterTextures>,
-) {
-    // point light
-    commands
-        .spawn_bundle(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Icosphere::default())),
-            material: standard_materials.add(Color::WHITE.into()),
-            transform: Transform::from_xyz(100.0, 40.0, -40.0),
-            ..Default::default()
-        })
-        .insert(PointLight {
-            intensity: 50.0,
-            ..Default::default()
-        });
-
-    // dummy cube
-    commands
-        .spawn_bundle(PbrBundle {
-            transform: Transform::from_translation(Vec3::new(0.0, 80.0, 0.0)),
-            mesh: meshes.add(Cube::new(10.0).into()),
-            material: standard_materials.add(Color::RED.into()),
-            ..Default::default()
-        })
-        .insert(WaterPass)
-        .insert(Name::new("Cube"));
-
-    // water
-    let water = commands
-        .spawn_bundle(WaterBundle {
-            mesh: meshes.add(
-                Plane {
-                    size: u16::MAX as f32,
-                }
-                .into(),
-            ),
-            material: water_materials.add(WaterMaterial {
-                dudv_texture: water_textures.dudv_texture.clone(),
-                normal_texture: water_textures.normal_texture.clone(),
-                ..Default::default()
-            }),
-            ..Default::default()
-        })
-        .insert(Name::from("Water"))
-        .id();
-
-    // map
-    commands
-        .spawn_bundle(MapBundle::default())
-        .insert(Name::new("Map"))
-        .push_children(&[water]);
 }
 
 /// Spawns the main, refraction and reflection camera.

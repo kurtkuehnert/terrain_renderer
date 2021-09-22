@@ -24,7 +24,6 @@ pub const MAP_PIPELINE_HANDLE: HandleUntyped =
 pub fn add_map_pipeline(world: &mut World) {
     // load shaders
     let asset_server = world.get_resource_mut::<AssetServer>().unwrap();
-    asset_server.watch_for_changes().unwrap();
     let vertex_shader: Handle<Shader> = asset_server.load(VERTEX_SHADER);
     let fragment_shader: Handle<Shader> = asset_server.load(FRAGMENT_SHADER);
 

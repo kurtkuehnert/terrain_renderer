@@ -1,6 +1,5 @@
 use crate::{
     data::{MapData, WaterMaterialData},
-    unwrap_or,
     water::{
         pipeline::{MainCamera, ReflectionCamera, WaterMaterial, WaterTextures},
         Water,
@@ -15,6 +14,7 @@ use bevy::{
     },
     render::texture::{AddressMode, FilterMode, SamplerDescriptor},
 };
+use util::unwrap_or;
 
 /// Scales down the wave speed, for a more reasonable range of values.
 const WAVE_MODIFIER: f32 = 0.1;
@@ -29,9 +29,9 @@ pub fn update_reflection_camera(
         (Without<MainCamera>, With<ReflectionCamera>),
     >,
 ) {
-    let (map_transform, map_data) = unwrap_or!(return, map_query.single());
-    let main_transform = unwrap_or!(return, main_camera_query.single());
-    let mut reflection_transform = unwrap_or!(return, reflection_camera_query.single_mut());
+    let (map_transform, map_data) = unwrap_or!(return, map_query.get_single());
+    let main_transform = unwrap_or!(return, main_camera_query.get_single());
+    let mut reflection_transform = unwrap_or!(return, reflection_camera_query.get_single_mut());
 
     // get the pitch of the refraction camera
     let (yaw, pitch, roll) = main_transform.rotation.to_euler(EulerRot::YXZ);
@@ -61,7 +61,7 @@ pub fn update_water_level(
     map_query: Query<&MapData, Changed<MapData>>,
     mut water_query: Query<&mut Transform, With<Water>>,
 ) {
-    let data = unwrap_or!(return, map_query.single());
+    let data = unwrap_or!(return, map_query.get_single());
 
     for mut transform in water_query.iter_mut() {
         transform.translation.y = data.get_water_height();
@@ -74,7 +74,7 @@ pub fn update_water_materials(
     map_query: Query<&WaterMaterialData, Changed<WaterMaterialData>>,
     water_query: Query<&Handle<WaterMaterial>>,
 ) {
-    let data = unwrap_or!(return, map_query.single());
+    let data = unwrap_or!(return, map_query.get_single());
 
     for material in water_query.iter() {
         if let Some(material) = materials.get_mut(material) {
@@ -90,7 +90,7 @@ pub fn update_waves(
     map_query: Query<&WaterMaterialData>,
     water_query: Query<&Handle<WaterMaterial>>,
 ) {
-    let data = unwrap_or!(return, map_query.single());
+    let data = unwrap_or!(return, map_query.get_single());
 
     for material in water_query.iter() {
         if let Some(material) = materials.get_mut(material) {
