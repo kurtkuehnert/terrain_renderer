@@ -1,6 +1,8 @@
 use bevy::{
     core::Bytes,
-    prelude::{AssetServer, Assets, Color, Handle, HandleUntyped, Shader, Texture, World},
+    prelude::{
+        AssetServer, Assets, Color, Component, Handle, HandleUntyped, Shader, Texture, World,
+    },
     reflect::TypeUuid,
     render::{
         pass::{
@@ -25,16 +27,19 @@ use crate::data::WaterMaterialData;
 
 /// Marks the entity to be rendered in the water pass.
 /// Thus it will be reflected on the water surface.
-#[derive(Default)]
+#[derive(Default, Component)]
 pub struct WaterPass;
 
 /// Marks the main camera, which should have a refractive and reflective camera as children.
+#[derive(Default, Component)]
 pub struct MainCamera;
 
 /// Marks the refraction camera.
+#[derive(Default, Component)]
 pub struct RefractionCamera;
 
 /// Marks the reflection camera.
+#[derive(Default, Component)]
 pub struct ReflectionCamera;
 
 /// The resolution of the refraction and reflection texture.

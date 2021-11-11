@@ -1,34 +1,32 @@
+use crate::systems::update_appearance_on_change;
 use crate::{
-    chunks::systems::{
-        poll_chunk_tasks, unload_chunks, update_materials_on_change, update_mesh_on_change,
-        update_visible_chunks, Viewer, UPDATE_RATE,
-    },
     data::register_inspectable_types,
     pipeline::{add_map_pipeline, MapMaterial},
-    water::systems::{set_water_textures_sampler, update_water_materials, update_waves},
+    systems::{poll_topology_tasks, update_clipmap, update_topology_on_change},
     water::{
         pipeline::{
             add_water_pipeline, MainCamera, ReflectionCamera, RefractionCamera, WaterMaterial,
             REFLECTION_PASS_CAMERA, REFRACTION_PASS_CAMERA,
         },
-        systems::{update_reflection_camera, update_water_level},
+        systems::{
+            set_water_textures_sampler, update_reflection_camera, update_water_level,
+            update_water_materials, update_waves,
+        },
     },
 };
 use bevy::{
     core::FixedTimestep,
     math::Vec3,
-    prelude::{
-        AddAsset, App, BuildChildren, Commands, PerspectiveCameraBundle, Plugin, ResMut, SystemSet,
-        Transform,
-    },
+    prelude::*,
     render::camera::{ActiveCameras, Camera, PerspectiveProjection},
 };
 
 pub mod bundles;
-mod chunks;
 pub mod data;
 pub mod generation;
 pub mod pipeline;
+mod systems;
+mod tile;
 pub mod water;
 
 /// A plugin that procedurally generates a map.
@@ -39,8 +37,18 @@ impl Plugin for MapPlugin {
         app.add_asset::<MapMaterial>()
             .add_asset::<WaterMaterial>()
             .add_startup_system(setup_cameras)
-            .add_system(update_visible_chunks)
-            .add_system(poll_chunk_tasks)
+            .add_system_set(
+                SystemSet::new()
+                    .with_system(update_clipmap)
+                    .with_system(update_appearance_on_change)
+                    .with_system(poll_topology_tasks),
+            )
+            .add_system_set(
+                SystemSet::new()
+                    .label("Topology Update")
+                    .with_system(update_topology_on_change)
+                    .with_run_criteria(FixedTimestep::step(4.0)),
+            )
             .add_system_set(
                 SystemSet::new()
                     .with_system(update_reflection_camera)
@@ -48,13 +56,6 @@ impl Plugin for MapPlugin {
                     .with_system(update_water_materials)
                     .with_system(update_waves)
                     .with_system(set_water_textures_sampler),
-            )
-            .add_system_set(
-                SystemSet::new()
-                    .with_system(update_materials_on_change)
-                    .with_system(update_mesh_on_change)
-                    .with_system(unload_chunks)
-                    .with_run_criteria(FixedTimestep::step(UPDATE_RATE)),
             );
 
         // add the render pipeline of the map and the water to the graph
@@ -65,6 +66,7 @@ impl Plugin for MapPlugin {
     }
 }
 
+// Todo: move out of here
 /// Spawns the main, refraction and reflection camera.
 fn setup_cameras(mut commands: Commands, mut active_cameras: ResMut<ActiveCameras>) {
     let perspective_projection = PerspectiveProjection {
@@ -101,12 +103,11 @@ fn setup_cameras(mut commands: Commands, mut active_cameras: ResMut<ActiveCamera
     // spawn the main pass camera and add the other two as children
     commands
         .spawn_bundle(PerspectiveCameraBundle {
-            transform: Transform::from_translation(Vec3::new(250.0, 25.0, 0.0))
-                .looking_at(Vec3::new(-350.0, -75.0, 0.0), Vec3::Y),
+            transform: Transform::from_translation(Vec3::new(300.0, 65.0, 65.0))
+                .looking_at(Vec3::new(-300.0, -35.0, 65.0), Vec3::Y),
             perspective_projection,
             ..Default::default()
-        })
-        .insert(Viewer) // mark as a viewer
+        }) // mark as a viewer
         .insert(MainCamera) // mark as the main camera
         .push_children(&[refraction_camera]);
 }

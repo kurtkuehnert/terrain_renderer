@@ -1,5 +1,5 @@
 use crate::{
-    data::{MapData, WaterMaterialData},
+    data::{MapTopologyData, WaterMaterialData},
     water::{
         pipeline::{MainCamera, ReflectionCamera, WaterMaterial, WaterTextures},
         Water,
@@ -22,7 +22,10 @@ const WAVE_MODIFIER: f32 = 0.1;
 /// Updates the reflection camera's position by mirroring the main camera at the water height.
 #[allow(clippy::type_complexity)]
 pub fn update_reflection_camera(
-    map_query: Query<(&Transform, &MapData), (Without<MainCamera>, Without<ReflectionCamera>)>,
+    map_query: Query<
+        (&Transform, &MapTopologyData),
+        (Without<MainCamera>, Without<ReflectionCamera>),
+    >,
     main_camera_query: Query<&Transform, (With<MainCamera>, Changed<Transform>)>,
     mut reflection_camera_query: Query<
         &mut Transform,
@@ -39,9 +42,7 @@ pub fn update_reflection_camera(
     // calculate the offset between the refraction and reflection camera
     // equals twice the distance to the water surface
     let offset = 2.0
-        * (main_transform.translation.y
-            - map_transform.translation.y
-            - map_data.get_water_height());
+        * (main_transform.translation.y - map_transform.translation.y - map_data.water_height());
 
     // calculate the translation of the reflection camera by offsetting the height under the water
     let reflection_translation = main_transform.translation + Vec3::new(0.0, -offset, 0.0);
@@ -58,13 +59,13 @@ pub fn update_reflection_camera(
 
 /// Updates the water material's water height if the map data changes.
 pub fn update_water_level(
-    map_query: Query<&MapData, Changed<MapData>>,
+    map_query: Query<&MapTopologyData, Changed<MapTopologyData>>,
     mut water_query: Query<&mut Transform, With<Water>>,
 ) {
     let data = unwrap_or!(return, map_query.get_single());
 
     for mut transform in water_query.iter_mut() {
-        transform.translation.y = data.get_water_height();
+        transform.translation.y = data.water_height();
     }
 }
 

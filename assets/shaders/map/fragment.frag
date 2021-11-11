@@ -10,11 +10,10 @@ struct PointLight {
     vec4 lightParams; // x = 1/range, y = radius
 };
 
-layout(location = 0) in vec3 v_WorldPosition;
-layout(location = 1) in vec3 v_WorldNormal;
-layout(location = 2) in vec2 v_Uv;
-layout(location = 4) in float height;
-
+layout(location = 0) in vec3 frag_pos;
+layout(location = 1) in vec3 frag_normal;
+layout(location = 2) in float height;
+layout(location = 3) in float scale;
 layout(location = 0) out vec4 o_Target;
 
 layout(set = 0, binding = 0) uniform CameraViewProj {
@@ -30,9 +29,9 @@ layout(set = 2, binding = 0) uniform Lights {
     PointLight PointLights[MAX_POINT_LIGHTS];
 };
 
-layout(set = 3, binding = 1) uniform MapMaterial {
+layout(set = 3, binding = 2) uniform MapMaterial_appearance {
     vec4[MAX_LAYER_COUNT] colors;
-    // uses array of float but has an alignement of vec4
+// uses array of float but has an alignement of vec4
     float[MAX_LAYER_COUNT] layer_heights;
     float[MAX_LAYER_COUNT] blend_values;
     float map_height;
@@ -49,15 +48,17 @@ float inverse_lerp(float a, float b, float value) {
 }
 
 void main() {
-    bool above = CameraPos.y > v_WorldPosition.y;
+    // o_Target = vec4(scale, 0, height, 1);
 
-    // above && height > water_height || 
-    
-    if (!above && height < water_height - 0.2) {
+    bool above = CameraPos.y > frag_pos.y;
+
+    // above && height > water_height ||
+
+    if (!above && height * map_height < water_height) {
         discard;
     }
 
-    float height = height / map_height; // normalaize height
+    float height = height; // normalaize height
 
     // set color in range [0, layer_height[0]]
     o_Target = colors[0];
@@ -72,17 +73,31 @@ void main() {
         o_Target = mix(o_Target, colors[i + 1], drawStrength);
     }
 
+    // o_Target = vec4(scale, 0, height, 1);
+
+
+
+
+
     vec3 light_color = vec3(0, 0, 0);
 
     // combine the lighting color for all point lights
     for (int i = 0; i < NumLights.x && i < MAX_POINT_LIGHTS; ++i) {
         PointLight light = PointLights[i];
 
-        vec3 normalized_light_direction = normalize(v_WorldPosition - light.pos.xyz);
-        float brightness_diffuse = max(dot(normalized_light_direction, v_WorldNormal), 0);
+        vec3 normalized_light_direction = normalize(frag_pos - light.pos.xyz);
+        float brightness_diffuse = max(dot(normalized_light_direction, frag_normal.xyz), 0);
+        // o_Target = vec4(0,0,brightness_diffuse, 1);
+        // o_Target = vec4(normalized_light_direction, 1);
+
+        // o_Target = vec4(frag_normal.xyz, o_Target.a);
+
 
         light_color += max((brightness_diffuse + AMBIANT) * light.color.rgb / 100 * o_Target.rgb, vec3(0.0, 0.0, 0.0));
     }
 
     o_Target = vec4(light_color, o_Target.a);
+
+    //
+
 }

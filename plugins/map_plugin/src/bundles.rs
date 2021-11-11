@@ -1,24 +1,25 @@
+use crate::data::ClipmapData;
+use crate::tile::Tile;
+use crate::water::pipeline::WaterPass;
 use crate::{
-    chunks::{Chunk, Map},
-    data::{LODData, MapData, MapMaterialData, WaterMaterialData},
+    data::{MapAppearanceData, MapTopologyData, WaterMaterialData},
     pipeline::{MapMaterial, MAP_PIPELINE_HANDLE},
     water::{
-        pipeline::{WaterMaterial, WaterPass, WATER_PIPELINE_HANDLE},
+        pipeline::{WaterMaterial, WATER_PIPELINE_HANDLE},
         Water,
     },
 };
+use bevy::prelude::Children;
 use bevy::{
-    core::Name,
     prelude::{Bundle, Draw, GlobalTransform, Handle, Mesh, RenderPipelines, Transform, Visible},
     render::{pipeline::RenderPipeline, render_graph::base::MainPass},
 };
 
-/// A bundle containing all the components required to spawn a chunk.
 #[derive(Bundle)]
-pub struct ChunkBundle {
-    pub chunk: Chunk,
-    pub name: Name,
-    pub material: Handle<MapMaterial>,
+pub struct TileBundle {
+    pub tile: Tile,
+    pub mesh: Handle<Mesh>,
+    pub map_material: Handle<MapMaterial>,
     pub main_pass: MainPass,
     pub water_pass: WaterPass,
     pub draw: Draw,
@@ -28,12 +29,12 @@ pub struct ChunkBundle {
     pub global_transform: GlobalTransform,
 }
 
-impl Default for ChunkBundle {
+impl Default for TileBundle {
     fn default() -> Self {
         Self {
-            chunk: Chunk::default(),
-            name: Name::from("Chunk"),
-            material: Default::default(),
+            tile: Default::default(),
+            mesh: Default::default(),
+            map_material: Default::default(),
             main_pass: Default::default(),
             water_pass: Default::default(),
             draw: Default::default(),
@@ -47,29 +48,32 @@ impl Default for ChunkBundle {
     }
 }
 
-impl ChunkBundle {
-    pub fn new(chunk: Chunk, visible: Visible, material: Handle<MapMaterial>) -> Self {
-        Self {
-            name: Name::new(format!("Chunk ({},{})", chunk.coord.x, chunk.coord.y)),
-            transform: Transform::from_xyz(chunk.position.x, 0.0, chunk.position.y),
-            chunk,
-            visible,
-            material,
-            ..Default::default()
-        }
-    }
-}
-
 /// A bundle containing all the components required to spawn a map.
-#[derive(Bundle, Default)]
+#[derive(Bundle)]
 pub struct MapBundle {
-    pub map: Map,
-    pub map_data: MapData,
-    pub material_data: MapMaterialData,
+    pub topology_data: MapTopologyData,
+    pub appearance_data: MapAppearanceData,
+    pub clipmap_data: ClipmapData,
     pub water_data: WaterMaterialData,
-    pub lod_data: LODData,
+    pub map_material: Handle<MapMaterial>,
+    pub children: Children,
     pub transform: Transform,
     pub global_transform: GlobalTransform,
+}
+
+impl Default for MapBundle {
+    fn default() -> Self {
+        Self {
+            topology_data: Default::default(),
+            appearance_data: Default::default(),
+            clipmap_data: Default::default(),
+            water_data: Default::default(),
+            map_material: Default::default(),
+            children: Default::default(),
+            transform: Default::default(),
+            global_transform: Default::default(),
+        }
+    }
 }
 
 /// A bundle containing all the components required to spawn the water.

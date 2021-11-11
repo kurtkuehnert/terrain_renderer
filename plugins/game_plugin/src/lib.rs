@@ -2,15 +2,12 @@ use bevy::{
     core::Name,
     math::Vec3,
     pbr::{PbrBundle, PointLight},
-    prelude::{
-        shape::{Cube, Icosphere, Plane},
-        App, AssetServer, Assets, BuildChildren, Color, Commands, Mesh, Plugin, Res, ResMut,
-        StandardMaterial, Transform,
-    },
+    prelude::*,
 };
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 use map_plugin::{
     bundles::{MapBundle, WaterBundle},
+    pipeline::MapMaterial,
     water::pipeline::{WaterMaterial, WaterPass, WaterTextures},
     MapPlugin,
 };
@@ -48,18 +45,24 @@ fn setup_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut standard_materials: ResMut<Assets<StandardMaterial>>,
+    mut map_materials: ResMut<Assets<MapMaterial>>,
     mut water_materials: ResMut<Assets<WaterMaterial>>,
     mut sky_materials: ResMut<Assets<SkyMaterial>>,
     water_textures: Res<WaterTextures>,
 ) {
+    let sky = false;
+    let map = true;
+    let water = true;
+
     // sun
     commands
         .spawn_bundle(PbrBundle {
-            mesh: meshes.add(Mesh::from(Icosphere {
+            mesh: meshes.add(Mesh::from(shape::Icosphere {
                 radius: 5.0,
                 subdivisions: 3,
             })),
             material: standard_materials.add(Color::YELLOW.into()),
+            transform: Transform::from_translation(Vec3::new(0.0, 100.0, 0.0)),
             ..Default::default()
         })
         .insert(PointLight {
@@ -73,52 +76,56 @@ fn setup_scene(
         })
         .insert(Name::new("Sun"));
 
-    // moon
-    commands
-        .spawn_bundle(PbrBundle {
-            mesh: meshes.add(Mesh::from(Icosphere {
-                radius: 2.0,
-                subdivisions: 3,
-            })),
-            material: standard_materials.add(Color::WHITE.into()),
-            ..Default::default()
-        })
-        .insert(PointLight {
-            intensity: 10.0,
-            ..Default::default()
-        })
-        .insert(Moon)
-        .insert(Name::new("Moon"));
+    if sky {
+        // moon
+        commands
+            .spawn_bundle(PbrBundle {
+                mesh: meshes.add(Mesh::from(shape::Icosphere {
+                    radius: 2.0,
+                    subdivisions: 3,
+                })),
+                material: standard_materials.add(Color::WHITE.into()),
+                ..Default::default()
+            })
+            .insert(PointLight {
+                intensity: 10.0,
+                ..Default::default()
+            })
+            .insert(Moon)
+            .insert(Name::new("Moon"));
 
-    // sky
-    commands
-        .spawn_bundle(SkyBundle {
-            mesh: meshes.add(
-                Cubesphere {
+        // sky
+        commands
+            .spawn_bundle(SkyBundle {
+                mesh: meshes.add(
+                    Cubesphere {
+                        radius: 1000.0,
+                        grid_size: 10,
+                    }
+                    .into(),
+                ),
+                material: sky_materials.add(SkyMaterial::default()),
+                sky: Sky {
                     radius: 1000.0,
-                    grid_size: 10,
-                }
-                .into(),
-            ),
-            material: sky_materials.add(SkyMaterial::default()),
-            sky: Sky {
-                radius: 1000.0,
-                rotation_axis: Vec3::new(1.0, 2.0, 3.0).normalize(),
-                period: 500.0,
-                cycle: 0.0,
-            },
-            ..Default::default()
-        })
-        .insert(SkyMaterialData::default())
-        .insert(WaterPass)
-        .insert(Name::new("Sky")); //.insert(Wireframe);
+                    rotation_axis: Vec3::new(1.0, 2.0, 3.0).normalize(),
+                    period: 500.0,
+                    cycle: 0.0,
+                },
+                ..Default::default()
+            })
+            .insert(SkyMaterialData::default())
+            .insert(WaterPass)
+            .insert(Name::new("Sky")); //.insert(Wireframe);
+    }
 
-    if true {
+    let mut water_entity = Entity::new(0);
+
+    if water {
         // dummy cube
         commands
             .spawn_bundle(PbrBundle {
                 transform: Transform::from_translation(Vec3::new(0.0, 80.0, 0.0)),
-                mesh: meshes.add(Cube::new(10.0).into()),
+                mesh: meshes.add(shape::Cube::new(10.0).into()),
                 material: standard_materials.add(Color::RED.into()),
                 ..Default::default()
             })
@@ -126,10 +133,10 @@ fn setup_scene(
             .insert(Name::new("Cube"));
 
         // water
-        let water = commands
+        water_entity = commands
             .spawn_bundle(WaterBundle {
                 mesh: meshes.add(
-                    Plane {
+                    shape::Plane {
                         size: u16::MAX as f32,
                     }
                     .into(),
@@ -143,11 +150,24 @@ fn setup_scene(
             })
             .insert(Name::from("Water"))
             .id();
+    }
 
-        // map
-        commands
-            .spawn_bundle(MapBundle::default())
-            .insert(Name::new("Map"))
-            .push_children(&[water]);
+    if map {
+        if water {
+            commands
+                .spawn_bundle(MapBundle {
+                    map_material: map_materials.add(MapMaterial::default()),
+                    ..Default::default()
+                })
+                .insert(Name::new("Map"))
+                .push_children(&[water_entity]);
+        } else {
+            commands
+                .spawn_bundle(MapBundle {
+                    map_material: map_materials.add(MapMaterial::default()),
+                    ..Default::default()
+                })
+                .insert(Name::new("Map"));
+        }
     }
 }

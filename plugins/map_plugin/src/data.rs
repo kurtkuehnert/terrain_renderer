@@ -1,43 +1,5 @@
-use crate::generation::LOD_LEVELS;
-use bevy::{
-    prelude::{Color, World},
-    reflect::TypeUuid,
-};
+use bevy::{prelude::*, reflect::TypeUuid};
 use bevy_inspector_egui::{Inspectable, InspectableRegistry};
-
-/// Stores the parameters for the height adjustment of the map.
-/// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid, Copy, Clone)]
-#[uuid = "abe9653e-ff3e-11eb-9a03-0242ac130003"]
-pub struct HeightCurve {
-    #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
-    pub water_level: f32,
-    #[inspectable(min = 1.0, max = 5.0, speed = 0.01)]
-    pub slope: f32,
-}
-
-impl Default for HeightCurve {
-    fn default() -> Self {
-        Self {
-            water_level: 0.0,
-            slope: 2.0,
-        }
-    }
-}
-
-impl HeightCurve {
-    /// Adjusts height values to flatten out the water and lower layers.
-    pub fn evaluate(&self, input: f32) -> f32 {
-        if input < self.water_level {
-            0.0
-        } else {
-            f32::powf(
-                (input - self.water_level) / (1.0 - self.water_level),
-                self.slope,
-            )
-        }
-    }
-}
 
 /// Stores all parameters for the noise map generation.
 /// It is adjustable via the inspector.
@@ -67,47 +29,40 @@ impl Default for NoiseData {
     }
 }
 
-/// Stores all parameters of a map.
 /// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid, Copy, Clone)]
+#[derive(Inspectable, TypeUuid, Copy, Clone, Component)]
 #[uuid = "fd016f46-f3a6-11eb-9a03-0242ac130003"]
-pub struct MapData {
+pub struct MapTopologyData {
+    pub map_size: Vec2,
     #[inspectable(min = 0.0, max = 100.0)]
     pub map_height: f32,
     #[inspectable(min = 0.0, max = 1.0, speed = 0.001)]
     pub water_level: f32,
     #[inspectable(collapse)]
-    pub height_curve: HeightCurve,
-    #[inspectable(collapse)]
     pub noise_data: NoiseData,
-    pub flat_shading: bool,
 }
 
-impl MapData {
-    pub fn get_water_height(&self) -> f32 {
+impl MapTopologyData {
+    pub fn water_height(&self) -> f32 {
         self.map_height * self.water_level
     }
 }
 
-impl Default for MapData {
+impl Default for MapTopologyData {
     fn default() -> Self {
         Self {
+            map_size: Vec2::new(512.0, 512.0),
             map_height: 50.0,
-            water_level: 0.2,
-            height_curve: Default::default(),
+            water_level: 0.3,
             noise_data: Default::default(),
-            flat_shading: true,
         }
     }
 }
 
-/// Stores the parameters for the map materials.
 /// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid)]
+#[derive(Inspectable, TypeUuid, Component)]
 #[uuid = "5de92f89-23f6-405e-8380-2ff1f1cec95b"]
-pub struct MapMaterialData {
-    pub wireframe: bool,
-
+pub struct MapAppearanceData {
     pub layer_colors: Vec<Color>,
     #[inspectable(min = 0.0, max = 1.0, speed = 0.01)]
     pub layer_heights: Vec<f32>,
@@ -115,10 +70,9 @@ pub struct MapMaterialData {
     pub blend_values: Vec<f32>,
 }
 
-impl Default for MapMaterialData {
+impl Default for MapAppearanceData {
     fn default() -> Self {
         Self {
-            wireframe: false,
             layer_colors: vec![
                 Color::DARK_GRAY,
                 Color::YELLOW,
@@ -127,36 +81,35 @@ impl Default for MapMaterialData {
                 Color::DARK_GRAY,
                 Color::WHITE,
             ],
-            layer_heights: vec![0.15, 0.25, 0.3, 0.5, 0.8],
+            layer_heights: vec![0.2, 0.32, 0.37, 0.52, 0.8],
             blend_values: vec![0.2, 0.1, 0.1, 0.1, 0.2],
         }
     }
 }
 
-/// Stores the view distance for each level of detail.
-/// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid)]
-#[uuid = "2e4c971f-1836-4fee-a628-03def3deb75d"]
-pub struct LODData {
-    pub lod_view_distance: [f32; LOD_LEVELS],
+#[derive(Inspectable, TypeUuid, Copy, Clone, Component)]
+#[uuid = "07862ce1-5cc7-42e2-83fa-f7c9a389e33f"]
+pub struct ClipmapData {
+    #[inspectable(min = 0, max = 10)]
+    pub lod_levels: u32,
+    #[inspectable(min = 0, max = 256)]
+    pub side_length: u32,
+    pub wireframe: bool,
 }
 
-impl Default for LODData {
+impl Default for ClipmapData {
     fn default() -> Self {
-        let mut lod_view_distance = [200.0; LOD_LEVELS];
-
-        lod_view_distance
-            .iter_mut()
-            .enumerate()
-            .for_each(|(i, distance)| *distance += i as f32 * 100.0);
-
-        Self { lod_view_distance }
+        Self {
+            lod_levels: 4,
+            side_length: 64,
+            wireframe: false,
+        }
     }
 }
 
 /// Stores all parameters for the water materials.
 /// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid)]
+#[derive(Inspectable, TypeUuid, Copy, Clone, Component)]
 #[uuid = "e53ae396-db66-4a9c-a3f1-6865964f7c10"]
 pub struct WaterMaterialData {
     pub wave_sparsity: f32,
@@ -178,11 +131,12 @@ impl Default for WaterMaterialData {
 
 /// Registers all types, that should be inspectable via the inspector plugin.
 pub fn register_inspectable_types(world: &mut World) {
-    let mut registry = world.get_resource_or_insert_with(InspectableRegistry::default);
+    let mut registry: Mut<InspectableRegistry> =
+        world.get_resource_or_insert_with(Default::default);
 
     // register components to be able to edit them in the inspector (works recursively)
-    registry.register::<MapData>();
-    registry.register::<MapMaterialData>();
-    registry.register::<LODData>();
-    registry.register::<WaterMaterialData>()
+    registry.register::<MapTopologyData>();
+    registry.register::<MapAppearanceData>();
+    registry.register::<ClipmapData>();
+    registry.register::<WaterMaterialData>();
 }

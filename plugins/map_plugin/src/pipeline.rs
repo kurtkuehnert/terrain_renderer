@@ -1,7 +1,7 @@
-use crate::data::{MapData, MapMaterialData};
+use crate::data::{MapAppearanceData, MapTopologyData};
 use bevy::{
     core::Bytes,
-    prelude::{AssetServer, Assets, Handle, HandleUntyped, Shader, World},
+    prelude::*,
     reflect::TypeUuid,
     render::{
         pipeline::PipelineDescriptor,
@@ -46,60 +46,28 @@ pub fn add_map_pipeline(world: &mut World) {
 }
 
 /// The material of a map, with a custom vertex color attribute.
-#[derive(Bytes, RenderResource, RenderResources, TypeUuid)]
-#[uuid = "0320b9b8-b3a3-4baa-8bfa-c94008177b17"]
-#[render_resources(from_self)]
+#[derive(Default, Debug, RenderResources, TypeUuid)]
+#[uuid = "94990167-fc98-4082-a87e-e4473df026e0"]
 pub struct MapMaterial {
-    #[render_resources(buffer)]
-    pub layer_colors: [[f32; 4]; Self::MAX_LAYER_COUNT],
-    // uses array of vec4 because the glsl layout for arrays of scalars (floats) has an alignment of vec4 so it is wasting space anyway
-    #[render_resources(buffer)]
-    pub layer_heights: [[f32; 4]; Self::MAX_LAYER_COUNT],
-    #[render_resources(buffer)]
-    pub blend_values: [[f32; 4]; Self::MAX_LAYER_COUNT],
-    pub map_height: f32,
-    pub water_height: f32,
-    pub layer_count: i32,
+    height_map: Handle<Texture>,
+    appearance: Appearance,
 }
 
 impl MapMaterial {
     /// The name of the map material node in the render graph.
     const NODE: &'static str = "map_material_node";
 
-    /// The count of color layers a map can be shaded with.
-    /// Corresponds to the value in the fragment shader.
-    const MAX_LAYER_COUNT: usize = 16;
+    pub fn update_topology(
+        &mut self,
+        height_map: Handle<Texture>,
+        topology_data: &MapTopologyData,
+    ) {
+        self.height_map = height_map;
+        self.appearance.update_topology(topology_data);
+    }
 
-    pub fn new(material_data: &MapMaterialData, map_data: &MapData) -> Self {
-        let mut layer_colors = [[0.0; 4]; Self::MAX_LAYER_COUNT];
-        material_data
-            .layer_colors
-            .iter()
-            .enumerate()
-            .for_each(|(i, color)| layer_colors[i] = color.as_rgba_f32());
-
-        let mut layer_heights = [[1.0; 4]; Self::MAX_LAYER_COUNT];
-        material_data
-            .layer_heights
-            .iter()
-            .enumerate()
-            .for_each(|(i, &height)| layer_heights[i] = [height, 0.0, 0.0, 0.0]);
-
-        let mut blend_values = [[0.0; 4]; Self::MAX_LAYER_COUNT];
-        material_data
-            .blend_values
-            .iter()
-            .enumerate()
-            .for_each(|(i, &blend)| blend_values[i] = [blend, 0.0, 0.0, 0.0]);
-
-        Self {
-            layer_colors,
-            layer_heights,
-            blend_values,
-            map_height: map_data.map_height,
-            water_height: map_data.map_height * map_data.water_level,
-            layer_count: material_data.layer_heights.len() as i32,
-        }
+    pub fn update_appearance(&mut self, appearance_data: &MapAppearanceData) {
+        self.appearance.update_appearance(appearance_data);
     }
 
     // Adds the map material to the graph and ensures it is correctly bound to the shader.
@@ -116,5 +84,55 @@ impl MapMaterial {
         graph
             .add_node_edge(Self::NODE, base::node::MAIN_PASS)
             .unwrap();
+    }
+}
+
+/// The material of a map, with a custom vertex color attribute.
+#[derive(Default, Debug, Bytes, RenderResource, RenderResources, TypeUuid)]
+#[uuid = "0320b9b8-b3a3-4baa-8bfa-c94008177b17"]
+#[render_resources(from_self)]
+struct Appearance {
+    #[render_resources(buffer)]
+    layer_colors: [[f32; 4]; Self::MAX_LAYER_COUNT],
+    // uses array of vec4 because the glsl layout for arrays of scalars (floats) has an alignment of vec4 so it is wasting space anyway
+    #[render_resources(buffer)]
+    layer_heights: [[f32; 4]; Self::MAX_LAYER_COUNT],
+    #[render_resources(buffer)]
+    blend_values: [[f32; 4]; Self::MAX_LAYER_COUNT],
+    map_height: f32,
+    water_height: f32,
+    layer_count: i32,
+}
+
+impl Appearance {
+    /// The count of color layers a map can be shaded with.
+    /// Corresponds to the value in the fragment shader.
+    const MAX_LAYER_COUNT: usize = 16;
+
+    fn update_appearance(&mut self, appearance_data: &MapAppearanceData) {
+        appearance_data
+            .layer_colors
+            .iter()
+            .enumerate()
+            .for_each(|(i, color)| self.layer_colors[i] = color.as_rgba_f32());
+
+        appearance_data
+            .layer_heights
+            .iter()
+            .enumerate()
+            .for_each(|(i, &height)| self.layer_heights[i] = [height, 0.0, 0.0, 0.0]);
+
+        appearance_data
+            .blend_values
+            .iter()
+            .enumerate()
+            .for_each(|(i, &blend)| self.blend_values[i] = [blend, 0.0, 0.0, 0.0]);
+
+        self.layer_count = appearance_data.layer_heights.len() as i32;
+    }
+
+    fn update_topology(&mut self, topology_data: &MapTopologyData) {
+        self.map_height = topology_data.map_height;
+        self.water_height = topology_data.water_height()
     }
 }

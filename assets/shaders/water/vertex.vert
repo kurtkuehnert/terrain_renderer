@@ -15,7 +15,7 @@ layout(set = 1, binding = 0) uniform Transform {
 
 void main() {
     v_TexturePosition = Vertex_Position.xz;
-    v_WorldPosition = Model * vec4(Vertex_Position, 1.0);
+    v_WorldPosition = Model * vec4(Vertex_Position, 1.0)  + vec4(0, -0.1, 0, 0); // fixes the water edges
     v_ClipPosition = ViewProj * v_WorldPosition;
     gl_Position = v_ClipPosition;
 }

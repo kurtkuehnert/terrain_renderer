@@ -1,8 +1,8 @@
 use bevy::{
     math::Vec3,
     prelude::{
-        AddAsset, App, Bundle, Color, Draw, GlobalTransform, Handle, Mesh, Plugin, RenderPipelines,
-        Transform, Visible,
+        AddAsset, App, Bundle, Color, Component, Draw, GlobalTransform, Handle, Mesh, Plugin,
+        RenderPipelines, Transform, Visible,
     },
     reflect::TypeUuid,
     render::{pipeline::RenderPipeline, render_graph::base::MainPass},
@@ -37,7 +37,7 @@ impl Plugin for SkyPlugin {
 
 /// Stores all parameters for the sky material.
 /// It is adjustable via the inspector.
-#[derive(Inspectable, TypeUuid)]
+#[derive(Inspectable, TypeUuid, Component)]
 #[uuid = "1b1650ae-6690-4bd4-a0c3-88a947b88a3d"]
 pub struct SkyMaterialData {
     sky_color: Color,
@@ -97,7 +97,7 @@ impl Default for SkyBundle {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Component)]
 pub struct Sky {
     pub radius: f32,
     pub rotation_axis: Vec3,
@@ -105,10 +105,12 @@ pub struct Sky {
     pub cycle: f32,
 }
 
+#[derive(Default, Component)]
 pub struct Sun {
     pub rotation_axis: Vec3,
     pub period: f32,
     pub cycle: f32,
 }
 
+#[derive(Default, Component)]
 pub struct Moon;
