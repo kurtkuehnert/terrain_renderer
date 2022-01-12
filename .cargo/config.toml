@@ -1,2 +1,0 @@
-[target.x86_64-unknown-linux-gnu]
-rustflags = ["-Clink-arg=-fuse-ld=lld"] # requires libxcb-composite0-dev on ubuntu

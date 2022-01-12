@@ -1,8 +1,8 @@
 [package]
-name = "map-generation"
+name = "terrain-rendering"
 version = "0.1.0"
 publish = false
-edition = "2018"
+edition = "2021"
 
 [workspace]
 members = ["plugins/*"]
@@ -13,6 +13,5 @@ default = [
 ]
 
 [dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
-game_plugin = { path = "plugins/game_plugin" }
-env_logger = "0.9"
+bevy = { git = "https://github.com/bevyengine/bevy", branch = "latest" }
+app_plugin = { path = "plugins/app_plugin" }
