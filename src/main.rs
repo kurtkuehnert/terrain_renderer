@@ -7,7 +7,7 @@ fn main() {
         .insert_resource(WindowDescriptor {
             width: 1400.,
             height: 1000.,
-            position: Some(Vec2::new(2000.0, 100.0)),
+            position: Some(Vec2::new(3000.0, 100.0)),
             title: "Terrain Rendering".into(),
             ..Default::default()
         })

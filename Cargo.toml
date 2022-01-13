@@ -13,5 +13,5 @@ default = [
 ]
 
 [dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy", branch = "latest" }
+bevy = "0.6.0"
 app_plugin = { path = "plugins/app_plugin" }
