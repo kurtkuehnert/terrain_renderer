@@ -2,21 +2,24 @@ mod camera;
 
 use crate::camera::{setup_camera, toggle_camera_system};
 use bevy::{
+    core::FixedTimestep,
     pbr::{Clusters, VisiblePointLights},
     prelude::*,
     render::{primitives::Frustum, view::VisibleEntities},
     utils::HashSet,
 };
-use bevy_fly_camera::FlyCameraPlugin;
+use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
+use bevy_terrain::bundles::InstanceBundle;
 use bevy_terrain::{
-    bundles::PieceBundle,
-    clipmap::{update_hierarchy_on_change, TileHierarchy},
-    descriptors::{register_inspectable_types, TileHierarchyDescriptor},
-    material::TerrainMaterial,
-    pieces::{PieceVariant, StripeVariant, TriangleVariant},
+    bundles::TerrainBundle,
+    descriptors::register_inspectable_types,
+    material::TerrainMaterialPlugin,
+    quad_tree::{
+        traverse_quadtree, update_quadtree_on_change, update_view_distance_on_change, Quadtree,
+    },
 };
-use std::{any::TypeId, f32::consts::FRAC_PI_2};
+use std::any::TypeId;
 
 /// A plugin, which sets up the testing application.
 pub struct AppPlugin;
@@ -38,7 +41,11 @@ impl Plugin for AppPlugin {
         ignore_components.insert(TypeId::of::<Clusters>());
         ignore_components.insert(TypeId::of::<VisiblePointLights>());
         ignore_components.insert(TypeId::of::<ComputedVisibility>());
-        ignore_components.insert(TypeId::of::<TileHierarchy>());
+        ignore_components.insert(TypeId::of::<Quadtree>());
+        ignore_components.insert(TypeId::of::<Children>());
+        ignore_components.insert(TypeId::of::<Parent>());
+        ignore_components.insert(TypeId::of::<PreviousParent>());
+        ignore_components.insert(TypeId::of::<FlyCamera>());
 
         app.insert_resource(Msaa { samples: 4 })
             .insert_resource(WorldInspectorParams {
@@ -48,75 +55,31 @@ impl Plugin for AppPlugin {
             })
             .add_plugin(FlyCameraPlugin)
             .add_plugin(WorldInspectorPlugin::new())
-            .add_plugin(MaterialPlugin::<TerrainMaterial>::default())
+            .add_plugin(TerrainMaterialPlugin)
             .add_startup_system(setup_scene)
             .add_startup_system(setup_camera)
-            .add_system(update_hierarchy_on_change)
+            .add_system(update_quadtree_on_change.label("update"))
+            .add_system(update_view_distance_on_change.label("update"))
+            .add_system(
+                traverse_quadtree
+                    .after("update")
+                    .with_run_criteria(FixedTimestep::step(0.010)),
+            )
             .add_system(toggle_camera_system);
 
         register_inspectable_types(app);
     }
 }
 
-fn setup_scene(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<TerrainMaterial>>,
-) {
-    let tile_hierarchy = TileHierarchy::new(&mut meshes);
-
-    let triangle_mesh = tile_hierarchy.get_mesh(PieceVariant::Triangle(TriangleVariant::Sparse));
-    let stripe_mesh = tile_hierarchy.get_mesh(PieceVariant::Stripe(StripeVariant::Sparse));
-
-    let mut pieces = Vec::new();
-
-    for angle in (0..4).map(|i| i as f32 * FRAC_PI_2) {
-        let rotation = Quat::from_axis_angle(Vec3::Y, angle);
-        let translation = rotation * Vec3::new(0.0, 0.0, 2.0);
-        let scale = Vec3::new(1.0, 1.0, 1.0);
-
-        pieces.push(
-            commands
-                .spawn()
-                .insert_bundle(PieceBundle {
-                    mesh: triangle_mesh.clone(),
-                    transform: Transform {
-                        translation,
-                        rotation,
-                        scale,
-                    },
-                    material: materials.add(TerrainMaterial { color: Color::BLUE }),
-                    ..Default::default()
-                })
-                .id(),
-        );
-
-        let rotation = Quat::from_axis_angle(Vec3::Y, angle);
-        let translation = Vec3::ZERO;
-        let scale = Vec3::new(1.0, 1.0, 1.0);
-
-        pieces.push(
-            commands
-                .spawn()
-                .insert_bundle(PieceBundle {
-                    mesh: stripe_mesh.clone(),
-                    transform: Transform {
-                        translation,
-                        rotation,
-                        scale,
-                    },
-                    material: materials.add(TerrainMaterial { color: Color::RED }),
-                    ..Default::default()
-                })
-                .id(),
-        );
-    }
+fn setup_scene(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
+    let dense = commands
+        .spawn_bundle(InstanceBundle::new(&mut meshes, false))
+        .id();
+    let sparse = commands
+        .spawn_bundle(InstanceBundle::new(&mut meshes, true))
+        .id();
 
     commands
-        .spawn()
-        .insert(TileHierarchyDescriptor::default())
-        .insert(tile_hierarchy)
-        .insert(Transform::default())
-        .insert(GlobalTransform::default())
-        .push_children(&pieces);
+        .spawn_bundle(TerrainBundle::default())
+        .push_children(&[dense, sparse]);
 }

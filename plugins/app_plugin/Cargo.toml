@@ -14,3 +14,5 @@ bevy = "0.6.0"
 bevy-inspector-egui = "0.7.2"
 bevy_terrain = { path = "../bevy_terrain" }
 bevy_fly_camera = "0.8.0"
+
+itertools = "0.10"

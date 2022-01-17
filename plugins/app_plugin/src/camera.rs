@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_fly_camera::FlyCamera;
+use bevy_terrain::quad_tree::Viewer;
 
 pub(crate) fn toggle_camera_system(
     input: Res<Input<KeyCode>>,
@@ -15,10 +16,13 @@ pub(crate) fn toggle_camera_system(
 pub(crate) fn setup_camera(mut commands: Commands) {
     commands
         .spawn_bundle(PerspectiveCameraBundle {
-            transform: Transform::from_xyz(0.0, 10.0, 25.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(1000.0, 200.0, 1000.0)
+                .looking_at(Vec3::new(999.0, 0.0, 1000.0), Vec3::Y),
             ..Default::default()
         })
         .insert(FlyCamera {
+            accel: 3.0,
+            max_speed: 5.0,
             key_forward: KeyCode::Up,
             key_backward: KeyCode::Down,
             key_left: KeyCode::Left,
@@ -27,5 +31,6 @@ pub(crate) fn setup_camera(mut commands: Commands) {
             key_down: KeyCode::LControl,
             enabled: false,
             ..Default::default()
-        });
+        })
+        .insert(Viewer::default());
 }
