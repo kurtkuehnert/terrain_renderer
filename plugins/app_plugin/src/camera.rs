@@ -1,6 +1,12 @@
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    render::{
+        camera::{CameraPlugin, CameraProjection},
+        primitives::Frustum,
+    },
+};
 use bevy_fly_camera::FlyCamera;
-use bevy_terrain::quad_tree::Viewer;
+use bevy_terrain::quadtree::Viewer;
 
 pub(crate) fn toggle_camera_system(
     input: Res<Input<KeyCode>>,
@@ -14,10 +20,29 @@ pub(crate) fn toggle_camera_system(
 }
 
 pub(crate) fn setup_camera(mut commands: Commands) {
+    let perspective_projection = PerspectiveProjection {
+        far: 10000.0,
+        ..Default::default()
+    };
+    let view_projection = perspective_projection.get_projection_matrix();
+    let frustum = Frustum::from_view_projection(
+        &view_projection,
+        &Vec3::ZERO,
+        &Vec3::Z,
+        perspective_projection.far(),
+    );
+
     commands
         .spawn_bundle(PerspectiveCameraBundle {
-            transform: Transform::from_xyz(1000.0, 200.0, 1000.0)
-                .looking_at(Vec3::new(999.0, 0.0, 1000.0), Vec3::Y),
+            camera: Camera {
+                name: Some(CameraPlugin::CAMERA_3D.to_string()),
+                near: perspective_projection.near,
+                far: perspective_projection.far,
+                ..Default::default()
+            },
+            perspective_projection,
+            frustum,
+            transform: Transform::from_xyz(-300.0, 150.0, -300.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         })
         .insert(FlyCamera {

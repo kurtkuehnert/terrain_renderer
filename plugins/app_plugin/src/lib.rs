@@ -2,7 +2,6 @@ mod camera;
 
 use crate::camera::{setup_camera, toggle_camera_system};
 use bevy::{
-    core::FixedTimestep,
     pbr::{Clusters, VisiblePointLights},
     prelude::*,
     render::{primitives::Frustum, view::VisibleEntities},
@@ -10,12 +9,11 @@ use bevy::{
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
-use bevy_terrain::bundles::InstanceBundle;
 use bevy_terrain::{
-    bundles::TerrainBundle,
+    bundles::{InstanceBundle, TerrainBundle},
     descriptors::register_inspectable_types,
     material::TerrainMaterialPlugin,
-    quad_tree::{
+    quadtree::{
         traverse_quadtree, update_quadtree_on_change, update_view_distance_on_change, Quadtree,
     },
 };
@@ -60,11 +58,7 @@ impl Plugin for AppPlugin {
             .add_startup_system(setup_camera)
             .add_system(update_quadtree_on_change.label("update"))
             .add_system(update_view_distance_on_change.label("update"))
-            .add_system(
-                traverse_quadtree
-                    .after("update")
-                    .with_run_criteria(FixedTimestep::step(0.010)),
-            )
+            .add_system(traverse_quadtree.after("update"))
             .add_system(toggle_camera_system);
 
         register_inspectable_types(app);
@@ -80,6 +74,9 @@ fn setup_scene(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
         .id();
 
     commands
-        .spawn_bundle(TerrainBundle::default())
+        .spawn_bundle(TerrainBundle {
+            transform: Transform::from_xyz(-100.0, 0.0, -100.0),
+            ..Default::default()
+        })
         .push_children(&[dense, sparse]);
 }
