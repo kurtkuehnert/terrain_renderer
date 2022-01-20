@@ -9,6 +9,7 @@ use bevy::{
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
+use bevy_terrain::material::TerrainMaterial;
 use bevy_terrain::{
     bundles::{InstanceBundle, TerrainBundle},
     descriptors::register_inspectable_types,
@@ -65,12 +66,24 @@ impl Plugin for AppPlugin {
     }
 }
 
-fn setup_scene(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
+fn setup_scene(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<TerrainMaterial>>,
+) {
+    let height_map = asset_server.load("heightmaps/heightmap.png");
+
+    let material = materials.add(TerrainMaterial {
+        height_texture: height_map,
+        height: 100.0,
+    });
+
     let dense = commands
-        .spawn_bundle(InstanceBundle::new(&mut meshes, false))
+        .spawn_bundle(InstanceBundle::new(&mut meshes, material.clone(), false))
         .id();
     let sparse = commands
-        .spawn_bundle(InstanceBundle::new(&mut meshes, true))
+        .spawn_bundle(InstanceBundle::new(&mut meshes, material, true))
         .id();
 
     commands
@@ -79,4 +92,9 @@ fn setup_scene(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
             ..Default::default()
         })
         .push_children(&[dense, sparse]);
+
+    commands.spawn_bundle(DirectionalLightBundle {
+        directional_light: Default::default(),
+        ..Default::default()
+    });
 }
