@@ -1,7 +1,6 @@
 use app_plugin::AppPlugin;
 use bevy::{pbr::wireframe::WireframePlugin, prelude::*};
 
-/// Builds and runs the entire game.
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {

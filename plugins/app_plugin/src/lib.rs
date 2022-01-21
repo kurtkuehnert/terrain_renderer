@@ -9,11 +9,10 @@ use bevy::{
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
-use bevy_terrain::material::TerrainMaterial;
 use bevy_terrain::{
     bundles::{InstanceBundle, TerrainBundle},
     descriptors::register_inspectable_types,
-    material::TerrainMaterialPlugin,
+    material::{TerrainMaterial, TerrainMaterialPlugin},
     quadtree::{
         traverse_quadtree, update_quadtree_on_change, update_view_distance_on_change, Quadtree,
     },
@@ -73,6 +72,10 @@ fn setup_scene(
     mut materials: ResMut<Assets<TerrainMaterial>>,
 ) {
     let height_map = asset_server.load("heightmaps/heightmap.png");
+
+    // use bevy_terrain::{preprocess::generate_node_textures, terrain::TerrainConfig};
+    // let config = TerrainConfig::new(128, 3, 2, 2);
+    // generate_node_textures(&config, "assets/heightmaps/heightmap.png", "assets/output/");
 
     let material = materials.add(TerrainMaterial {
         height_texture: height_map,
