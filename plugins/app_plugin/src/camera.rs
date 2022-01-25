@@ -6,7 +6,7 @@ use bevy::{
     },
 };
 use bevy_fly_camera::FlyCamera;
-use bevy_terrain::quadtree::Viewer;
+use bevy_terrain::quadtree::ViewDistance;
 
 pub(crate) fn toggle_camera_system(
     input: Res<Input<KeyCode>>,
@@ -57,5 +57,5 @@ pub(crate) fn setup_camera(mut commands: Commands) {
             enabled: false,
             ..Default::default()
         })
-        .insert(Viewer::default());
+        .insert(ViewDistance::default());
 }

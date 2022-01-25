@@ -1,6 +1,7 @@
 mod camera;
 
 use crate::camera::{setup_camera, toggle_camera_system};
+use bevy::asset::LoadState;
 use bevy::{
     pbr::{Clusters, VisiblePointLights},
     prelude::*,
@@ -9,14 +10,11 @@ use bevy::{
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
-use bevy_terrain::{
-    bundles::{InstanceBundle, TerrainBundle},
-    descriptors::register_inspectable_types,
-    material::{TerrainMaterial, TerrainMaterialPlugin},
-    quadtree::{
-        traverse_quadtree, update_quadtree_on_change, update_view_distance_on_change, Quadtree,
-    },
+use bevy_terrain::quadtree::{
+    traverse_quadtree, update_atlas, update_load_status, update_nodes, Quadtree,
 };
+use bevy_terrain::terrain::TerrainConfig;
+use bevy_terrain::{bundles::TerrainBundle, material::TerrainMaterialPlugin};
 use std::any::TypeId;
 
 /// A plugin, which sets up the testing application.
@@ -56,45 +54,44 @@ impl Plugin for AppPlugin {
             .add_plugin(TerrainMaterialPlugin)
             .add_startup_system(setup_scene)
             .add_startup_system(setup_camera)
-            .add_system(update_quadtree_on_change.label("update"))
-            .add_system(update_view_distance_on_change.label("update"))
-            .add_system(traverse_quadtree.after("update"))
+            .add_system(traverse_quadtree.before("update_nodes"))
+            .add_system(update_nodes.label("update_nodes"))
+            .add_system(update_atlas.after("update_nodes"))
+            .add_system(update_load_status)
+            // .add_system(update_quadtree_on_change.label("update"))
+            // .add_system(update_view_distance_on_change.label("update"))
+            // .add_system(traverse_quadtree.after("update"))
             .add_system(toggle_camera_system);
-
-        register_inspectable_types(app);
     }
 }
 
 fn setup_scene(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<TerrainMaterial>>,
+    // mut meshes: ResMut<Assets<Mesh>>,
+    // mut materials: ResMut<Assets<TerrainMaterial>>,
 ) {
-    let height_map = asset_server.load("heightmaps/heightmap.png");
+    let config = TerrainConfig::new(128, 3, UVec2::new(2, 2));
 
-    // use bevy_terrain::{preprocess::generate_node_textures, terrain::TerrainConfig};
-    // let config = TerrainConfig::new(128, 3, 2, 2);
-    // generate_node_textures(&config, "assets/heightmaps/heightmap.png", "assets/output/");
+    // bevy_terrain::preprocess::generate_node_textures(
+    //     &config,
+    //     "assets/heightmaps/heightmap.png",
+    //     "assets/output/",
+    // );
 
-    let material = materials.add(TerrainMaterial {
-        height_texture: height_map,
-        height: 100.0,
-    });
+    let handle1: Handle<Image> = asset_server.load("heightmaps/heightmap.png");
+    let handle2: Handle<Image> = asset_server.load("heightmaps/heightmap.png");
 
-    let dense = commands
-        .spawn_bundle(InstanceBundle::new(&mut meshes, material.clone(), false))
-        .id();
-    let sparse = commands
-        .spawn_bundle(InstanceBundle::new(&mut meshes, material, true))
-        .id();
+    let state: LoadState = asset_server.get_load_state(handle1.clone());
 
-    commands
-        .spawn_bundle(TerrainBundle {
-            transform: Transform::from_xyz(-100.0, 0.0, -100.0),
-            ..Default::default()
-        })
-        .push_children(&[dense, sparse]);
+    println!("{:?}", state);
+
+    println!("{:?}", handle1.id);
+    println!("{:?}", handle2.id);
+
+    assert_eq!(handle1, handle2);
+
+    commands.spawn_bundle(TerrainBundle::new(&config));
 
     commands.spawn_bundle(DirectionalLightBundle {
         directional_light: Default::default(),
