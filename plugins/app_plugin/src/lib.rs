@@ -9,6 +9,7 @@ use bevy::{
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_inspector_egui::{RegisterInspectable, WorldInspectorParams, WorldInspectorPlugin};
+use bevy_terrain::compute::{TerrainAsset, TerrainPlugin};
 use bevy_terrain::{
     bundles::TerrainBundle,
     debug::{debug, info, TerrainDebugInfo},
@@ -64,6 +65,7 @@ impl Plugin for AppPlugin {
             .add_plugin(FlyCameraPlugin)
             .add_plugin(WorldInspectorPlugin::new())
             .add_plugin(TerrainMaterialPlugin)
+            .add_plugin(TerrainPlugin)
             .register_inspectable::<ViewDistance>()
             .register_inspectable::<TerrainDebugInfo>()
             .add_startup_system(setup_scene)
@@ -82,6 +84,7 @@ fn setup_scene(
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<TerrainMaterial>>,
+    mut terrain_assets: ResMut<Assets<TerrainAsset>>,
 ) {
     let config = TerrainConfig::new(128, 3, UVec2::new(2, 2));
 
@@ -93,12 +96,14 @@ fn setup_scene(
 
     let height_texture = asset_server.load("heightmaps/heightmap.png");
 
-    commands
-        .spawn_bundle(TerrainBundle::new(config))
+    let terrain = commands
+        .spawn_bundle(TerrainBundle::new(config.clone()))
         .insert(meshes.add(Tile::new(8, true).to_mesh()))
         .insert(materials.add(TerrainMaterial {
             height_texture,
             height: 100.0,
         }))
-        .insert(TerrainDebugInfo::default());
+        .insert(TerrainDebugInfo::default())
+        .insert(terrain_assets.add(TerrainAsset { config }))
+        .id();
 }
