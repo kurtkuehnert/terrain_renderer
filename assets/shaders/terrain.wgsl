@@ -65,7 +65,7 @@ fn vertex(vertex: Vertex) -> Fragment {
     var out: Fragment;
     out.frag_coord = view.view_proj * world_position;
     out.tile_color = vertex.tile_color;
-    out.tile_color = vec4<f32>(uv, 0.0, 1.0);
+    // out.tile_color = vec4<f32>(uv, 0.0, 1.0);
     out.uv = uv;
     out.world_position = world_position;
     return out;
@@ -77,7 +77,7 @@ fn vertex(vertex: Vertex) -> Fragment {
 fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
     var output_color: vec4<f32> = fragment.tile_color;
 
-    output_color = output_color / pow(length(view.world_position.xyz - fragment.world_position.xyz), 1.5) * 10000.0;
+    // output_color = output_color / pow(length(view.world_position.xyz - fragment.world_position.xyz), 1.5) * 10000.0;
     // output_color = vec4<f32>(calculate_normal(fragment.uv), 1.0);
 
     return output_color;
