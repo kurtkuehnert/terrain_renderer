@@ -8,19 +8,13 @@ use bevy::{
     utils::HashSet,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
-use bevy_inspector_egui::{RegisterInspectable, WorldInspectorParams, WorldInspectorPlugin};
-use bevy_terrain::compute::{TerrainAsset, TerrainPlugin};
+use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 use bevy_terrain::{
     bundles::TerrainBundle,
-    debug::{debug, info, TerrainDebugInfo},
-    material::{TerrainMaterial, TerrainMaterialPlugin},
-    pipeline::TerrainData,
-    quadtree::{
-        traverse_quadtree, update_load_status, update_nodes, NodeAtlas, Nodes, Quadtree,
-        TreeUpdate, ViewDistance,
-    },
+    quadtree::{NodeAtlas, Nodes, Quadtree, TreeUpdate},
+    render::terrain_data::TerrainData,
     terrain::TerrainConfig,
-    tile::Tile,
+    TerrainPlugin,
 };
 use std::any::TypeId;
 
@@ -64,17 +58,9 @@ impl Plugin for AppPlugin {
             })
             .add_plugin(FlyCameraPlugin)
             .add_plugin(WorldInspectorPlugin::new())
-            .add_plugin(TerrainMaterialPlugin)
             .add_plugin(TerrainPlugin)
-            .register_inspectable::<ViewDistance>()
-            .register_inspectable::<TerrainDebugInfo>()
             .add_startup_system(setup_scene)
             .add_startup_system(setup_camera)
-            .add_system(traverse_quadtree.before("update_nodes"))
-            .add_system(update_nodes.label("update_nodes"))
-            .add_system(update_load_status)
-            .add_system(debug.after("update_nodes"))
-            .add_system(info.after("update_nodes"))
             .add_system(toggle_camera_system);
     }
 }
@@ -83,8 +69,7 @@ fn setup_scene(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<TerrainMaterial>>,
-    mut terrain_assets: ResMut<Assets<TerrainAsset>>,
+    mut terrain_data: ResMut<Assets<TerrainData>>,
 ) {
     let config = TerrainConfig::new(128, 3, UVec2::new(2, 2));
 
@@ -96,14 +81,10 @@ fn setup_scene(
 
     let height_texture = asset_server.load("heightmaps/heightmap.png");
 
-    let terrain = commands
-        .spawn_bundle(TerrainBundle::new(config.clone()))
-        .insert(meshes.add(Tile::new(8, true).to_mesh()))
-        .insert(materials.add(TerrainMaterial {
-            height_texture,
-            height: 100.0,
-        }))
-        .insert(TerrainDebugInfo::default())
-        .insert(terrain_assets.add(TerrainAsset { config }))
-        .id();
+    commands.spawn_bundle(TerrainBundle::new(
+        config.clone(),
+        &mut meshes,
+        &mut terrain_data,
+        height_texture,
+    ));
 }
