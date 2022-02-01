@@ -200,7 +200,6 @@ name = "bevy"
 version = "0.6.0"
 source = "git+https://github.com/fintelia/bevy?branch=renderpass-access#e2d490a407193d7d87da2346784678db524b29e3"
 dependencies = [
- "bevy_dylib",
  "bevy_internal",
 ]
 
@@ -353,14 +352,6 @@ dependencies = [
  "bevy_ecs",
  "bevy_log",
  "bevy_utils",
-]
-
-[[package]]
-name = "bevy_dylib"
-version = "0.6.0"
-source = "git+https://github.com/fintelia/bevy?branch=renderpass-access#e2d490a407193d7d87da2346784678db524b29e3"
-dependencies = [
- "bevy_internal",
 ]
 
 [[package]]

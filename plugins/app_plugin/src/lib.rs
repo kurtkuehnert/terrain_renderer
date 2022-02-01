@@ -9,10 +9,12 @@ use bevy::{
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
+use bevy_terrain::compute::PreparationData;
+use bevy_terrain::node_atlas::NodeAtlas;
 use bevy_terrain::{
     bundles::TerrainBundle,
-    quadtree::{NodeAtlas, Nodes, Quadtree, TreeUpdate},
-    render::terrain_data::TerrainData,
+    quadtree::{Nodes, Quadtree, TreeUpdate},
+    render::render_data::RenderData,
     terrain::TerrainConfig,
     TerrainPlugin,
 };
@@ -48,7 +50,7 @@ impl Plugin for AppPlugin {
         ignore_components.insert(TypeId::of::<TreeUpdate>());
         ignore_components.insert(TypeId::of::<Nodes>());
         ignore_components.insert(TypeId::of::<NodeAtlas>());
-        ignore_components.insert(TypeId::of::<TerrainData>());
+        ignore_components.insert(TypeId::of::<RenderData>());
 
         app.insert_resource(Msaa { samples: 4 })
             .insert_resource(WorldInspectorParams {
@@ -69,7 +71,8 @@ fn setup_scene(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut terrain_data: ResMut<Assets<TerrainData>>,
+    mut terrain_data: ResMut<Assets<RenderData>>,
+    mut preparation_data: ResMut<Assets<PreparationData>>,
 ) {
     let config = TerrainConfig::new(128, 3, UVec2::new(2, 2));
 
@@ -85,6 +88,7 @@ fn setup_scene(
         config.clone(),
         &mut meshes,
         &mut terrain_data,
+        &mut preparation_data,
         height_texture,
     ));
 }

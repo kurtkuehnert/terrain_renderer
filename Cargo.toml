@@ -9,7 +9,7 @@ members = ["plugins/*"]
 
 [features]
 default = [
-    "bevy/dynamic"
+    # "bevy/dynamic"
 ]
 
 [dependencies]
