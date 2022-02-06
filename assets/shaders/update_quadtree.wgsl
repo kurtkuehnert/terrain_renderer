@@ -22,7 +22,7 @@ fn node_position(id: u32) -> NodePosition {
     return NodePosition((id >> 28u) & 0xFu, (id >> 14u) & 0x3FFFu, id & 0x3FFFu);
 }
 
-[[stage(compute), workgroup_size(8, 8, 1)]]
+[[stage(compute), workgroup_size(1, 1, 1)]]
 fn update_quadtree(
     [[builtin(global_invocation_id)]] invocation_id: vec3<u32>
 ) {
