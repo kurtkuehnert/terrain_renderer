@@ -74,7 +74,7 @@ fn setup_scene(
     mut terrain_data: ResMut<Assets<RenderData>>,
     mut preparation_data: ResMut<Assets<PreparationData>>,
 ) {
-    let config = TerrainConfig::new(128, 3, UVec2::new(2, 2));
+    let config = TerrainConfig::new(32, 5, UVec2::new(2, 2));
 
     // bevy_terrain::preprocess::generate_node_textures(
     //     &config,

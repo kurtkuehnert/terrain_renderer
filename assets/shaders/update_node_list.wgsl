@@ -43,8 +43,13 @@ fn prepare_next() {
 }
 
 [[stage(compute), workgroup_size(1, 1, 1)]]
+fn prepare_patch() {
+    indirect_buffer.workgroup_count_x = atomicLoad(&parameters.final_index);
+}
+
+[[stage(compute), workgroup_size(1, 1, 1)]]
 fn prepare_render() {
     indirect_buffer.workgroup_count_x = 640u; // vertext count
-    indirect_buffer.workgroup_count_y = atomicLoad(&parameters.final_index);
+    indirect_buffer.workgroup_count_y = 64u * atomicLoad(&parameters.final_index);
     indirect_buffer.workgroup_count_z = 0u;
 }
