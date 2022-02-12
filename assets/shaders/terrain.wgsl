@@ -2,11 +2,15 @@
 #import bevy_pbr::mesh_view_bind_group
 #import bevy_pbr::mesh_struct
 
-struct UniformData {
+struct TerrainConfig {
+    lod_count: u32;
+    chunk_size: u32;
+    area_count: vec2<u32>;
+    scale: f32;
     height: f32;
 };
 
-struct Patch {
+struct PatchInfo {
     position: vec2<u32>;
     size: u32;
     atlas_index: u32;
@@ -14,7 +18,7 @@ struct Patch {
 };
 
 struct PatchList {
-    data: array<Patch>;
+    data: array<PatchInfo>;
 };
 
 // vertex intput
@@ -38,12 +42,12 @@ var<uniform> mesh: Mesh;
 
 // terrain data bindings
 [[group(2), binding(0)]]
-var<uniform> uniform_data: UniformData;
+var<uniform> terrain_config: TerrainConfig;
 [[group(2), binding(1)]]
 var height_texture: texture_2d<u32>;
 
-[[group(3), binding(2)]]
-var<storage, read_write> patch_list: PatchList;
+[[group(3), binding(0)]]
+var<storage> patch_list: PatchList;
 
 [[stage(vertex)]]
 fn vertex(vertex: Vertex) -> Fragment {
@@ -54,7 +58,7 @@ fn vertex(vertex: Vertex) -> Fragment {
     let coords = vec2<i32>(local_position.xz);
     let height = f32(textureLoad(height_texture, coords, 0).r) / 65535.0;
 
-    local_position.y = height * uniform_data.height;
+    local_position.y = height * terrain_config.height;
 
     let world_position = mesh.model * local_position;
 
