@@ -10,11 +10,10 @@ use bevy::{
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 use bevy_terrain::node_atlas::NodeAtlas;
-use bevy_terrain::render::preparation_data::PreparationData;
+use bevy_terrain::render::terrain_data::TerrainData;
 use bevy_terrain::{
     bundles::TerrainBundle,
     quadtree::{Nodes, Quadtree, TreeUpdate},
-    render::terrain_data::TerrainData,
     terrain::TerrainConfig,
     TerrainPlugin,
 };
@@ -72,7 +71,6 @@ fn setup_scene(
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut terrain_data: ResMut<Assets<TerrainData>>,
-    mut preparation_data: ResMut<Assets<PreparationData>>,
 ) {
     let config = TerrainConfig::new(32, 5, UVec2::new(2, 2), 1.0, 200.0);
 
@@ -88,7 +86,6 @@ fn setup_scene(
         config.clone(),
         &mut meshes,
         &mut terrain_data,
-        &mut preparation_data,
         height_texture,
     ));
 }

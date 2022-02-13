@@ -43,8 +43,6 @@ var<uniform> mesh: Mesh;
 // terrain data bindings
 [[group(2), binding(0)]]
 var<uniform> terrain_config: TerrainConfig;
-[[group(2), binding(1)]]
-var height_texture: texture_2d<u32>;
 
 [[group(3), binding(0)]]
 var<storage> patch_list: PatchList;
@@ -56,7 +54,9 @@ fn vertex(vertex: Vertex) -> Fragment {
     var local_position = patch_position + vec4<f32>(vertex.position, 0.0) * f32(patch.size);
 
     let coords = vec2<i32>(local_position.xz);
-    let height = f32(textureLoad(height_texture, coords, 0).r) / 65535.0;
+    // let height = f32(textureLoad(height_texture, coords, 0).r) / 65535.0;
+
+    let height = 0.0;
 
     local_position.y = height * terrain_config.height;
 
