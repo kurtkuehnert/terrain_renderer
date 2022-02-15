@@ -14,6 +14,7 @@ struct PatchInfo {
     position: vec2<u32>;
     size: u32;
     atlas_index: u32;
+    coord_offset: u32;
     lod: u32;
 };
 
@@ -33,7 +34,7 @@ struct Vertex {
 struct Fragment {
     [[builtin(position)]] frag_coord: vec4<f32>;
     [[location(0)]] color: vec4<f32>;
-    [[location(2)]] world_position: vec4<f32>;
+    [[location(1)]] world_position: vec4<f32>;
 };
 
 // mesh bindings
@@ -43,6 +44,8 @@ var<uniform> mesh: Mesh;
 // terrain data bindings
 [[group(2), binding(0)]]
 var<uniform> terrain_config: TerrainConfig;
+[[group(2), binding(1)]]
+var height_atlas: texture_2d_array<u32>;
 
 [[group(3), binding(0)]]
 var<storage> patch_list: PatchList;
@@ -53,10 +56,8 @@ fn vertex(vertex: Vertex) -> Fragment {
     let patch_position = vec4<f32>(f32(patch.position.x), 0.0, f32(patch.position.y), 1.0);
     var local_position = patch_position + vec4<f32>(vertex.position, 0.0) * f32(patch.size);
 
-    let coords = vec2<i32>(local_position.xz);
-    // let height = f32(textureLoad(height_texture, coords, 0).r) / 65535.0;
-
-    let height = 0.0;
+    let coords = vec2<i32>(vertex.position.xz * 4.0)  + 4 * vec2<i32>(i32(patch.coord_offset % 8u), i32(patch.coord_offset / 8u));
+    let height = f32(textureLoad(height_atlas, coords, i32(patch.atlas_index), 0).r) / 65535.0;
 
     local_position.y = height * terrain_config.height;
 

@@ -68,11 +68,10 @@ impl Plugin for AppPlugin {
 
 fn setup_scene(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut terrain_data: ResMut<Assets<TerrainData>>,
 ) {
-    let config = TerrainConfig::new(32, 5, UVec2::new(2, 2), 1.0, 200.0);
+    let config = TerrainConfig::new(32, 5, UVec2::new(2, 2), 1.0, 200.0, 2048);
 
     // bevy_terrain::preprocess::generate_node_textures(
     //     &config,
@@ -80,12 +79,9 @@ fn setup_scene(
     //     "assets/output/",
     // );
 
-    let height_texture = asset_server.load("heightmaps/heightmap.png");
-
     commands.spawn_bundle(TerrainBundle::new(
         config.clone(),
         &mut meshes,
         &mut terrain_data,
-        height_texture,
     ));
 }

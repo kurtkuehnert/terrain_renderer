@@ -669,6 +669,7 @@ dependencies = [
  "image",
  "itertools",
  "lru",
+ "wgpu",
 ]
 
 [[package]]

@@ -12,6 +12,7 @@ struct Patch {
     position: vec2<u32>;
     size: u32;
     atlas_index: u32;
+    coord_offset: u32;
     lod: u32;
 };
 
@@ -42,13 +43,15 @@ fn build_patch_list(
     let patch_id = invocation_id.xy;
     let patch_size = 4u * (1u << node_position.lod);
     let patch_position = (vec2<u32>(node_position.x, node_position.y) * 8u + patch_id) * patch_size;
-    let patch_index = node_index * 64u + patch_id.y * 8u + patch_id.x;
+    let coord_offset = patch_id.y * 8u + patch_id.x;
+    let patch_index = node_index * 64u + coord_offset;
     let atlas_index = textureLoad(quadtree, vec2<i32>(i32(node_position.x), i32(node_position.y)), i32(node_position.lod)).x;
 
     var patch: Patch;
     patch.position = patch_position;
     patch.size = patch_size;
     patch.atlas_index = atlas_index;
+    patch.coord_offset = coord_offset;
     patch.lod = node_position.lod;
     patch_list.data[patch_index] = patch;
 }
