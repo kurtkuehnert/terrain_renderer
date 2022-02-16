@@ -6,7 +6,15 @@ struct NodePosition {
     y: u32;
 };
 
-struct NodeBuffer {
+fn node_id(lod: u32, x: u32, y: u32) -> u32 {
+    return (lod & 0xFu) << 28u | (x & 0x3FFFu) << 14u | (y & 0x3FFFu);
+}
+
+fn node_position(id: u32) -> NodePosition {
+    return NodePosition((id >> 28u) & 0xFu, (id >> 14u) & 0x3FFFu, id & 0x3FFFu);
+}
+
+struct NodeList {
     data: array<u32>;
 };
 
@@ -21,19 +29,11 @@ var quadtree: texture_2d<u32>;
 [[group(0), binding(1)]]
 var<storage, read_write> parameters: Parameters;
 [[group(0), binding(2)]]
-var<storage, read_write> parent_buffer: NodeBuffer;
+var<storage, read_write> parent_list: NodeList;
 [[group(0), binding(3)]]
-var<storage, read_write> child_buffer: NodeBuffer;
+var<storage, read_write> child_list: NodeList;
 [[group(0), binding(4)]]
-var<storage, read_write> final_buffer: NodeBuffer;
-
-fn node_id(lod: u32, x: u32, y: u32) -> u32 {
-    return (lod & 0xFu) << 28u | (x & 0x3FFFu) << 14u | (y & 0x3FFFu);
-}
-
-fn node_position(id: u32) -> NodePosition {
-    return NodePosition((id >> 28u) & 0xFu, (id >> 14u) & 0x3FFFu, id & 0x3FFFu);
-}
+var<storage, read_write> final_list: NodeList;
 
 [[stage(compute), workgroup_size(1, 1, 1)]]
 fn build_area_list(
@@ -47,7 +47,7 @@ fn build_area_list(
 
     if (atlas_id < INACTIVE_ID) {
         let child_index = atomicAdd(&parameters.child_index, 1u);
-        child_buffer.data[child_index] = id;
+        child_list.data[child_index] = id;
     }
 }
 
@@ -56,7 +56,7 @@ fn build_node_list(
     [[builtin(global_invocation_id)]] invocation_id: vec3<u32>
 ) {
     let parent_index = invocation_id.x;
-    let parent_id = parent_buffer.data[parent_index];
+    let parent_id = parent_list.data[parent_index];
     let parent_position = node_position(parent_id);
 
     var loaded: u32 = 0u;
@@ -77,12 +77,12 @@ fn build_node_list(
     if (loaded == 0xFu) {
         for (var i: u32 = 0u; i < 4u; i = i + 1u) {
             let child_index = atomicAdd(&parameters.child_index, 1u);
-            child_buffer.data[child_index] = child_ids[i];
+            child_list.data[child_index] = child_ids[i];
         }
     }
     else {
         let final_index = atomicAdd(&parameters.final_index, 1u);
-        final_buffer.data[final_index] = parent_id;
+        final_list.data[final_index] = parent_id;
     }
 }
 
@@ -93,7 +93,7 @@ fn build_chunk_list(
     let parent_index = invocation_id.x;
 
     let final_index = atomicAdd(&parameters.final_index, 1u);
-    final_buffer.data[final_index] = parent_buffer.data[parent_index];
+    final_list.data[final_index] = parent_list.data[parent_index];
 }
 
 
