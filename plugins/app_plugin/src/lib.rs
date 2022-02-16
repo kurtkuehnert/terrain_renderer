@@ -13,7 +13,7 @@ use bevy_terrain::node_atlas::NodeAtlas;
 use bevy_terrain::render::terrain_data::TerrainData;
 use bevy_terrain::{
     bundles::TerrainBundle,
-    quadtree::{Nodes, Quadtree, TreeUpdate},
+    quadtree::{Nodes, Quadtree},
     terrain::TerrainConfig,
     TerrainPlugin,
 };
@@ -46,7 +46,6 @@ impl Plugin for AppPlugin {
         ignore_components.insert(TypeId::of::<Aabb>());
 
         ignore_components.insert(TypeId::of::<Quadtree>());
-        ignore_components.insert(TypeId::of::<TreeUpdate>());
         ignore_components.insert(TypeId::of::<Nodes>());
         ignore_components.insert(TypeId::of::<NodeAtlas>());
         ignore_components.insert(TypeId::of::<TerrainData>());
