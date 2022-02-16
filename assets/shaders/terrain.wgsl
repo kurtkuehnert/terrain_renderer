@@ -5,6 +5,8 @@
 struct TerrainConfig {
     lod_count: u32;
     chunk_size: u32;
+    patch_size: u32;
+    index_count: u32;
     area_count: vec2<u32>;
     scale: f32;
     height: f32;
