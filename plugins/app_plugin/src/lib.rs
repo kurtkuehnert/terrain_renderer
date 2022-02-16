@@ -9,13 +9,9 @@ use bevy::{
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
-use bevy_terrain::node_atlas::NodeAtlas;
-use bevy_terrain::render::terrain_data::TerrainData;
 use bevy_terrain::{
-    bundles::TerrainBundle,
-    quadtree::{Nodes, Quadtree},
-    terrain::TerrainConfig,
-    TerrainPlugin,
+    bundles::TerrainBundle, config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree,
+    render::terrain_data::TerrainData, TerrainPlugin,
 };
 use std::any::TypeId;
 
@@ -46,7 +42,6 @@ impl Plugin for AppPlugin {
         ignore_components.insert(TypeId::of::<Aabb>());
 
         ignore_components.insert(TypeId::of::<Quadtree>());
-        ignore_components.insert(TypeId::of::<Nodes>());
         ignore_components.insert(TypeId::of::<NodeAtlas>());
         ignore_components.insert(TypeId::of::<TerrainData>());
 
