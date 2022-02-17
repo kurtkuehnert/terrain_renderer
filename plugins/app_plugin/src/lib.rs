@@ -2,9 +2,9 @@ mod camera;
 
 use crate::camera::{setup_camera, toggle_camera_system};
 use bevy::{
-    pbr::{Clusters, VisiblePointLights},
+    pbr::{wireframe::Wireframe, Clusters, VisiblePointLights},
     prelude::*,
-    render::{primitives::Aabb, primitives::Frustum, view::VisibleEntities},
+    render::{primitives::Frustum, view::VisibleEntities},
     utils::HashSet,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
@@ -34,16 +34,12 @@ impl Plugin for AppPlugin {
         ignore_components.insert(TypeId::of::<Frustum>());
         ignore_components.insert(TypeId::of::<Clusters>());
         ignore_components.insert(TypeId::of::<VisiblePointLights>());
-        ignore_components.insert(TypeId::of::<ComputedVisibility>());
-        ignore_components.insert(TypeId::of::<Children>());
-        ignore_components.insert(TypeId::of::<Parent>());
         ignore_components.insert(TypeId::of::<PreviousParent>());
         ignore_components.insert(TypeId::of::<FlyCamera>());
-        ignore_components.insert(TypeId::of::<Aabb>());
 
         ignore_components.insert(TypeId::of::<Quadtree>());
         ignore_components.insert(TypeId::of::<NodeAtlas>());
-        ignore_components.insert(TypeId::of::<TerrainData>());
+        ignore_components.insert(TypeId::of::<Handle<TerrainData>>());
 
         app.insert_resource(Msaa { samples: 4 })
             .insert_resource(WorldInspectorParams {
@@ -56,15 +52,12 @@ impl Plugin for AppPlugin {
             .add_plugin(TerrainPlugin)
             .add_startup_system(setup_scene)
             .add_startup_system(setup_camera)
-            .add_system(toggle_camera_system);
+            .add_system(toggle_camera_system)
+            .add_system(toggle_wireframe_system);
     }
 }
 
-fn setup_scene(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut terrain_data: ResMut<Assets<TerrainData>>,
-) {
+fn setup_scene(mut commands: Commands, mut terrain_data: ResMut<Assets<TerrainData>>) {
     let config = TerrainConfig::new(32, 5, UVec2::new(2, 2), 1.0, 200.0, 2048);
 
     // bevy_terrain::preprocess::generate_node_textures(
@@ -73,9 +66,22 @@ fn setup_scene(
     //     "assets/output/",
     // );
 
-    commands.spawn_bundle(TerrainBundle::new(
-        config.clone(),
-        &mut meshes,
-        &mut terrain_data,
-    ));
+    commands
+        .spawn_bundle(TerrainBundle::new(config, &mut terrain_data))
+        .insert(Wireframe);
+}
+
+fn toggle_wireframe_system(
+    mut commands: Commands,
+    input: Res<Input<KeyCode>>,
+    terrain_query: Query<(Entity, Option<&Wireframe>), With<Handle<TerrainData>>>,
+) {
+    if input.just_pressed(KeyCode::W) {
+        for (entity, wireframe) in terrain_query.iter() {
+            match wireframe {
+                None => commands.entity(entity).insert(Wireframe),
+                Some(_) => commands.entity(entity).remove::<Wireframe>(),
+            };
+        }
+    }
 }

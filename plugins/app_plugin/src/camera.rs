@@ -46,8 +46,9 @@ pub(crate) fn setup_camera(mut commands: Commands) {
             ..Default::default()
         })
         .insert(FlyCamera {
-            accel: 3.0,
-            max_speed: 5.0,
+            accel: 2.0,
+            max_speed: 1.0,
+            sensitivity: 30.0,
             key_forward: KeyCode::Up,
             key_backward: KeyCode::Down,
             key_left: KeyCode::Left,

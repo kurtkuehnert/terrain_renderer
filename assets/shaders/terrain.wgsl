@@ -6,7 +6,7 @@ struct TerrainConfig {
     lod_count: u32;
     chunk_size: u32;
     patch_size: u32;
-    index_count: u32;
+    vertices_per_row: u32;
     area_count: vec2<u32>;
     scale: f32;
     height: f32;
@@ -26,15 +26,13 @@ struct PatchList {
 
 // vertex intput
 struct Vertex {
-    [[builtin(instance_index)]] index: u32;
-    [[location(0)]] position: vec3<f32>;
-    [[location(1)]] normal: vec3<f32>;
-    [[location(2)]] uv: vec2<f32>;
+    [[builtin(instance_index)]] instance: u32;
+    [[builtin(vertex_index)]] index: u32;
 };
 
 // fragment input
 struct Fragment {
-    [[builtin(position)]] frag_coord: vec4<f32>;
+    [[builtin(position)]] position: vec4<f32>;
     [[location(0)]] color: vec4<f32>;
     [[location(1)]] world_position: vec4<f32>;
 };
@@ -45,7 +43,7 @@ var<uniform> mesh: Mesh;
 
 // terrain data bindings
 [[group(2), binding(0)]]
-var<uniform> terrain_config: TerrainConfig;
+var<uniform> config: TerrainConfig;
 [[group(2), binding(1)]]
 var height_atlas: texture_2d_array<u32>;
 
@@ -54,19 +52,27 @@ var<storage> patch_list: PatchList;
 
 [[stage(vertex)]]
 fn vertex(vertex: Vertex) -> Fragment {
-    let patch = patch_list.data[vertex.index];
-    let patch_position = vec4<f32>(f32(patch.position.x), 0.0, f32(patch.position.y), 1.0);
-    var local_position = patch_position + vec4<f32>(vertex.position, 0.0) * f32(patch.size);
+    let row_index = clamp(vertex.index % config.vertices_per_row, 1u, config.vertices_per_row - 2u) - 1u; // use first and last index twice, to form degenerate triangles
+    let vertex_position = vec2<u32>((row_index & 1u) + vertex.index / config.vertices_per_row, row_index >> 1u);
 
-    let coords = vec2<i32>(vertex.position.xz * 4.0)  + 4 * vec2<i32>(i32(patch.coord_offset % 8u), i32(patch.coord_offset / 8u));
-    let height = f32(textureLoad(height_atlas, coords, i32(patch.atlas_index), 0).r) / 65535.0;
+    let patch = patch_list.data[vertex.instance];
 
-    local_position.y = height * terrain_config.height;
+    let coords = vec2<i32>(
+        i32(vertex_position.x + config.patch_size * (patch.coord_offset & 7u)),
+        i32(vertex_position.y + config.patch_size * (patch.coord_offset >> 3u))
+    );
 
-    let world_position = mesh.model * local_position;
+    let height = config.height * f32(textureLoad(height_atlas, coords, i32(patch.atlas_index), 0).r) / 65535.0;
+
+    let world_position = mesh.model * vec4<f32>(
+        f32(patch.position.x + vertex_position.x * patch.size),
+        height,
+        f32(patch.position.y + vertex_position.y * patch.size),
+        1.0
+    );
 
     var out: Fragment;
-    out.frag_coord = view.view_proj * world_position;
+    out.position = view.view_proj * world_position;
     out.world_position = world_position;
 
     out.color = vec4<f32>(1.0);
@@ -92,7 +98,7 @@ fn vertex(vertex: Vertex) -> Fragment {
 
 [[stage(fragment)]]
 fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
-    var output_color: vec4<f32> = fragment.color;
-    output_color = output_color / pow(length(view.world_position.xyz - fragment.world_position.xyz), 1.5) * 20000.0;
+    var output_color = fragment.color;
+    output_color = output_color / pow(length(view.world_position.xyz - fragment.world_position.xyz), 1.5) * 2000.0;
     return output_color;
 }
