@@ -14,7 +14,7 @@ struct TerrainConfig {
 
 struct PatchInfo {
     position: vec2<u32>;
-    size: u32;
+    scale: u32;
     atlas_index: u32;
     coord_offset: u32;
     lod: u32;
@@ -65,9 +65,9 @@ fn vertex(vertex: Vertex) -> Fragment {
     let height = config.height * f32(textureLoad(height_atlas, coords, i32(patch.atlas_index), 0).r) / 65535.0;
 
     let world_position = mesh.model * vec4<f32>(
-        f32(patch.position.x + vertex_position.x * patch.size),
+        f32(patch.position.x + vertex_position.x * patch.scale),
         height,
-        f32(patch.position.y + vertex_position.y * patch.size),
+        f32(patch.position.y + vertex_position.y * patch.scale),
         1.0
     );
 
