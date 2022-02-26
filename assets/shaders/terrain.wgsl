@@ -18,6 +18,7 @@ struct PatchInfo {
     atlas_index: u32;
     coord_offset: u32;
     lod: u32;
+    lod_delta: u32; // should be u16
 };
 
 struct PatchList {
@@ -91,6 +92,9 @@ fn vertex(vertex: Vertex) -> Fragment {
     }
     if (patch.lod == 4u) {
         out.color = vec4<f32>(1.0,0.0,1.0,1.0);
+    }
+    if (patch.lod_delta != 0u) {
+    out.color = vec4<f32>(0.0,1.0,1.0,1.0);
     }
 
     return out;
