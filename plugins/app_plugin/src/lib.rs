@@ -2,18 +2,21 @@ mod camera;
 
 use crate::camera::{setup_camera, toggle_camera_system};
 use bevy::{
-    pbr::{wireframe::Wireframe, Clusters, VisiblePointLights},
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    pbr::{
+        wireframe::{Wireframe, WireframePlugin},
+        Clusters, VisiblePointLights,
+    },
     prelude::*,
     render::{primitives::Frustum, view::VisibleEntities},
     utils::HashSet,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
-use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 use bevy_terrain::{
     bundles::TerrainBundle, config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree,
     render::terrain_data::TerrainData, TerrainPlugin,
 };
-use std::any::TypeId;
+use std::{any::TypeId, time::Duration};
 
 /// A plugin, which sets up the testing application.
 pub struct AppPlugin;
@@ -22,8 +25,7 @@ impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
         // enable asset hot reloading
         app.world
-            .get_resource::<AssetServer>()
-            .unwrap()
+            .resource::<AssetServer>()
             .watch_for_changes()
             .unwrap();
 
@@ -42,13 +44,20 @@ impl Plugin for AppPlugin {
         ignore_components.insert(TypeId::of::<Handle<TerrainData>>());
 
         app.insert_resource(Msaa { samples: 4 })
-            .insert_resource(WorldInspectorParams {
-                despawnable_entities: true,
-                ignore_components,
-                ..Default::default()
+            // .insert_resource(WorldInspectorParams {
+            //     despawnable_entities: true,
+            //     ignore_components,
+            //     ..Default::default()
+            // })
+            // .add_plugin(WorldInspectorPlugin::new())
+            .add_plugin(WireframePlugin)
+            .add_plugin(LogDiagnosticsPlugin {
+                debug: false,
+                wait_duration: Duration::from_secs(5),
+                filter: None,
             })
+            .add_plugin(FrameTimeDiagnosticsPlugin)
             .add_plugin(FlyCameraPlugin)
-            .add_plugin(WorldInspectorPlugin::new())
             .add_plugin(TerrainPlugin)
             .add_startup_system(setup_scene)
             .add_startup_system(setup_camera)

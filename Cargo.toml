@@ -10,13 +10,9 @@ members = ["plugins/*"]
 [features]
 default = [
     # "bevy/dynamic"
-
     # "bevy/trace_chrome"
 ]
 
 [dependencies]
-bevy = "0.6.0"
-app_plugin = { path = "plugins/app_plugin" }
-
-[patch.crates-io]
-bevy = { git="https://github.com/fintelia/bevy" , branch = "renderpass-access"}
+bevy = { git="https://github.com/bevyengine/bevy" }
+app_plugin = { path="plugins/app_plugin" }
