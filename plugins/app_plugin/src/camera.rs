@@ -22,7 +22,7 @@ pub(crate) fn toggle_camera_system(
 pub(crate) fn setup_camera(mut commands: Commands) {
     let perspective_projection = PerspectiveProjection {
         far: 10000.0,
-        ..Default::default()
+        ..default()
     };
     let view_projection = perspective_projection.get_projection_matrix();
     let frustum = Frustum::from_view_projection(
@@ -38,12 +38,12 @@ pub(crate) fn setup_camera(mut commands: Commands) {
                 name: Some(CameraPlugin::CAMERA_3D.to_string()),
                 near: perspective_projection.near,
                 far: perspective_projection.far,
-                ..Default::default()
+                ..default()
             },
             perspective_projection,
             frustum,
             transform: Transform::from_xyz(-300.0, 150.0, -300.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..Default::default()
+            ..default()
         })
         .insert(FlyCamera {
             accel: 2.0,
@@ -56,7 +56,7 @@ pub(crate) fn setup_camera(mut commands: Commands) {
             key_up: KeyCode::LShift,
             key_down: KeyCode::LControl,
             enabled: false,
-            ..Default::default()
+            ..default()
         })
         .insert(ViewDistance::default());
 }

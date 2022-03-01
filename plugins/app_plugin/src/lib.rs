@@ -47,7 +47,7 @@ impl Plugin for AppPlugin {
             // .insert_resource(WorldInspectorParams {
             //     despawnable_entities: true,
             //     ignore_components,
-            //     ..Default::default()
+            //     ..default()
             // })
             // .add_plugin(WorldInspectorPlugin::new())
             .add_plugin(WireframePlugin)
