@@ -54,20 +54,42 @@ var<storage> patch_list: PatchList;
 [[stage(vertex)]]
 fn vertex(vertex: Vertex) -> Fragment {
     let row_index = clamp(vertex.index % config.vertices_per_row, 1u, config.vertices_per_row - 2u) - 1u; // use first and last index twice, to form degenerate triangles
-    let vertex_position = vec2<u32>((row_index & 1u) + vertex.index / config.vertices_per_row, row_index >> 1u);
+    var vertex_position = vec2<u32>((row_index & 1u) + vertex.index / config.vertices_per_row, row_index >> 1u);
 
     let patch = patch_list.data[vertex.instance];
+
+    // stitch the edges of the patches together
+    if (vertex_position.x == 0u) {
+        let delta_left = patch.lod_delta >> 12u;
+        let offset = vertex_position.y % (1u << delta_left);
+        vertex_position.y = vertex_position.y - offset;
+    }
+    if (vertex_position.y == 0u) {
+        let delta_up = (patch.lod_delta >> 8u) & 7u;
+        let offset = vertex_position.x % (1u << delta_up);
+        vertex_position.x = vertex_position.x - offset;
+    }
+    if (vertex_position.x == config.patch_size) {
+        let delta_right = (patch.lod_delta >> 4u) & 7u;
+        let offset = vertex_position.y % (1u << delta_right);
+        vertex_position.y = vertex_position.y - offset;
+    }
+    if (vertex_position.y == config.patch_size) {
+        let delta_down = patch.lod_delta & 7u;
+        let offset = vertex_position.x % (1u << delta_down);
+        vertex_position.x = vertex_position.x - offset;
+    }
 
     let coords = vec2<i32>(
         i32(vertex_position.x + config.patch_size * (patch.coord_offset & 7u)),
         i32(vertex_position.y + config.patch_size * (patch.coord_offset >> 3u))
     );
 
-    let height = config.height * f32(textureLoad(height_atlas, coords, i32(patch.atlas_index), 0).r) / 65535.0;
+    let height = f32(textureLoad(height_atlas, coords, i32(patch.atlas_index), 0).r) / 65535.0;
 
     let world_position = mesh.model * vec4<f32>(
         f32(patch.position.x + vertex_position.x * patch.scale),
-        height,
+        config.height * height,
         f32(patch.position.y + vertex_position.y * patch.scale),
         1.0
     );
@@ -78,24 +100,30 @@ fn vertex(vertex: Vertex) -> Fragment {
 
     out.color = vec4<f32>(1.0);
 
-    if (patch.lod == 0u) {
-        out.color = vec4<f32>(1.0,0.0,0.0,1.0);
+    let colored = false;
+
+    if (colored) {
+        if (patch.lod == 0u) {
+            out.color = vec4<f32>(1.0,0.0,0.0,1.0);
+        }
+        if (patch.lod == 1u) {
+            out.color = vec4<f32>(0.0,1.0,0.0,1.0);
+        }
+        if (patch.lod == 2u) {
+            out.color = vec4<f32>(0.0,0.0,1.0,1.0);
+        }
+        if (patch.lod == 3u) {
+            out.color = vec4<f32>(1.0,1.0,0.0,1.0);
+        }
+        if (patch.lod == 4u) {
+            out.color = vec4<f32>(1.0,0.0,1.0,1.0);
+        }
+        if (patch.lod_delta != 0u) {
+            out.color = vec4<f32>(0.0,1.0,1.0,1.0);
+        }
     }
-    if (patch.lod == 1u) {
-        out.color = vec4<f32>(0.0,1.0,0.0,1.0);
-    }
-    if (patch.lod == 2u) {
-        out.color = vec4<f32>(0.0,0.0,1.0,1.0);
-    }
-    if (patch.lod == 3u) {
-        out.color = vec4<f32>(1.0,1.0,0.0,1.0);
-    }
-    if (patch.lod == 4u) {
-        out.color = vec4<f32>(1.0,0.0,1.0,1.0);
-    }
-    if (patch.lod_delta != 0u) {
-    out.color = vec4<f32>(0.0,1.0,1.0,1.0);
-    }
+
+    out.color = out.color * (height + 0.1);
 
     return out;
 }
