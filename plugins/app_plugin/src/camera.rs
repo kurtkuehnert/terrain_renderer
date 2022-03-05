@@ -47,7 +47,7 @@ pub(crate) fn setup_camera(mut commands: Commands) {
         })
         .insert(FlyCamera {
             accel: 2.0,
-            max_speed: 1.0,
+            max_speed: 2.0,
             sensitivity: 30.0,
             key_forward: KeyCode::Up,
             key_backward: KeyCode::Down,
