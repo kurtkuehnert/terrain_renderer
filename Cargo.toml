@@ -14,5 +14,5 @@ default = [
 ]
 
 [dependencies]
-bevy = { git="https://github.com/bevyengine/bevy" }
+bevy = { git="https://github.com/ku95/bevy", branch="texture-formats" }
 app_plugin = { path="plugins/app_plugin" }

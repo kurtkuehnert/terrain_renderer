@@ -197,9 +197,9 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 [[package]]
 name = "bevy"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_internal 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_internal 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
 ]
 
 [[package]]
@@ -226,9 +226,9 @@ dependencies = [
 [[package]]
 name = "bevy-crevice-derive"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_macro_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_macro_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "proc-macro2",
  "quote",
  "syn",
@@ -274,12 +274,12 @@ dependencies = [
 [[package]]
 name = "bevy_app"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_derive 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_derive 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "wasm-bindgen",
  "web-sys",
 ]
@@ -314,16 +314,16 @@ dependencies = [
 [[package]]
 name = "bevy_asset"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "anyhow",
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_diagnostic 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_diagnostic 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_log 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_tasks 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_log 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_tasks 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "crossbeam-channel",
  "downcast-rs",
  "js-sys",
@@ -341,14 +341,14 @@ dependencies = [
 [[package]]
 name = "bevy_audio"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "anyhow",
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_asset 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_asset 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "parking_lot",
  "rodio",
 ]
@@ -372,15 +372,15 @@ dependencies = [
 [[package]]
 name = "bevy_core"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_derive 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_derive 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_tasks 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_tasks 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bytemuck",
 ]
 
@@ -400,22 +400,22 @@ dependencies = [
 [[package]]
 name = "bevy_core_pipeline"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_asset 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_asset 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
  "bevy_render 0.6.0",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
 ]
 
 [[package]]
 name = "bevy_crevice"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy-crevice-derive 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy-crevice-derive 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bytemuck",
  "glam",
  "mint",
@@ -447,9 +447,9 @@ dependencies = [
 [[package]]
 name = "bevy_derive"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_macro_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_macro_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "quote",
  "syn",
 ]
@@ -470,25 +470,25 @@ dependencies = [
 [[package]]
 name = "bevy_diagnostic"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_log 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_log 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
 ]
 
 [[package]]
 name = "bevy_ecs"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "async-channel",
- "bevy_ecs_macros 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_tasks 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_ecs_macros 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_tasks 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "downcast-rs",
  "fixedbitset",
  "fxhash",
@@ -529,9 +529,9 @@ dependencies = [
 [[package]]
 name = "bevy_ecs_macros"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_macro_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_macro_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "proc-macro2",
  "quote",
  "syn",
@@ -563,34 +563,34 @@ dependencies = [
 [[package]]
 name = "bevy_gilrs"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_input 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_input 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "gilrs",
 ]
 
 [[package]]
 name = "bevy_gltf"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "anyhow",
  "base64",
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_asset 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_asset 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_log 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_log 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_pbr 0.6.0",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_render 0.6.0",
- "bevy_scene 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_transform 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_scene 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_transform 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "gltf",
  "percent-encoding",
  "thiserror",
@@ -611,12 +611,12 @@ dependencies = [
 [[package]]
 name = "bevy_input"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
 ]
 
 [[package]]
@@ -653,32 +653,32 @@ dependencies = [
 [[package]]
 name = "bevy_internal"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_asset 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_asset 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_audio",
- "bevy_core 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core_pipeline 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_derive 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_diagnostic 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_core 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core_pipeline 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_derive 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_diagnostic 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
  "bevy_gilrs",
  "bevy_gltf",
- "bevy_input 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_log 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_input 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_log 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_pbr 0.6.0",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_render 0.6.0",
- "bevy_scene 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_sprite 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_tasks 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_text 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_transform 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_scene 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_sprite 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_tasks 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_text 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_transform 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ui 0.6.0",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_window 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_window 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_winit 0.6.0",
  "ndk-glue 0.5.1",
 ]
@@ -701,11 +701,11 @@ dependencies = [
 [[package]]
 name = "bevy_log"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "android_log-sys",
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "console_error_panic_hook",
  "tracing-log",
  "tracing-subscriber",
@@ -726,7 +726,7 @@ dependencies = [
 [[package]]
 name = "bevy_macro_utils"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "cargo-manifest",
  "quote",
@@ -746,28 +746,28 @@ dependencies = [
 [[package]]
 name = "bevy_math"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "glam",
 ]
 
 [[package]]
 name = "bevy_pbr"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_asset 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core_pipeline 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_asset 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core_pipeline 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_render 0.6.0",
- "bevy_transform 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_window 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_transform 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_window 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bitflags",
  "bytemuck",
 ]
@@ -813,10 +813,10 @@ dependencies = [
 [[package]]
 name = "bevy_reflect"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_reflect_derive 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_reflect_derive 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "downcast-rs",
  "erased-serde",
  "glam",
@@ -842,9 +842,9 @@ dependencies = [
 [[package]]
 name = "bevy_reflect_derive"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_macro_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_macro_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "proc-macro2",
  "quote",
  "syn",
@@ -854,20 +854,20 @@ dependencies = [
 [[package]]
 name = "bevy_render"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "anyhow",
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_asset 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_asset 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_crevice 0.6.0",
- "bevy_derive 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_derive 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_transform 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_window 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_transform 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_window 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bitflags",
  "codespan-reporting",
  "copyless",
@@ -944,15 +944,15 @@ dependencies = [
 [[package]]
 name = "bevy_scene"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "anyhow",
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_asset 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_asset 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_transform 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_transform 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "ron",
  "serde",
  "thiserror",
@@ -988,19 +988,19 @@ dependencies = [
 [[package]]
 name = "bevy_sprite"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_asset 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core_pipeline 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_asset 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core_pipeline 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_log 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_log 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_render 0.6.0",
- "bevy_transform 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_transform 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bitflags",
  "bytemuck",
  "copyless",
@@ -1027,7 +1027,7 @@ dependencies = [
 [[package]]
 name = "bevy_tasks"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "async-channel",
  "async-executor",
@@ -1077,21 +1077,21 @@ dependencies = [
 [[package]]
 name = "bevy_text"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "ab_glyph",
  "anyhow",
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_asset 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_asset 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_render 0.6.0",
- "bevy_sprite 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_transform 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_window 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_sprite 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_transform 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_window 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "glyph_brush_layout",
  "serde",
  "thiserror",
@@ -1114,37 +1114,37 @@ dependencies = [
 [[package]]
 name = "bevy_transform"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "smallvec",
 ]
 
 [[package]]
 name = "bevy_ui"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_asset 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_core_pipeline 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_derive 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_asset 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_core_pipeline 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_derive 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_input 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_log 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_reflect 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_input 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_log 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_reflect 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_render 0.6.0",
- "bevy_sprite 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_text 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_transform 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_window 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_sprite 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_text 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_transform 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_window 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bytemuck",
  "serde",
  "smallvec",
@@ -1196,10 +1196,10 @@ dependencies = [
 [[package]]
 name = "bevy_utils"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "ahash",
- "bevy_derive 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_derive 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "getrandom",
  "hashbrown",
  "instant",
@@ -1223,12 +1223,12 @@ dependencies = [
 [[package]]
 name = "bevy_window"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "raw-window-handle",
  "web-sys",
 ]
@@ -1236,15 +1236,15 @@ dependencies = [
 [[package]]
 name = "bevy_winit"
 version = "0.6.0"
-source = "git+https://github.com/bevyengine/bevy#b6a647cc013861b182be5f4c85b60b2709388210"
+source = "git+https://github.com/ku95/bevy?branch=texture-formats#0b3b0f4d87680db94dbe08f17a7bcc45322da811"
 dependencies = [
  "approx",
- "bevy_app 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_app 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "bevy_ecs 0.6.0",
- "bevy_input 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_math 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_utils 0.6.0 (git+https://github.com/bevyengine/bevy)",
- "bevy_window 0.6.0 (git+https://github.com/bevyengine/bevy)",
+ "bevy_input 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_math 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_utils 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
+ "bevy_window 0.6.0 (git+https://github.com/ku95/bevy?branch=texture-formats)",
  "raw-window-handle",
  "wasm-bindgen",
  "web-sys",
