@@ -1,34 +1,8 @@
 // imports the View struct and the view binding, aswell as the lighting structs and bindings
 #import bevy_pbr::mesh_view_bind_group
 #import bevy_pbr::mesh_struct
-
-struct TerrainConfig {
-    lod_count: u32;
-    patch_size: u32;
-    chunk_size: u32;
-    chunk_count: vec2<u32>;
-    texture_size: u32;
-    area_size: u32;
-    area_count: vec2<u32>;
-    terrain_size: vec2<u32>;
-    vertices_per_row: u32;
-    scale: f32;
-    height: f32;
-    node_atlas_size: u32;
-};
-
-struct PatchInfo {
-    position: vec2<u32>;
-    scale: u32;
-    atlas_index: u32;
-    coord_offset: u32;
-    lod: u32;
-    lod_delta: u32; // should be u16
-};
-
-struct PatchList {
-    data: array<PatchInfo>;
-};
+#import bevy_terrain::config
+#import bevy_terrain::patch
 
 // vertex intput
 struct Vertex {
