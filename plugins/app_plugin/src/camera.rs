@@ -1,8 +1,7 @@
-use bevy::render::camera::Camera3d;
 use bevy::{
     prelude::*,
     render::{
-        camera::{CameraPlugin, CameraProjection},
+        camera::{Camera3d, CameraProjection},
         primitives::Frustum,
     },
 };
