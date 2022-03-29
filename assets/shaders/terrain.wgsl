@@ -166,7 +166,7 @@ fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
     let normal = calculate_normal(fragment.uv, fragment.atlas_index, fragment.scale);
     let diffuse = max(dot(direction, normal), 0.0);
 
-    // output_color = output_color * (ambient + diffuse) * 0.5;
+    output_color = output_color * (ambient + diffuse) * 0.5;
 
     return output_color;
 }

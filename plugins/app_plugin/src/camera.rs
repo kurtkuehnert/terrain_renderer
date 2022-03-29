@@ -1,3 +1,4 @@
+use bevy::render::camera::Camera3d;
 use bevy::{
     prelude::*,
     render::{
@@ -35,7 +36,6 @@ pub(crate) fn setup_camera(mut commands: Commands) {
     commands
         .spawn_bundle(PerspectiveCameraBundle {
             camera: Camera {
-                name: Some(CameraPlugin::CAMERA_3D.to_string()),
                 near: perspective_projection.near,
                 far: perspective_projection.far,
                 ..default()
@@ -45,6 +45,7 @@ pub(crate) fn setup_camera(mut commands: Commands) {
             transform: Transform::from_xyz(-300.0, 150.0, -300.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
+        .insert(Camera3d)
         .insert(FlyCamera {
             accel: 2.0,
             max_speed: 2.0,

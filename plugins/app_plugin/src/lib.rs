@@ -69,9 +69,17 @@ impl Plugin for AppPlugin {
 fn setup_scene(mut commands: Commands, mut terrain_data: ResMut<Assets<TerrainData>>) {
     let config = TerrainConfig::new(32, 5, UVec2::new(2, 2), 1.0, 200.0, 2048);
 
+    // bevy_terrain::preprocess::parse::parse_file();
+
     // bevy_terrain::preprocess::generate_node_textures(
     //     &config,
     //     "assets/heightmaps/heightmap.png",
+    //     "assets/output/",
+    // );
+
+    // bevy_terrain::preprocess::generate_node_textures(
+    //     &config,
+    //     "assets/heightmaps/map3.png",
     //     "assets/output/",
     // );
 
