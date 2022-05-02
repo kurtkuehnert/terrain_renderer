@@ -113,6 +113,8 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_fly_camera",
  "bevy_terrain",
+ "image 0.23.14",
+ "itertools",
 ]
 
 [[package]]
@@ -1083,7 +1085,6 @@ dependencies = [
  "lru",
  "strum",
  "strum_macros",
- "wgpu",
 ]
 
 [[package]]
@@ -2338,6 +2339,8 @@ dependencies = [
  "bytemuck",
  "byteorder",
  "color_quant",
+ "gif",
+ "jpeg-decoder 0.1.22",
  "num-iter",
  "num-rational 0.3.2",
  "num-traits",
@@ -2488,6 +2491,9 @@ name = "jpeg-decoder"
 version = "0.1.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "229d53d58899083193af11e15917b5640cd40b29ff475a1fe4ef725deb02d0f2"
+dependencies = [
+ "rayon",
+]
 
 [[package]]
 name = "jpeg-decoder"

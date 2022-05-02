@@ -1,4 +1,5 @@
 mod camera;
+mod parse;
 
 use crate::camera::{setup_camera, toggle_camera_system};
 use bevy::{
@@ -67,19 +68,15 @@ impl Plugin for AppPlugin {
 }
 
 fn setup_scene(mut commands: Commands, mut terrain_data: ResMut<Assets<TerrainData>>) {
-    let config = TerrainConfig::new(32, 5, UVec2::new(2, 2), 1.0, 200.0, 2048);
+    let config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
 
-    // bevy_terrain::preprocess::parse::parse_file();
+    // let path = "assets/heightmaps/Hartenstein.png";
+    // parse::process_map(path, 2);
+    // bevy_terrain::preprocess::generate_node_textures(&config, path, "assets/output/");
 
     // bevy_terrain::preprocess::generate_node_textures(
     //     &config,
     //     "assets/heightmaps/heightmap.png",
-    //     "assets/output/",
-    // );
-
-    // bevy_terrain::preprocess::generate_node_textures(
-    //     &config,
-    //     "assets/heightmaps/map3.png",
     //     "assets/output/",
     // );
 

@@ -41,7 +41,7 @@ pub(crate) fn setup_camera(mut commands: Commands) {
             },
             perspective_projection,
             frustum,
-            transform: Transform::from_xyz(-300.0, 150.0, -300.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(-300.0, 750.0, -300.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(Camera3d)
@@ -53,8 +53,8 @@ pub(crate) fn setup_camera(mut commands: Commands) {
             key_backward: KeyCode::Down,
             key_left: KeyCode::Left,
             key_right: KeyCode::Right,
-            key_up: KeyCode::LShift,
-            key_down: KeyCode::LControl,
+            key_up: KeyCode::PageUp,
+            key_down: KeyCode::PageDown,
             enabled: false,
             ..default()
         })
