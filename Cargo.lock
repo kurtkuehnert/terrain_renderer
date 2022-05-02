@@ -1083,6 +1083,7 @@ dependencies = [
  "image 0.24.1",
  "itertools",
  "lru",
+ "ron",
  "strum",
  "strum_macros",
 ]
@@ -2377,6 +2378,7 @@ checksum = "282a6247722caba404c065016bbfa522806e51714c34f5dfc3e4a3a46fcb4223"
 dependencies = [
  "autocfg",
  "hashbrown",
+ "serde",
 ]
 
 [[package]]
@@ -3457,6 +3459,7 @@ checksum = "1b861ecaade43ac97886a512b360d01d66be9f41f3c61088b42cedf92e03d678"
 dependencies = [
  "base64",
  "bitflags",
+ "indexmap",
  "serde",
 ]
 
