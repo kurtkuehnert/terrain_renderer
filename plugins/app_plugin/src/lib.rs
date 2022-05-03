@@ -15,7 +15,7 @@ use bevy::{
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_terrain::{
     bundles::TerrainBundle, config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree,
-    render::terrain_data::TerrainData, TerrainPlugin,
+    TerrainPlugin,
 };
 use std::{any::TypeId, time::Duration};
 
@@ -42,7 +42,6 @@ impl Plugin for AppPlugin {
 
         ignore_components.insert(TypeId::of::<Quadtree>());
         ignore_components.insert(TypeId::of::<NodeAtlas>());
-        ignore_components.insert(TypeId::of::<Handle<TerrainData>>());
 
         app.insert_resource(Msaa { samples: 4 })
             // .insert_resource(WorldInspectorParams {
@@ -67,7 +66,7 @@ impl Plugin for AppPlugin {
     }
 }
 
-fn setup_scene(mut commands: Commands, mut terrain_data: ResMut<Assets<TerrainData>>) {
+fn setup_scene(mut commands: Commands) {
     let config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
 
     let path = "assets/heightmaps/Hartenstein.png";
@@ -81,14 +80,14 @@ fn setup_scene(mut commands: Commands, mut terrain_data: ResMut<Assets<TerrainDa
     // );
 
     commands
-        .spawn_bundle(TerrainBundle::new(config, &mut terrain_data))
+        .spawn_bundle(TerrainBundle::new(config))
         .insert(Wireframe);
 }
 
 fn toggle_wireframe_system(
     mut commands: Commands,
     input: Res<Input<KeyCode>>,
-    terrain_query: Query<(Entity, Option<&Wireframe>), With<Handle<TerrainData>>>,
+    terrain_query: Query<(Entity, Option<&Wireframe>), With<TerrainConfig>>,
 ) {
     if input.just_pressed(KeyCode::W) {
         for (entity, wireframe) in terrain_query.iter() {
