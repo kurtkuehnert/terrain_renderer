@@ -69,7 +69,7 @@ impl Plugin for AppPlugin {
 fn setup_scene(mut commands: Commands) {
     let config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
 
-    let path = "assets/heightmaps/Hartenstein.png";
+    // let path = "assets/heightmaps/Hartenstein.png";
     // parse::process_map(path, 2);
     // bevy_terrain::preprocess::generate_node_textures(&config, path, "assets/output/");
 
