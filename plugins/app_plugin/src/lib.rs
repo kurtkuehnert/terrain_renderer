@@ -2,6 +2,11 @@ mod camera;
 mod parse;
 
 use crate::camera::{setup_camera, toggle_camera_system};
+use bevy::render::render_resource::{
+    AddressMode, Extent3d, FilterMode, SamplerDescriptor, TextureAspect, TextureDescriptor,
+    TextureDimension, TextureFormat, TextureUsages, TextureViewDescriptor, TextureViewDimension,
+};
+use bevy::utils::HashMap;
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     pbr::{
@@ -13,9 +18,10 @@ use bevy::{
     utils::HashSet,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
+use bevy_terrain::render::height_attachment::add_height_attachment_config;
 use bevy_terrain::{
     bundles::TerrainBundle, config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree,
-    TerrainPlugin,
+    render::gpu_node_atlas::NodeAttachmentConfig, TerrainPlugin,
 };
 use std::{any::TypeId, time::Duration};
 
@@ -67,7 +73,9 @@ impl Plugin for AppPlugin {
 }
 
 fn setup_scene(mut commands: Commands) {
-    let config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
+    let mut config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
+
+    add_height_attachment_config(&mut config);
 
     // let path = "assets/heightmaps/Hartenstein.png";
     // parse::process_map(path, 2);
