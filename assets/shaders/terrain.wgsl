@@ -31,6 +31,10 @@ var<uniform> config: TerrainConfig;
 var height_atlas: texture_2d_array<f32>;
 [[group(2), binding(3)]]
 var height_sampler: sampler;
+[[group(2), binding(4)]]
+var albedo_atlas: texture_2d_array<f32>;
+[[group(2), binding(5)]]
+var albedo_sampler: sampler;
 
 [[group(3), binding(0)]]
 var<storage> patch_list: PatchList;
@@ -133,14 +137,16 @@ fn vertex(vertex: Vertex) -> Fragment {
 [[stage(fragment)]]
 fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
     var output_color = fragment.color;
+    output_color = textureSample(albedo_atlas, albedo_sampler, fragment.uv, fragment.atlas_index, vec2<i32>( 0,  0));
 
     let ambient = 0.1;
-    let light_pos = vec3<f32>(5000.0);
+    let light_pos = vec3<f32>(5000.0, 1000.0, 5000.0);
     let direction = normalize(light_pos - fragment.world_position.xyz);
     let normal = calculate_normal(fragment.uv, fragment.atlas_index, fragment.scale);
     let diffuse = max(dot(direction, normal), 0.0);
 
-    output_color = output_color * (ambient + diffuse) * 0.5;
+    output_color = output_color * (ambient + diffuse) * 1.0;
+
 
     return output_color;
 }

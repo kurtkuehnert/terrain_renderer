@@ -2,11 +2,6 @@ mod camera;
 mod parse;
 
 use crate::camera::{setup_camera, toggle_camera_system};
-use bevy::render::render_resource::{
-    AddressMode, Extent3d, FilterMode, SamplerDescriptor, TextureAspect, TextureDescriptor,
-    TextureDimension, TextureFormat, TextureUsages, TextureViewDescriptor, TextureViewDimension,
-};
-use bevy::utils::HashMap;
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     pbr::{
@@ -18,10 +13,11 @@ use bevy::{
     utils::HashSet,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
+use bevy_terrain::render::albedo_attachment::add_albedo_attachment_config;
 use bevy_terrain::render::height_attachment::add_height_attachment_config;
 use bevy_terrain::{
     bundles::TerrainBundle, config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree,
-    render::gpu_node_atlas::NodeAttachmentConfig, TerrainPlugin,
+    TerrainPlugin,
 };
 use std::{any::TypeId, time::Duration};
 
@@ -76,10 +72,19 @@ fn setup_scene(mut commands: Commands) {
     let mut config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
 
     add_height_attachment_config(&mut config);
+    add_albedo_attachment_config(&mut config);
 
     // let path = "assets/heightmaps/Hartenstein.png";
-    // parse::process_map(path, 2);
-    // bevy_terrain::preprocess::generate_node_textures(&config, path, "assets/output/");
+    // parse::process_height(path, 2);
+    // bevy_terrain::preprocess::generate_node_textures(&config, path, "assets/output/height");
+
+    //let path = "assets/heightmaps/test.png";
+    // parse::process_albedo(path, 2);
+    //bevy_terrain::preprocess::generate_albedo_textures(&config, path, "assets/output/albedo");
+
+    // let path = "assets/heightmaps/Hartenstein_albedo.png";
+    // parse::process_albedo(path, 2);
+    // bevy_terrain::preprocess::generate_albedo_textures(&config, path, "assets/output/albedo");
 
     // bevy_terrain::preprocess::generate_node_textures(
     //     &config,
