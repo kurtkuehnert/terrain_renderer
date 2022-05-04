@@ -6,9 +6,10 @@ edition = "2021"
 
 [dependencies]
 bevy = { git="https://github.com/ku95/bevy", branch="texture-formats" }
-bevy-inspector-egui = { git="https://github.com/jakobhellermann/bevy-inspector-egui" }
 bevy_fly_camera =  { path="../bevy_fly_camera" }
 bevy_terrain = { path="../bevy_terrain" }
+
+# bevy-inspector-egui = { git="https://github.com/jakobhellermann/bevy-inspector-egui" }
 
 itertools = "*"
 image = "*"
