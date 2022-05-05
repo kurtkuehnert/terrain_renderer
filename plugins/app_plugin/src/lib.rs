@@ -13,8 +13,10 @@ use bevy::{
     utils::HashSet,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
-use bevy_terrain::render::albedo_attachment::add_albedo_attachment_config;
-use bevy_terrain::render::height_attachment::add_height_attachment_config;
+
+use bevy_terrain::render::attachments::{
+    add_albedo_attachment_config, add_height_attachment_config,
+};
 use bevy_terrain::{
     bundles::TerrainBundle, config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree,
     TerrainPlugin,
@@ -71,8 +73,8 @@ impl Plugin for AppPlugin {
 fn setup_scene(mut commands: Commands) {
     let mut config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
 
-    add_height_attachment_config(&mut config);
-    add_albedo_attachment_config(&mut config);
+    add_height_attachment_config(&mut config, 129);
+    add_albedo_attachment_config(&mut config, 128 * 5);
 
     // let path = "assets/heightmaps/Hartenstein.png";
     // parse::process_height(path, 2);

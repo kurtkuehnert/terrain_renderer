@@ -6,7 +6,7 @@ use bevy::{
     },
 };
 use bevy_fly_camera::FlyCamera;
-use bevy_terrain::quadtree::ViewDistance;
+use bevy_terrain::viewer::ViewDistance;
 
 pub(crate) fn toggle_camera_system(
     input: Res<Input<KeyCode>>,
