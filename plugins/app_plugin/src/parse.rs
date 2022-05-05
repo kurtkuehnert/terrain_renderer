@@ -1,10 +1,5 @@
-use bevy::prelude::KeyCode::S;
-use image::codecs::pnm::ArbitraryTuplType::RGBAlpha;
-use image::io::{Limits, Reader};
-use image::DynamicImage::{ImageLuma16, ImageRgb8};
-use image::{
-    imageops, DynamicImage, GenericImage, ImageBuffer, ImageFormat, Luma, Rgb, RgbImage, RgbaImage,
-};
+use image::{imageops, io::Reader, GenericImage, ImageBuffer, Luma, RgbaImage};
+
 use itertools::iproduct;
 use std::fs;
 

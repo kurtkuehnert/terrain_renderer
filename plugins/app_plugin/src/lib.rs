@@ -13,12 +13,12 @@ use bevy::{
     utils::HashSet,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
-
-use bevy_terrain::render::attachments::{
-    add_albedo_attachment_config, add_height_attachment_config,
-};
 use bevy_terrain::{
-    bundles::TerrainBundle, config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree,
+    bundles::TerrainBundle,
+    config::TerrainConfig,
+    node_atlas::NodeAtlas,
+    quadtree::Quadtree,
+    render::attachments::{add_albedo_attachment_config, add_height_attachment_config},
     TerrainPlugin,
 };
 use std::{any::TypeId, time::Duration};
