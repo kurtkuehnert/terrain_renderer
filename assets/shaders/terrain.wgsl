@@ -88,7 +88,12 @@ fn vertex(vertex: Vertex) -> Fragment {
         i32(vertex_position.y + config.patch_size * (patch.coord_offset >> 3u))
     );
 
-    let height = textureLoad(height_atlas, coords, i32(patch.atlas_index), 0).r;
+    var height = textureLoad(height_atlas, coords, i32(patch.atlas_index), 0).r;
+
+    // discard vertecies with height 0
+    if (height == 0.0) {
+        height = height / 0.0;
+    }
 
     let world_position = mesh.model * vec4<f32>(
         f32(patch.position.x + vertex_position.x * patch.scale),
