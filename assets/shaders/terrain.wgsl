@@ -28,13 +28,11 @@ var<uniform> mesh: Mesh;
 [[group(2), binding(0)]]
 var<uniform> config: TerrainConfig;
 [[group(2), binding(2)]]
-var height_atlas: texture_2d_array<f32>;
+var filter_sampler: sampler;
 [[group(2), binding(3)]]
-var height_sampler: sampler;
+var height_atlas: texture_2d_array<f32>;
 [[group(2), binding(4)]]
 var albedo_atlas: texture_2d_array<f32>;
-[[group(2), binding(5)]]
-var albedo_sampler: sampler;
 
 [[group(3), binding(0)]]
 var<storage> patch_list: PatchList;
@@ -70,10 +68,10 @@ fn calculate_position(vertex_index: u32, lod_delta: u32) -> vec2<u32> {
 }
 
 fn calculate_normal(uv: vec2<f32>, atlas_index: i32, scale: f32) -> vec3<f32> {
-    let left  = config.height * textureSample(height_atlas, height_sampler, uv, atlas_index, vec2<i32>(-1,  0)).x;
-    let up    = config.height * textureSample(height_atlas, height_sampler, uv, atlas_index, vec2<i32>( 0, -1)).x;
-    let right = config.height * textureSample(height_atlas, height_sampler, uv, atlas_index, vec2<i32>( 1,  0)).x;
-    let down  = config.height * textureSample(height_atlas, height_sampler, uv, atlas_index, vec2<i32>( 0,  1)).x;
+    let left  = config.height * textureSample(height_atlas, filter_sampler, uv, atlas_index, vec2<i32>(-1,  0)).x;
+    let up    = config.height * textureSample(height_atlas, filter_sampler, uv, atlas_index, vec2<i32>( 0, -1)).x;
+    let right = config.height * textureSample(height_atlas, filter_sampler, uv, atlas_index, vec2<i32>( 1,  0)).x;
+    let down  = config.height * textureSample(height_atlas, filter_sampler, uv, atlas_index, vec2<i32>( 0,  1)).x;
     let normal = normalize(vec3<f32>(right - left, 2.0 * scale, down - up));
 
     return normal;
@@ -137,7 +135,7 @@ fn vertex(vertex: Vertex) -> Fragment {
 [[stage(fragment)]]
 fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
     var output_color = fragment.color;
-    output_color = textureSample(albedo_atlas, albedo_sampler, fragment.uv, fragment.atlas_index, vec2<i32>( 0,  0));
+    output_color = textureSample(albedo_atlas, filter_sampler, fragment.uv, fragment.atlas_index, vec2<i32>( 0,  0));
 
     let ambient = 0.1;
     let light_pos = vec3<f32>(5000.0, 1000.0, 5000.0);

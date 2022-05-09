@@ -18,8 +18,8 @@ use bevy::{
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_terrain::attachments::{
-    add_albedo_attachment_config, add_height_attachment_config, AttachmentFromDisk,
-    AttachmentFromDiskConfig,
+    add_albedo_attachment_config, add_height_attachment_config, add_sampler_attachment_config,
+    AttachmentFromDisk, AttachmentFromDiskConfig,
 };
 use bevy_terrain::{
     bundles::TerrainBundle, config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree,
@@ -77,6 +77,7 @@ impl Plugin for AppPlugin {
 fn setup_scene(mut commands: Commands) {
     let mut config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
 
+    add_sampler_attachment_config(&mut config);
     add_height_attachment_config(&mut config, 129);
     add_albedo_attachment_config(&mut config, 128 * 5);
 
