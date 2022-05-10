@@ -108,7 +108,6 @@ fn vertex(vertex: Vertex) -> Fragment {
     out.uv = vec2<f32>(coords) / f32(config.texture_size);
     out.atlas_index = i32(patch.atlas_index);
     out.scale = f32(patch.scale);
-    out.color = vec4<f32>(1.0);
 
     let colored = true;
     let colored = false;
@@ -133,6 +132,9 @@ fn vertex(vertex: Vertex) -> Fragment {
             out.color = vec4<f32>(0.0,1.0,1.0,1.0);
         }
     }
+    else {
+        out.color = vec4<f32>(0.0);
+    }
 
     return out;
 }
@@ -140,7 +142,13 @@ fn vertex(vertex: Vertex) -> Fragment {
 [[stage(fragment)]]
 fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
     var output_color = fragment.color;
-    output_color = textureSample(albedo_atlas, filter_sampler, fragment.uv, fragment.atlas_index, vec2<i32>( 0,  0));
+
+    let albedo = true;
+    // let albedo = false;
+
+    if (albedo){
+        output_color = output_color * 0.1 + textureSample(albedo_atlas, filter_sampler, fragment.uv, fragment.atlas_index, vec2<i32>( 0,  0));
+    }
 
     let ambient = 0.1;
     let light_pos = vec3<f32>(5000.0, 1000.0, 5000.0);

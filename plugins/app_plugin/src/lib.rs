@@ -1,11 +1,11 @@
 mod camera;
 mod parse;
+mod terrain_setup;
 
-use crate::camera::{setup_camera, toggle_camera_system};
-use bevy::render::render_resource::{
-    Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
+use crate::{
+    camera::{setup_camera, toggle_camera_system},
+    terrain_setup::setup_terrain,
 };
-use bevy::utils::HashMap;
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     pbr::{
@@ -17,13 +17,9 @@ use bevy::{
     utils::HashSet,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
-use bevy_terrain::attachments::{
-    add_albedo_attachment_config, add_height_attachment_config, add_sampler_attachment_config,
-    AttachmentFromDisk, AttachmentFromDiskConfig,
-};
 use bevy_terrain::{
-    bundles::TerrainBundle, config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree,
-    TerrainPlugin,
+    attachment_loader::TextureAttachmentFromDiskLoader, bundles::TerrainBundle,
+    config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree, TerrainPlugin,
 };
 use std::{any::TypeId, time::Duration};
 
@@ -76,55 +72,9 @@ impl Plugin for AppPlugin {
 
 fn setup_scene(mut commands: Commands) {
     let mut config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
+    let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
-    add_sampler_attachment_config(&mut config);
-    add_height_attachment_config(&mut config, 129);
-    add_albedo_attachment_config(&mut config, 128 * 5);
-
-    let mut a_config = HashMap::new();
-    a_config.insert(
-        "height_map".into(),
-        AttachmentFromDisk {
-            path: "output/height".into(),
-            texture_descriptor: TextureDescriptor {
-                label: None,
-                size: Extent3d {
-                    width: 129,
-                    height: 129,
-                    depth_or_array_layers: 1,
-                },
-                mip_level_count: 1,
-                sample_count: 1,
-                dimension: TextureDimension::D2,
-                format: TextureFormat::R16Unorm,
-                usage: TextureUsages::COPY_SRC
-                    | TextureUsages::COPY_DST
-                    | TextureUsages::TEXTURE_BINDING,
-            },
-        },
-    );
-
-    a_config.insert(
-        "albedo_map".into(),
-        AttachmentFromDisk {
-            path: "output/albedo".into(),
-            texture_descriptor: TextureDescriptor {
-                label: None,
-                size: Extent3d {
-                    width: 128 * 5,
-                    height: 128 * 5,
-                    depth_or_array_layers: 1,
-                },
-                mip_level_count: 1,
-                sample_count: 1,
-                dimension: TextureDimension::D2,
-                format: TextureFormat::Rgba8UnormSrgb,
-                usage: TextureUsages::COPY_SRC
-                    | TextureUsages::COPY_DST
-                    | TextureUsages::TEXTURE_BINDING,
-            },
-        },
-    );
+    setup_terrain(&mut config, &mut from_disk_loader);
 
     // let path = "assets/heightmaps/Hartenstein.png";
     // parse::process_height(path, 2);
@@ -146,11 +96,8 @@ fn setup_scene(mut commands: Commands) {
 
     commands
         .spawn_bundle(TerrainBundle::new(config))
-        .insert(Wireframe)
-        .insert(AttachmentFromDiskConfig {
-            attachments: a_config,
-            handle_mapping: Default::default(),
-        });
+        .insert(from_disk_loader)
+        .insert(Wireframe);
 }
 
 fn toggle_wireframe_system(

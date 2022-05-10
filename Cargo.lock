@@ -202,7 +202,7 @@ name = "bevy-crevice-derive"
 version = "0.8.0-dev"
 source = "git+https://github.com/ku95/bevy?branch=texture-formats#ae8b563ad3407578f55d80f4b4ac0603667e697a"
 dependencies = [
- "bevy_macro_utils",
+ "bevy_macro_utils 0.8.0-dev",
  "proc-macro2",
  "quote",
  "syn",
@@ -221,7 +221,7 @@ dependencies = [
  "bevy_math",
  "bevy_reflect",
  "bevy_transform",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
 ]
 
 [[package]]
@@ -229,10 +229,10 @@ name = "bevy_app"
 version = "0.8.0-dev"
 source = "git+https://github.com/ku95/bevy?branch=texture-formats#ae8b563ad3407578f55d80f4b4ac0603667e697a"
 dependencies = [
- "bevy_derive",
+ "bevy_derive 0.8.0-dev",
  "bevy_ecs",
  "bevy_reflect",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "wasm-bindgen",
  "web-sys",
 ]
@@ -249,7 +249,7 @@ dependencies = [
  "bevy_log",
  "bevy_reflect",
  "bevy_tasks",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "crossbeam-channel",
  "downcast-rs",
  "js-sys",
@@ -274,7 +274,7 @@ dependencies = [
  "bevy_asset",
  "bevy_ecs",
  "bevy_reflect",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "parking_lot",
  "rodio",
 ]
@@ -289,7 +289,7 @@ dependencies = [
  "bevy_math",
  "bevy_reflect",
  "bevy_tasks",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "bytemuck",
 ]
 
@@ -302,7 +302,7 @@ dependencies = [
  "bevy_asset",
  "bevy_ecs",
  "bevy_render",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
 ]
 
 [[package]]
@@ -318,10 +318,21 @@ dependencies = [
 
 [[package]]
 name = "bevy_derive"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6abddf2ed415f31d28a9bf9ab3c0bc857e98a722858d38dba65bdda481f8d714"
+dependencies = [
+ "bevy_macro_utils 0.7.0",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "bevy_derive"
 version = "0.8.0-dev"
 source = "git+https://github.com/ku95/bevy?branch=texture-formats#ae8b563ad3407578f55d80f4b4ac0603667e697a"
 dependencies = [
- "bevy_macro_utils",
+ "bevy_macro_utils 0.8.0-dev",
  "quote",
  "syn",
 ]
@@ -335,7 +346,7 @@ dependencies = [
  "bevy_core",
  "bevy_ecs",
  "bevy_log",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
 ]
 
 [[package]]
@@ -347,7 +358,7 @@ dependencies = [
  "bevy_ecs_macros",
  "bevy_reflect",
  "bevy_tasks",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "downcast-rs",
  "fixedbitset",
  "fxhash",
@@ -359,7 +370,7 @@ name = "bevy_ecs_macros"
 version = "0.8.0-dev"
 source = "git+https://github.com/ku95/bevy?branch=texture-formats#ae8b563ad3407578f55d80f4b4ac0603667e697a"
 dependencies = [
- "bevy_macro_utils",
+ "bevy_macro_utils 0.8.0-dev",
  "proc-macro2",
  "quote",
  "syn",
@@ -380,7 +391,7 @@ dependencies = [
  "bevy_app",
  "bevy_ecs",
  "bevy_input",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "gilrs",
 ]
 
@@ -404,7 +415,7 @@ dependencies = [
  "bevy_render",
  "bevy_scene",
  "bevy_transform",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "gltf",
  "percent-encoding",
  "thiserror",
@@ -418,7 +429,7 @@ dependencies = [
  "bevy_app",
  "bevy_ecs",
  "bevy_reflect",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "smallvec",
 ]
 
@@ -430,7 +441,7 @@ dependencies = [
  "bevy_app",
  "bevy_ecs",
  "bevy_math",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
 ]
 
 [[package]]
@@ -444,7 +455,7 @@ dependencies = [
  "bevy_audio",
  "bevy_core",
  "bevy_core_pipeline",
- "bevy_derive",
+ "bevy_derive 0.8.0-dev",
  "bevy_diagnostic",
  "bevy_ecs",
  "bevy_gilrs",
@@ -462,7 +473,7 @@ dependencies = [
  "bevy_text",
  "bevy_transform",
  "bevy_ui",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "bevy_window",
  "bevy_winit",
  "ndk-glue 0.5.2",
@@ -475,11 +486,22 @@ source = "git+https://github.com/ku95/bevy?branch=texture-formats#ae8b563ad34075
 dependencies = [
  "android_log-sys",
  "bevy_app",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "console_error_panic_hook",
  "tracing-log",
  "tracing-subscriber",
  "tracing-wasm",
+]
+
+[[package]]
+name = "bevy_macro_utils"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b7ddfc33a99547e36718e56e414541e461c74ec318ff987a1e9f4ff46d0dacbb"
+dependencies = [
+ "cargo-manifest",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -513,7 +535,7 @@ dependencies = [
  "bevy_reflect",
  "bevy_render",
  "bevy_transform",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "bevy_window",
  "bitflags",
  "bytemuck",
@@ -525,7 +547,7 @@ version = "0.8.0-dev"
 source = "git+https://github.com/ku95/bevy?branch=texture-formats#ae8b563ad3407578f55d80f4b4ac0603667e697a"
 dependencies = [
  "bevy_reflect_derive",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "downcast-rs",
  "erased-serde",
  "glam",
@@ -540,7 +562,7 @@ name = "bevy_reflect_derive"
 version = "0.8.0-dev"
 source = "git+https://github.com/ku95/bevy?branch=texture-formats#ae8b563ad3407578f55d80f4b4ac0603667e697a"
 dependencies = [
- "bevy_macro_utils",
+ "bevy_macro_utils 0.8.0-dev",
  "proc-macro2",
  "quote",
  "syn",
@@ -557,12 +579,12 @@ dependencies = [
  "bevy_asset",
  "bevy_core",
  "bevy_crevice",
- "bevy_derive",
+ "bevy_derive 0.8.0-dev",
  "bevy_ecs",
  "bevy_math",
  "bevy_reflect",
  "bevy_transform",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "bevy_window",
  "bitflags",
  "codespan-reporting",
@@ -593,7 +615,7 @@ dependencies = [
  "bevy_ecs",
  "bevy_hierarchy",
  "bevy_reflect",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "ron",
  "serde",
  "thiserror",
@@ -614,7 +636,7 @@ dependencies = [
  "bevy_reflect",
  "bevy_render",
  "bevy_transform",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "bitflags",
  "bytemuck",
  "copyless",
@@ -642,6 +664,7 @@ name = "bevy_terrain"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_utils 0.7.0",
  "bitflags",
  "bytemuck",
  "image 0.24.2",
@@ -667,7 +690,7 @@ dependencies = [
  "bevy_render",
  "bevy_sprite",
  "bevy_transform",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "bevy_window",
  "glyph_brush_layout",
  "serde",
@@ -704,12 +727,27 @@ dependencies = [
  "bevy_sprite",
  "bevy_text",
  "bevy_transform",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "bevy_window",
  "bytemuck",
  "serde",
  "smallvec",
  "stretch",
+]
+
+[[package]]
+name = "bevy_utils"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f354c584812996febd48cc885f36b23004b49d6680e73fc95a69a2bb17a48e5"
+dependencies = [
+ "ahash",
+ "bevy_derive 0.7.0",
+ "getrandom",
+ "hashbrown",
+ "instant",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -733,7 +771,7 @@ dependencies = [
  "bevy_app",
  "bevy_ecs",
  "bevy_math",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "raw-window-handle",
  "web-sys",
 ]
@@ -748,7 +786,7 @@ dependencies = [
  "bevy_ecs",
  "bevy_input",
  "bevy_math",
- "bevy_utils",
+ "bevy_utils 0.8.0-dev",
  "bevy_window",
  "raw-window-handle",
  "wasm-bindgen",
@@ -851,6 +889,17 @@ name = "cache-padded"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1db59621ec70f09c5e9b597b220c7a2b43611f4710dc03ceb8748637775692c"
+
+[[package]]
+name = "cargo-manifest"
+version = "0.2.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af6d65c7592744998c67947ec771c62687c76f00179a83ffd563c0482046bb98"
+dependencies = [
+ "serde",
+ "serde_derive",
+ "toml",
+]
 
 [[package]]
 name = "cc"
@@ -3115,6 +3164,7 @@ version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d82e1a7758622a465f8cee077614c73484dac5b836c02ff6a40d5d1010324d7"
 dependencies = [
+ "indexmap",
  "serde",
 ]
 
