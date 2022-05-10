@@ -105,7 +105,7 @@ fn vertex(vertex: Vertex) -> Fragment {
     var out: Fragment;
     out.position = view.view_proj * world_position;
     out.world_position = world_position;
-    out.uv = vec2<f32>(coords) / f32(config.texture_size);
+    out.uv = vec2<f32>(coords) / f32(config.chunk_size);
     out.atlas_index = i32(patch.atlas_index);
     out.scale = f32(patch.scale);
 

@@ -1,53 +1,41 @@
-use bevy::prelude::*;
-use bevy::render::render_resource::*;
-use bevy_terrain::attachment_loader::{TextureAttachmentFromDisk, TextureAttachmentFromDiskLoader};
-use bevy_terrain::config::TerrainConfig;
-use bevy_terrain::render::gpu_node_atlas::AtlasAttachmentConfig;
-use bevy_terrain::AttachmentLabel;
-
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-struct HeightAttachment;
-
-impl AttachmentLabel for HeightAttachment {
-    fn dyn_clone(&self) -> Box<dyn AttachmentLabel> {
-        Box::new(HeightAttachment)
-    }
-}
+use bevy::{prelude::*, render::render_resource::*};
+use bevy_terrain::{
+    attachment::{AtlasAttachmentConfig, AttachmentIndex},
+    attachment_loader::{TextureAttachmentFromDisk, TextureAttachmentFromDiskLoader},
+    config::TerrainConfig,
+};
 
 pub(crate) fn setup_terrain(
-    mut config: &mut TerrainConfig,
-    mut from_disk_loader: &mut TextureAttachmentFromDiskLoader,
+    config: &mut TerrainConfig,
+    from_disk_loader: &mut TextureAttachmentFromDiskLoader,
 ) {
-    setup_sampler(config, "sampler".into());
-    setup_height(config, from_disk_loader, "height".into(), 129);
-    setup_albedo(config, from_disk_loader, "albedo".into(), 128 * 5);
+    setup_default_sampler(config, 2);
+    setup_height_texture(config, from_disk_loader, 3, 129);
+    setup_albedo_texture(config, from_disk_loader, 4, 128 * 5);
 }
 
-fn setup_sampler(config: &mut TerrainConfig, label: String) {
+fn setup_default_sampler(config: &mut TerrainConfig, attachment_index: AttachmentIndex) {
     let sampler_descriptor = SamplerDescriptor {
-        label: "sampler_attachment".into(),
+        label: "default_sampler_attachment".into(),
         mag_filter: FilterMode::Linear,
         min_filter: FilterMode::Linear,
         ..default()
     };
 
     config.add_attachment(
-        label,
-        AtlasAttachmentConfig::Sampler {
-            binding: 2,
-            sampler_descriptor,
-        },
+        attachment_index,
+        AtlasAttachmentConfig::Sampler { sampler_descriptor },
     );
 }
 
-fn setup_height(
-    mut config: &mut TerrainConfig,
-    mut from_disk_loader: &mut TextureAttachmentFromDiskLoader,
-    label: String,
+fn setup_height_texture(
+    config: &mut TerrainConfig,
+    from_disk_loader: &mut TextureAttachmentFromDiskLoader,
+    attachment_index: AttachmentIndex,
     texture_size: u32,
 ) {
     let atlas_texture_descriptor = TextureDescriptor {
-        label: "atlas_height_attachment_texture".into(),
+        label: "atlas_height_texture_attachment".into(),
         size: Extent3d {
             width: texture_size,
             height: texture_size,
@@ -61,18 +49,18 @@ fn setup_height(
     };
 
     let view_descriptor = TextureViewDescriptor {
-        label: "height_attachment_view".into(),
+        label: "height_texture_attachment_view".into(),
         dimension: Some(TextureViewDimension::D2Array),
         ..default()
     };
 
     let mut node_texture_descriptor = atlas_texture_descriptor.clone();
-    node_texture_descriptor.label = "node_height_attachment_texture".into();
+    node_texture_descriptor.label = "node_height_texture_attachment".into();
     node_texture_descriptor.size.depth_or_array_layers = 1;
     node_texture_descriptor.usage |= TextureUsages::COPY_SRC;
 
     from_disk_loader.add_attachment(
-        label.clone(),
+        attachment_index,
         TextureAttachmentFromDisk {
             path: "output/height".into(),
             texture_descriptor: node_texture_descriptor,
@@ -80,9 +68,8 @@ fn setup_height(
     );
 
     config.add_attachment(
-        label.clone(),
+        attachment_index,
         AtlasAttachmentConfig::Texture {
-            binding: 3,
             texture_size,
             texture_descriptor: atlas_texture_descriptor,
             view_descriptor,
@@ -90,14 +77,14 @@ fn setup_height(
     );
 }
 
-fn setup_albedo(
-    mut config: &mut TerrainConfig,
-    mut from_disk_loader: &mut TextureAttachmentFromDiskLoader,
-    label: String,
+fn setup_albedo_texture(
+    config: &mut TerrainConfig,
+    from_disk_loader: &mut TextureAttachmentFromDiskLoader,
+    attachment_index: AttachmentIndex,
     texture_size: u32,
 ) {
     let atlas_texture_descriptor = TextureDescriptor {
-        label: "albedo_attachment_texture".into(),
+        label: "atlas_albedo_texture_attachment".into(),
         size: Extent3d {
             width: texture_size,
             height: texture_size,
@@ -111,18 +98,18 @@ fn setup_albedo(
     };
 
     let view_descriptor = TextureViewDescriptor {
-        label: "albedo_attachment_view".into(),
+        label: "albedo_texture_attachment_view".into(),
         dimension: Some(TextureViewDimension::D2Array),
         ..default()
     };
 
     let mut node_texture_descriptor = atlas_texture_descriptor.clone();
-    node_texture_descriptor.label = "node_albedo_attachment_texture".into();
+    node_texture_descriptor.label = "node_albedo_texture_attachment".into();
     node_texture_descriptor.size.depth_or_array_layers = 1;
     node_texture_descriptor.usage |= TextureUsages::COPY_SRC;
 
     from_disk_loader.add_attachment(
-        label.clone(),
+        attachment_index,
         TextureAttachmentFromDisk {
             path: "output/albedo".into(),
             texture_descriptor: node_texture_descriptor,
@@ -130,9 +117,8 @@ fn setup_albedo(
     );
 
     config.add_attachment(
-        label.clone(),
+        attachment_index,
         AtlasAttachmentConfig::Texture {
-            binding: 4,
             texture_size,
             texture_descriptor: atlas_texture_descriptor,
             view_descriptor,
