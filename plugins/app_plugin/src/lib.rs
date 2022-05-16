@@ -71,7 +71,7 @@ impl Plugin for AppPlugin {
 }
 
 fn setup_scene(mut commands: Commands) {
-    let mut config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
+    let mut config = TerrainConfig::new(64, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
     setup_terrain(&mut config, &mut from_disk_loader);

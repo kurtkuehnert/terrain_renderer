@@ -25,7 +25,7 @@ var<uniform> mesh: Mesh;
 [[group(2), binding(0)]]
 var<uniform> config: TerrainConfig;
 [[group(2), binding(1)]]
-var atlas_map: texture_2d<u32>;
+var quadtree: texture_2d_array<u32>;
 [[group(2), binding(2)]]
 var filter_sampler: sampler;
 [[group(2), binding(3)]]
@@ -37,6 +37,22 @@ var albedo_atlas: texture_2d_array<f32>;
 var<storage> patch_list: PatchList;
 
 #import bevy_terrain::atlas
+
+fn atlas_lookup(world_position: vec2<f32>) -> AtlasLookup {
+    let dist = view.world_position.xyz - vec3<f32>(world_position.x, 500.0, world_position.y);
+
+    let layer = clamp(u32(sqrt(length(dist)) / 30.0), 0u, config.lod_count - 1u);
+    let layer = 0u;
+
+    let map_coords =  vec2<i32>(world_position / f32(config.chunk_size * (1u << layer)));
+    let lookup = textureLoad(quadtree, map_coords, i32(layer), 0);
+
+    let lod = lookup.z;
+    let atlas_index =  i32((lookup.x << 8u) + lookup.y);
+    let atlas_coords = (world_position / f32(config.chunk_size * (1u << lod))) % 1.0;
+
+    return AtlasLookup(lod, atlas_index, atlas_coords);
+}
 
 fn calculate_position(vertex_index: u32, lod_delta: u32) -> vec2<u32> {
     // use first and last index twice, to form degenerate triangles
@@ -101,7 +117,7 @@ fn vertex(vertex: Vertex) -> Fragment {
         height = height / 0.0;
     }
 
-    let height = config.height * height;
+    height = config.height * height;
     let world_position = mesh.model * vec4<f32>(world_position.x, height, world_position.y, 1.0);
 
     var out: Fragment;
@@ -109,7 +125,7 @@ fn vertex(vertex: Vertex) -> Fragment {
     out.world_position = world_position;
 
     let colored = true;
-    let colored = false;
+    // let colored = false;
 
     if (colored) {
         if (lod == 0u) {
@@ -127,9 +143,9 @@ fn vertex(vertex: Vertex) -> Fragment {
         if (lod == 4u) {
             out.color = vec4<f32>(1.0,0.0,1.0,1.0);
         }
-        if (patch.lod_delta != 0u) {
-            out.color = vec4<f32>(0.0,1.0,1.0,1.0);
-        }
+        // if (patch.lod_delta != 0u) {
+        //     out.color = vec4<f32>(0.0,1.0,1.0,1.0);
+        // }
     }
     else {
         out.color = vec4<f32>(1.0);
