@@ -156,16 +156,18 @@ fn vertex(vertex: Vertex) -> Fragment {
     out.world_position = world_position;
     out.color = vec4<f32>(1.0);
 
+#ifdef SHOW_PATCHES
     out.color = mix(out.color, show_patches(patch), 1.0);
+#endif
 
-    for (var i: u32 = 1u; i < config.lod_count; i = i + 1u) {
-        let circle = (220.0 * f32(1 << i));
-        let thickness = 8.0;
-
-        if (circle - thickness < distance && distance < circle + thickness) {
-            out.color = vec4<f32>(1.0, 0.0, 0.0, 1.0);
-        }
-    }
+    //for (var i: u32 = 1u; i < config.lod_count; i = i + 1u) {
+    //    let circle = (220.0 * f32(1 << i));
+    //    let thickness = 8.0;
+    //
+    //    if (circle - thickness < distance && distance < circle + thickness) {
+    //        out.color = vec4<f32>(1.0, 0.0, 0.0, 1.0);
+    //    }
+    //}
 
     // for (var i: u32 = 1u; i < config.lod_count; i = i + 1u) {
     //     let circle = f32((1u << i) * config.patch_size * 2u) * 10.0;
@@ -188,8 +190,13 @@ fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
     let atlas_index = lookup.atlas_index;
     let atlas_coords = lookup.atlas_coords;
 
+#ifdef SHOW_LOD
     output_color = mix(output_color, show_lod(lod), 0.5);
-    // output_color = mix(output_color, textureSample(albedo_atlas, filter_sampler, atlas_coords, atlas_index), 1.0);
+#endif
+
+#ifdef ALBEDO
+    output_color = mix(output_color, textureSample(albedo_atlas, filter_sampler, atlas_coords, atlas_index), 1.0);
+#endif
 
     let lighting = true;
     // let lighting = false;
