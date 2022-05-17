@@ -39,9 +39,13 @@ var<storage> patch_list: PatchList;
 #import bevy_terrain::atlas
 
 fn atlas_lookup(world_position: vec2<f32>) -> AtlasLookup {
-    let dist = view.world_position.xyz - vec3<f32>(world_position.x, 500.0, world_position.y);
+    let distance = distance(world_position, view.world_position.xz);
 
-    let layer = clamp(u32(sqrt(length(dist)) / 30.0), 0u, config.lod_count - 1u);
+    // Todo: replace log2
+    // Log2(x) = result
+    // while (x >>= 1) result++;
+
+    let layer = clamp(u32(log2(distance / 250.0)), 0u, config.lod_count - 1u);
     let layer = 0u;
 
     let map_coords =  vec2<i32>(world_position / f32(config.chunk_size * (1u << layer)));
@@ -87,7 +91,7 @@ fn calculate_normal(uv: vec2<f32>, atlas_index: i32, lod: u32) -> vec3<f32> {
     return normal;
 }
 
-fn color_lod(lod: u32) -> vec4<f32> {
+fn show_lod(lod: u32) -> vec4<f32> {
     if (lod == 0u) {
         return vec4<f32>(1.0,0.0,0.0,1.0);
     }
@@ -107,18 +111,13 @@ fn color_lod(lod: u32) -> vec4<f32> {
     return vec4<f32>(0.0);
 }
 
-fn color_patches(patch: Patch) -> vec4<f32> {
-    if ((patch.x + patch.y * 8u) % 3u == 0u) {
-        return vec4<f32>(1.0,0.0,0.0,1.0);
+fn show_patches(patch: Patch) -> vec4<f32> {
+    if ((patch.x + patch.y) / config.patch_size % 2u == 0u) {
+        return vec4<f32>(1.0);
     }
-    if ((patch.x + patch.y * 8u) % 3u == 1u) {
-        return vec4<f32>(0.0,1.0,0.0,1.0);
+    else {
+        return vec4<f32>(0.5);
     }
-    if ((patch.x + patch.y * 8u) % 3u == 2u) {
-        return vec4<f32>(0.0,0.0,1.0,1.0);
-    }
-
-    return vec4<f32>(0.0);
 }
 
 [[stage(vertex)]]
@@ -130,12 +129,14 @@ fn vertex(vertex: Vertex) -> Fragment {
     let world_position =
         vec2<f32>(f32(patch.x + vertex_position.x), f32(patch.y + vertex_position.y)) * f32(patch.size);
 
+    let distance = distance(view.world_position.xz, world_position);
+
     let lookup = atlas_lookup(world_position);
     let lod = lookup.lod;
     let atlas_index = lookup.atlas_index;
     let atlas_coords = lookup.atlas_coords;
 
-    var height = textureSampleLevel(height_atlas, filter_sampler, atlas_coords, atlas_index, 0.0).r;
+    var height = textureSampleLevel(height_atlas, filter_sampler, atlas_coords, atlas_index, 0.0).x;
 
     // discard vertecies with height 0
     if (height == 0.0) {
@@ -150,7 +151,25 @@ fn vertex(vertex: Vertex) -> Fragment {
     out.world_position = world_position;
     out.color = vec4<f32>(1.0);
 
-    // out.color = color_patches(patch);
+    // out.color = mix(out.color, show_patches(patch), 1.0);
+//
+    // for (var i: u32 = 1u; i < config.lod_count; i = i + 1u) {
+    //     let circle = (320.0 * f32(1 << i));
+    //     let thickness = 8.0;
+//
+    //     if (circle - thickness < distance && distance < circle + thickness) {
+    //         out.color = vec4<f32>(1.0, 0.0, 0.0, 1.0);
+    //     }
+    // }
+//
+    // for (var i: u32 = 1u; i < config.lod_count; i = i + 1u) {
+    //     let circle = f32((1u << i) * config.patch_size * 2u) * 10.0;
+    //     let thickness = 8.0;
+//
+    //     if (circle - thickness < distance && distance < circle + thickness) {
+    //         out.color = vec4<f32>(0.0, 0.0, 1.0, 1.0);
+    //     }
+    // }
 
     return out;
 }
@@ -164,8 +183,8 @@ fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
     let atlas_index = lookup.atlas_index;
     let atlas_coords = lookup.atlas_coords;
 
-    // output_color = color_lod(lod);
-    // output_color = output_color * 0.1 + textureSample(albedo_atlas, filter_sampler, atlas_coords, atlas_index);
+    // output_color = mix(output_color, show_lod(lod), 0.5);
+    output_color = mix(output_color, textureSample(albedo_atlas, filter_sampler, atlas_coords, atlas_index), 0.99);
 
     let lighting = true;
     // let lighting = false;
