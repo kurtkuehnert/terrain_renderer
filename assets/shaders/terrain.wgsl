@@ -37,6 +37,7 @@ var albedo_atlas: texture_2d_array<f32>;
 var<storage> patch_list: PatchList;
 
 #import bevy_terrain::atlas
+#import bevy_terrain::debug
 
 // Todo: precompute the node sizes?
 fn node_size(lod: u32) -> f32 {
@@ -50,8 +51,11 @@ fn atlas_lookup(world_position: vec2<f32>) -> AtlasLookup {
     // Log2(x) = result
     // while (x >>= 1) result++;
 
-    let layer = clamp(u32(log2(distance / 220.0)), 0u, config.lod_count - 1u);
-    // let layer = 0u;
+    let layer = clamp(u32(log2(distance / config.view_distance)), 0u, config.lod_count - 1u);
+
+#ifdef SHOW_NODES
+    let layer = 0u;
+#endif
 
     let map_coords =  vec2<i32>(world_position / node_size(layer)) ;
     let lookup = textureLoad(quadtree, map_coords, i32(layer), 0);
@@ -86,6 +90,7 @@ fn calculate_position(vertex_index: u32, stitch: u32) -> vec2<u32> {
     return vertex_position;
 }
 
+// Todo: fix this
 fn calculate_normal(uv: vec2<f32>, atlas_index: i32, lod: u32) -> vec3<f32> {
     let left  = textureSampleLevel(height_atlas, filter_sampler, uv, atlas_index, 0.0, vec2<i32>(-1,  0)).x;
     let up    = textureSampleLevel(height_atlas, filter_sampler, uv, atlas_index, 0.0, vec2<i32>( 0, -1)).x;
@@ -96,35 +101,6 @@ fn calculate_normal(uv: vec2<f32>, atlas_index: i32, lod: u32) -> vec3<f32> {
     return normal;
 }
 
-fn show_lod(lod: u32) -> vec4<f32> {
-    if (lod == 0u) {
-        return vec4<f32>(1.0,0.0,0.0,1.0);
-    }
-    if (lod == 1u) {
-        return vec4<f32>(0.0,1.0,0.0,1.0);
-    }
-    if (lod == 2u) {
-        return vec4<f32>(0.0,0.0,1.0,1.0);
-    }
-    if (lod == 3u) {
-        return vec4<f32>(1.0,1.0,0.0,1.0);
-    }
-    if (lod == 4u) {
-        return vec4<f32>(1.0,0.0,1.0,1.0);
-    }
-
-    return vec4<f32>(0.0);
-}
-
-fn show_patches(patch: Patch) -> vec4<f32> {
-    if ((patch.x + patch.y) / config.patch_size % 2u == 0u) {
-        return vec4<f32>(1.0);
-    }
-    else {
-        return vec4<f32>(0.5);
-    }
-}
-
 [[stage(vertex)]]
 fn vertex(vertex: Vertex) -> Fragment {
     let patch = patch_list.data[vertex.instance];
@@ -133,8 +109,6 @@ fn vertex(vertex: Vertex) -> Fragment {
 
     let world_position =
         vec2<f32>(f32(patch.x + vertex_position.x), f32(patch.y + vertex_position.y)) * f32(patch.size);
-
-    let distance = distance(view.world_position.xz, world_position);
 
     let lookup = atlas_lookup(world_position);
     let lod = lookup.lod;
@@ -151,34 +125,16 @@ fn vertex(vertex: Vertex) -> Fragment {
     height = config.height * height;
     let world_position = mesh.model * vec4<f32>(world_position.x, height, world_position.y, 1.0);
 
-    var out: Fragment;
-    out.position = view.view_proj * world_position;
-    out.world_position = world_position;
-    out.color = vec4<f32>(1.0);
+    var fragment: Fragment;
+    fragment.position = view.view_proj * world_position;
+    fragment.world_position = world_position;
+    fragment.color = vec4<f32>(0.0);
 
 #ifdef SHOW_PATCHES
-    out.color = mix(out.color, show_patches(patch), 1.0);
+    fragment.color = mix(fragment.color, show_patches(patch, vertex_position), 0.5);
 #endif
 
-    //for (var i: u32 = 1u; i < config.lod_count; i = i + 1u) {
-    //    let circle = (220.0 * f32(1 << i));
-    //    let thickness = 8.0;
-    //
-    //    if (circle - thickness < distance && distance < circle + thickness) {
-    //        out.color = vec4<f32>(1.0, 0.0, 0.0, 1.0);
-    //    }
-    //}
-
-    // for (var i: u32 = 1u; i < config.lod_count; i = i + 1u) {
-    //     let circle = f32((1u << i) * config.patch_size * 2u) * 10.0;
-    //     let thickness = 8.0;
-    //
-    //     if (circle - thickness < distance && distance < circle + thickness) {
-    //         out.color = vec4<f32>(0.0, 0.0, 1.0, 1.0);
-    //     }
-    // }
-
-    return out;
+    return fragment;
 }
 
 [[stage(fragment)]]
@@ -191,26 +147,27 @@ fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
     let atlas_coords = lookup.atlas_coords;
 
 #ifdef SHOW_LOD
-    output_color = mix(output_color, show_lod(lod), 0.5);
+    output_color = mix(output_color, show_lod(lod, fragment.world_position.xz), 0.4);
 #endif
 
 #ifdef ALBEDO
-    output_color = mix(output_color, textureSample(albedo_atlas, filter_sampler, atlas_coords, atlas_index), 1.0);
+    output_color = mix(output_color, textureSample(albedo_atlas, filter_sampler, atlas_coords, atlas_index), 0.5);
 #endif
 
-    let lighting = true;
-    // let lighting = false;
+#ifndef COLOR
+    output_color = vec4<f32>(1.0);
+#endif
 
-    if (lighting) {
-        let ambient = 0.1;
-        let light_pos = vec3<f32>(5000.0, 2000.0, 5000.0);
-        let direction = normalize(light_pos - fragment.world_position.xyz);
-        let normal = calculate_normal(atlas_coords, atlas_index, lod);
+#ifdef LIGHTING
+    let ambient = 0.1;
+    let light_pos = vec3<f32>(5000.0, 2000.0, 5000.0);
+    let direction = normalize(light_pos - fragment.world_position.xyz);
+    let normal = calculate_normal(atlas_coords, atlas_index, lod);
 
-        let diffuse = max(dot(direction, normal), 0.0);
+    let diffuse = max(dot(direction, normal), 0.0);
 
-        output_color = output_color * (ambient + diffuse) * 1.0;
-    }
+    output_color = output_color * (ambient + diffuse) * 2.0;
+#endif
 
     return output_color;
 }

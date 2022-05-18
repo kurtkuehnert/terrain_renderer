@@ -85,7 +85,7 @@ fn setup_scene(mut commands: Commands) {
     // bevy_terrain::preprocess::generate_albedo_textures(&config, path, "assets/output/albedo");
 
     // let path = "assets/heightmaps/Hartenstein_albedo.png";
-    // parse::process_albedo(path, 2);
+    // // parse::process_albedo(path, 2);
     // bevy_terrain::preprocess::generate_albedo_textures(&config, path, "assets/output/albedo");
 
     // bevy_terrain::preprocess::generate_node_textures(
