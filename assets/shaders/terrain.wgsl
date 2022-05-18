@@ -36,13 +36,13 @@ var albedo_atlas: texture_2d_array<f32>;
 [[group(3), binding(0)]]
 var<storage> patch_list: PatchList;
 
-#import bevy_terrain::atlas
-#import bevy_terrain::debug
-
 // Todo: precompute the node sizes?
 fn node_size(lod: u32) -> f32 {
     return f32(config.chunk_size * (1u << lod));
 }
+
+#import bevy_terrain::atlas
+#import bevy_terrain::debug
 
 fn atlas_lookup(world_position: vec2<f32>) -> AtlasLookup {
     let distance = distance(world_position, view.world_position.xz);
@@ -53,11 +53,17 @@ fn atlas_lookup(world_position: vec2<f32>) -> AtlasLookup {
 
     let layer = clamp(u32(log2(distance / config.view_distance)), 0u, config.lod_count - 1u);
 
+
+
 #ifdef SHOW_NODES
     let layer = 0u;
 #endif
 
-    let map_coords =  vec2<i32>(world_position / node_size(layer)) ;
+    let node_size_layer = node_size(layer);
+
+    let rest = world_position % (f32(config.load_count) * node_size_layer);
+
+    let map_coords = vec2<i32>(rest / node_size_layer) ;
     let lookup = textureLoad(quadtree, map_coords, i32(layer), 0);
 
     let lod = lookup.z;
@@ -146,6 +152,9 @@ fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
     let atlas_index = lookup.atlas_index;
     let atlas_coords = lookup.atlas_coords;
 
+
+
+
 #ifdef SHOW_LOD
     output_color = mix(output_color, show_lod(lod, fragment.world_position.xz), 0.4);
 #endif
@@ -155,7 +164,7 @@ fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
 #endif
 
 #ifndef COLOR
-    output_color = vec4<f32>(1.0);
+    output_color = vec4<f32>(0.5);
 #endif
 
 #ifdef LIGHTING

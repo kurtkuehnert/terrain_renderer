@@ -11,7 +11,7 @@ pub(crate) fn setup_terrain(
 ) {
     setup_default_sampler(config, 2);
     setup_height_texture(config, from_disk_loader, 3, 128);
-    setup_albedo_texture(config, from_disk_loader, 4, 128);
+    setup_albedo_texture(config, from_disk_loader, 4, 128 * 5);
 }
 
 fn setup_default_sampler(config: &mut TerrainConfig, attachment_index: AttachmentIndex) {
