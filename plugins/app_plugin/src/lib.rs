@@ -71,10 +71,30 @@ impl Plugin for AppPlugin {
 }
 
 fn setup_scene(mut commands: Commands) {
-    let mut config = TerrainConfig::new(128, 5, UVec2::new(2, 2), 1.0, 1000.0, 2048);
+    let mut config = TerrainConfig::new(
+        128,
+        5,
+        UVec2::new(2, 2),
+        1.0,
+        1000.0,
+        "heightmaps/hartenstein/".to_string(),
+    );
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
     setup_terrain(&mut config, &mut from_disk_loader);
+
+    // let path = "assets/heightmaps/alien_4k/albedo.jpeg";
+    // bevy_terrain::preprocess::generate_albedo_textures(
+    //     &config,
+    //     path,
+    //     "assets/heightmaps/alien_4k/output/albedo",
+    // );
+    // let path = "assets/heightmaps/alien_4k/height.jpeg";
+    // bevy_terrain::preprocess::generate_node_textures(
+    //     &config,
+    //     path,
+    //     "assets/heightmaps/alien_4k/output/height",
+    // );
 
     // let path = "assets/heightmaps/Hartenstein.png";
     // parse::process_height(path, 2);

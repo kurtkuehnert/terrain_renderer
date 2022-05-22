@@ -3,8 +3,8 @@
 .idea
 !.gitignore
 /archive
-/assets/output/
 /data/
 /plugins/bevy_fly_camera/
 /plugins/bevy_terrain/
 *.xyz
+/assets/heightmaps/

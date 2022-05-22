@@ -62,7 +62,7 @@ fn setup_height_texture(
     from_disk_loader.add_attachment(
         attachment_index,
         TextureAttachmentFromDisk {
-            path: "output/height".into(),
+            path: config.path.clone() + "output/height",
             texture_descriptor: node_texture_descriptor,
         },
     );
@@ -111,7 +111,7 @@ fn setup_albedo_texture(
     from_disk_loader.add_attachment(
         attachment_index,
         TextureAttachmentFromDisk {
-            path: "output/albedo".into(),
+            path: config.path.clone() + "output/albedo",
             texture_descriptor: node_texture_descriptor,
         },
     );
