@@ -6,7 +6,6 @@ use bevy::{
     },
 };
 use bevy_fly_camera::FlyCamera;
-use bevy_terrain::viewer::ViewDistance;
 
 pub(crate) fn toggle_camera_system(
     input: Res<Input<KeyCode>>,
@@ -41,7 +40,7 @@ pub(crate) fn setup_camera(mut commands: Commands) {
             },
             perspective_projection,
             frustum,
-            transform: Transform::from_xyz(-300.0, 750.0, -300.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(1300.0, 750.0, 1300.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(Camera3d)
@@ -57,6 +56,5 @@ pub(crate) fn setup_camera(mut commands: Commands) {
             key_down: KeyCode::PageDown,
             enabled: false,
             ..default()
-        })
-        .insert(ViewDistance::default());
+        });
 }

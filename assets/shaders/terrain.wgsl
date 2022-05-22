@@ -53,24 +53,33 @@ fn atlas_lookup(world_position: vec2<f32>) -> AtlasLookup {
 
     let layer = clamp(u32(log2(distance / config.view_distance)), 0u, config.lod_count - 1u);
 
-
-
 #ifdef SHOW_NODES
-    let layer = 0u;
+    var layer: u32;
+
+    for (var i = 0u; i < config.lod_count; i = i + 1u) {
+        let node_size_i = node_size(i);
+
+        let coordinate = world_position / node_size_i;
+        let grid_coordinate = floor(view.world_position.xz / node_size_i + 0.5 - f32(config.node_count) / 2.0);
+
+        let grid = step(grid_coordinate, coordinate) * step(coordinate, grid_coordinate + f32(config.node_count));
+        let inside = grid.x * grid.y == 1.0;
+
+        if (inside) {
+            layer = i;
+            break;
+        }
+    }
 #endif
 
-    let node_size_layer = node_size(layer);
-
-    let rest = world_position % (f32(config.load_count) * node_size_layer);
-
-    let map_coords = vec2<i32>(rest / node_size_layer) ;
+    let map_coords = vec2<i32>((world_position / node_size(layer)) % f32(config.node_count));
     let lookup = textureLoad(quadtree, map_coords, i32(layer), 0);
 
-    let lod = lookup.z;
+    let atlas_lod = lookup.z;
     let atlas_index =  i32((lookup.x << 8u) + lookup.y);
-    let atlas_coords = (world_position / node_size(lod)) % 1.0;
+    let atlas_coords = (world_position / node_size(atlas_lod)) % 1.0;
 
-    return AtlasLookup(lod, atlas_index, atlas_coords);
+    return AtlasLookup(atlas_lod, atlas_index, atlas_coords);
 }
 
 fn calculate_position(vertex_index: u32, stitch: u32) -> vec2<u32> {
