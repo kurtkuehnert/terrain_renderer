@@ -33,11 +33,7 @@ pub(crate) fn setup_camera(mut commands: Commands) {
 
     commands
         .spawn_bundle(PerspectiveCameraBundle {
-            camera: Camera {
-                near: perspective_projection.near,
-                far: perspective_projection.far,
-                ..default()
-            },
+            camera: Camera::default(),
             perspective_projection,
             frustum,
             transform: Transform::from_xyz(1300.0, 750.0, 1300.0).looking_at(Vec3::ZERO, Vec3::Y),
