@@ -36,13 +36,13 @@ pub(crate) fn setup_camera(mut commands: Commands) {
             camera: Camera::default(),
             perspective_projection,
             frustum,
-            transform: Transform::from_xyz(1300.0, 750.0, 1300.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(300.0, 750.0, 300.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(Camera3d)
         .insert(FlyCamera {
-            accel: 4.0,
-            max_speed: 16.0,
+            accel: 2.0,
+            max_speed: 4.0,
             sensitivity: 30.0,
             key_forward: KeyCode::Up,
             key_backward: KeyCode::Down,

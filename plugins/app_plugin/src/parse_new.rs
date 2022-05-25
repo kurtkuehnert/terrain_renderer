@@ -1,8 +1,12 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
+
 use image::{imageops, GenericImage, ImageBuffer, Luma};
-use std::fs;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use std::path::PathBuf;
+use std::{
+    fs::{self, File},
+    io::{BufRead, BufReader},
+    path::PathBuf,
+};
 
 const MAX_HEIGHT: f32 = 1000.0;
 const DGM_01_SCALE: usize = 1;

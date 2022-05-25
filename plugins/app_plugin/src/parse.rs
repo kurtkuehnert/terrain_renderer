@@ -1,5 +1,7 @@
-use image::{imageops, io::Reader, GenericImage, ImageBuffer, Luma, RgbaImage};
+#![allow(dead_code)]
+#![allow(unused_variables)]
 
+use image::{imageops, io::Reader, GenericImage, ImageBuffer, Luma, RgbaImage};
 use itertools::iproduct;
 use std::fs;
 

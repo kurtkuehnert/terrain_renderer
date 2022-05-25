@@ -3,10 +3,7 @@ mod parse;
 mod parse_new;
 mod terrain_setup;
 
-use crate::{
-    camera::{setup_camera, toggle_camera_system},
-    terrain_setup::setup_terrain,
-};
+use crate::camera::{setup_camera, toggle_camera_system};
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     pbr::{
@@ -72,18 +69,15 @@ impl Plugin for AppPlugin {
 }
 
 fn setup_scene(mut commands: Commands) {
-    let mut config = TerrainConfig::new(
-        128,
-        7,
-        UVec2::new(2, 2),
-        1.0,
-        200.0,
-        "terrains/Sachsen/".to_string(),
-    );
-    let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
-
-    setup_terrain(&mut config, &mut from_disk_loader);
-
+    // let mut config = TerrainConfig::new(
+    //     128,
+    //     7,
+    //     UVec2::new(2, 2),
+    //     1.0,
+    //     200.0,
+    //     "terrains/Sachsen/".to_string(),
+    // );
+    //
     // parse_new::parse_dgm_01("data/dgm01_source", "data/dgm01_parsed");
     // parse_new::parse_dgm_20("data/dgm20_source", "data/dgm20_parsed");
     // parse_new::combine_dgm_20(
@@ -96,36 +90,32 @@ fn setup_scene(mut commands: Commands) {
     //     "assets/terrains/Sachsen/data/height",
     // );
 
-    // let path = "assets/heightmaps/alien_4k/albedo.jpeg";
+    let mut config = TerrainConfig::new(
+        128,
+        5,
+        UVec2::new(2, 2),
+        1.0,
+        1000.0,
+        "terrains/Hartenstein/".to_string(),
+    );
+
+    // bevy_terrain::preprocess::generate_node_textures(
+    //     &config,
+    //     "assets/terrains/Hartenstein/source/height.png",
+    //     "assets/terrains/Hartenstein/data/height",
+    //     128,
+    // );
     // bevy_terrain::preprocess::generate_albedo_textures(
     //     &config,
-    //     path,
-    //     "assets/heightmaps/alien_4k/output/albedo",
-    // );
-    // let path = "assets/heightmaps/alien_4k/height.jpeg";
-    // bevy_terrain::preprocess::generate_node_textures(
-    //     &config,
-    //     path,
-    //     "assets/heightmaps/alien_4k/output/height",
+    //     "assets/terrains/Hartenstein/source/albedo.png",
+    //     "assets/terrains/Hartenstein/data/albedo",
+    //     128 * 5,
     // );
 
-    // let path = "assets/heightmaps/Hartenstein.png";
-    // parse::process_height(path, 2);
-    // bevy_terrain::preprocess::generate_node_textures(&config, path, "assets/output/height");
-
-    // let path = "assets/heightmaps/test.png";
-    // parse::process_albedo(path, 2);
-    // bevy_terrain::preprocess::generate_albedo_textures(&config, path, "assets/output/albedo");
-
-    // let path = "assets/heightmaps/Hartenstein_albedo.png";
-    // // parse::process_albedo(path, 2);
-    // bevy_terrain::preprocess::generate_albedo_textures(&config, path, "assets/output/albedo");
-
-    // bevy_terrain::preprocess::generate_node_textures(
-    //     &config,
-    //     "assets/heightmaps/heightmap.png",
-    //     "assets/output/",
-    // );
+    let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
+    terrain_setup::setup_default_sampler(&mut config, 2);
+    terrain_setup::setup_height_texture(&mut config, &mut from_disk_loader, 3, 128 + 4);
+    terrain_setup::setup_albedo_texture(&mut config, &mut from_disk_loader, 4, 128 * 5 + 2);
 
     commands
         .spawn_bundle(TerrainBundle::new(config))

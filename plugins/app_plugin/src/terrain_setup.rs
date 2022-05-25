@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
+
 use bevy::{prelude::*, render::render_resource::*};
 use bevy_terrain::{
     attachment::{AtlasAttachmentConfig, AttachmentIndex},
@@ -5,20 +8,14 @@ use bevy_terrain::{
     config::TerrainConfig,
 };
 
-pub(crate) fn setup_terrain(
-    config: &mut TerrainConfig,
-    from_disk_loader: &mut TextureAttachmentFromDiskLoader,
-) {
-    setup_default_sampler(config, 2);
-    setup_height_texture(config, from_disk_loader, 3, 128);
-    // setup_albedo_texture(config, from_disk_loader, 4, 128 * 5);
-}
-
-fn setup_default_sampler(config: &mut TerrainConfig, attachment_index: AttachmentIndex) {
+pub(crate) fn setup_default_sampler(config: &mut TerrainConfig, attachment_index: AttachmentIndex) {
     let sampler_descriptor = SamplerDescriptor {
         label: "default_sampler_attachment".into(),
         mag_filter: FilterMode::Linear,
         min_filter: FilterMode::Linear,
+        address_mode_u: AddressMode::ClampToEdge,
+        address_mode_v: AddressMode::ClampToEdge,
+        address_mode_w: AddressMode::ClampToEdge,
         ..default()
     };
 
@@ -28,7 +25,7 @@ fn setup_default_sampler(config: &mut TerrainConfig, attachment_index: Attachmen
     );
 }
 
-fn setup_height_texture(
+pub(crate) fn setup_height_texture(
     config: &mut TerrainConfig,
     from_disk_loader: &mut TextureAttachmentFromDiskLoader,
     attachment_index: AttachmentIndex,
@@ -77,7 +74,7 @@ fn setup_height_texture(
     );
 }
 
-fn setup_albedo_texture(
+pub(crate) fn setup_albedo_texture(
     config: &mut TerrainConfig,
     from_disk_loader: &mut TextureAttachmentFromDiskLoader,
     attachment_index: AttachmentIndex,
