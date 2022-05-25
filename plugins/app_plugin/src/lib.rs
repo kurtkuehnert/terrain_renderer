@@ -1,5 +1,6 @@
 mod camera;
 mod parse;
+mod parse_new;
 mod terrain_setup;
 
 use crate::{
@@ -73,15 +74,27 @@ impl Plugin for AppPlugin {
 fn setup_scene(mut commands: Commands) {
     let mut config = TerrainConfig::new(
         128,
-        5,
+        7,
         UVec2::new(2, 2),
         1.0,
-        1000.0,
-        "heightmaps/hartenstein/".to_string(),
+        200.0,
+        "terrains/Sachsen/".to_string(),
     );
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
     setup_terrain(&mut config, &mut from_disk_loader);
+
+    // parse_new::parse_dgm_01("data/dgm01_source", "data/dgm01_parsed");
+    // parse_new::parse_dgm_20("data/dgm20_source", "data/dgm20_parsed");
+    // parse_new::combine_dgm_20(
+    //     "data/dgm20_parsed",
+    //     "assets/terrains/Sachsen/source/DGM20.png",
+    // );
+    // bevy_terrain::preprocess::generate_node_textures(
+    //     &config,
+    //     "assets/terrains/Sachsen/source/DGM20.png",
+    //     "assets/terrains/Sachsen/data/height",
+    // );
 
     // let path = "assets/heightmaps/alien_4k/albedo.jpeg";
     // bevy_terrain::preprocess::generate_albedo_textures(

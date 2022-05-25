@@ -1,10 +1,7 @@
-/target
 .*
-.idea
 !.gitignore
-/archive
-/data/
+/target
 /plugins/bevy_fly_camera/
 /plugins/bevy_terrain/
-*.xyz
-/assets/heightmaps/
+/assets/terrains/
+/data/

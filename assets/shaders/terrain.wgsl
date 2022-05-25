@@ -30,8 +30,8 @@ var quadtree: texture_2d_array<u32>;
 var filter_sampler: sampler;
 [[group(2), binding(3)]]
 var height_atlas: texture_2d_array<f32>;
-[[group(2), binding(4)]]
-var albedo_atlas: texture_2d_array<f32>;
+// [[group(2), binding(4)]]
+// var albedo_atlas: texture_2d_array<f32>;
 
 [[group(3), binding(0)]]
 var<storage> patch_list: PatchList;
@@ -162,19 +162,19 @@ fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
     let atlas_coords = lookup.atlas_coords;
 
 
-
+#ifndef COLOR
+    output_color = vec4<f32>(0.5);
+#endif
 
 #ifdef SHOW_LOD
     output_color = mix(output_color, show_lod(lod, fragment.world_position.xz), 0.4);
 #endif
 
 #ifdef ALBEDO
-    output_color = mix(output_color, textureSample(albedo_atlas, filter_sampler, atlas_coords, atlas_index), 0.5);
+    // output_color = mix(output_color, textureSample(albedo_atlas, filter_sampler, atlas_coords, atlas_index), 0.5);
 #endif
 
-#ifndef COLOR
-    output_color = vec4<f32>(0.5);
-#endif
+
 
 #ifdef LIGHTING
     let ambient = 0.1;
@@ -184,7 +184,7 @@ fn fragment(fragment: Fragment) -> [[location(0)]] vec4<f32> {
 
     let diffuse = max(dot(direction, normal), 0.0);
 
-    output_color = output_color * (ambient + diffuse) * 2.0;
+    output_color = output_color * (ambient + diffuse) * 1.0;
 #endif
 
     return output_color;
