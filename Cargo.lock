@@ -112,7 +112,7 @@ dependencies = [
  "bevy",
  "bevy_fly_camera",
  "bevy_terrain",
- "image 0.24.2",
+ "image 0.24.2 (git+https://github.com/image-rs/image)",
  "itertools",
 ]
 
@@ -638,7 +638,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bitflags",
- "image 0.24.2",
+ "image 0.24.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools",
  "lru",
  "ndarray",
@@ -1749,6 +1749,25 @@ name = "image"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28edd9d7bc256be2502e325ac0628bde30b7001b9b52e0abe31a1a9dc2701212"
+dependencies = [
+ "bytemuck",
+ "byteorder",
+ "color_quant",
+ "exr",
+ "gif",
+ "jpeg-decoder",
+ "num-iter",
+ "num-rational 0.4.0",
+ "num-traits",
+ "png 0.17.5",
+ "scoped_threadpool",
+ "tiff",
+]
+
+[[package]]
+name = "image"
+version = "0.24.2"
+source = "git+https://github.com/image-rs/image#ed8337afc795571795482882236acf14196e10db"
 dependencies = [
  "bytemuck",
  "byteorder",

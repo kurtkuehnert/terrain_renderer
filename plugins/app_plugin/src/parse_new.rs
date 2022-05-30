@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use image::{imageops, GenericImage, ImageBuffer, Luma};
+use image::io::Reader;
+use image::{imageops, imageops::FilterType, GenericImage, ImageBuffer, Luma};
 use std::{
     fs::{self, File},
     io::{BufRead, BufReader},
@@ -9,11 +10,13 @@ use std::{
 };
 
 const MAX_HEIGHT: f32 = 1000.0;
-const DGM_01_SCALE: usize = 1;
-const DGM_01_DIMENSION: usize = 2000 / DGM_01_SCALE;
-const DGM_20_SCALE: usize = 20;
-const DGM_20_DIMENSION: usize = 2000 / DGM_20_SCALE;
-const DGM_20_TILE_SIZE: u32 = 128 * 100;
+const DGM01_SCALE: usize = 1;
+const DGM01_DIMENSION: usize = 2000 / DGM01_SCALE;
+const DGM01_TILE_SIZE: u32 = 8 * DGM01_DIMENSION as u32;
+const DGM20_SCALE: usize = 20;
+const DGM20_DIMENSION: usize = 2000 / DGM20_SCALE;
+const DGM20_TILE_SIZE: u32 = 128 * DGM20_DIMENSION as u32;
+const DGM16_TILE_SIZE: u32 = DGM20_TILE_SIZE * 20 / 16;
 
 fn parse_xyz(
     file_path: PathBuf,
@@ -53,13 +56,17 @@ fn parse_xyz(
     ImageBuffer::from_vec(dimension as u32, dimension as u32, data).unwrap()
 }
 
-pub(crate) fn parse_dgm_01(input_directory: &str, output_directory: &str) {
+pub(crate) fn parse_dgm01(input_directory: &str, output_directory: &str) {
     let paths = fs::read_dir(input_directory).expect("Could not find the input directory.");
-    let count = paths.count();
+    let count = paths.count() - 1;
+    let mut n = 1;
     let paths = fs::read_dir(input_directory).expect("Could not find the input directory.");
 
-    for (n, path) in paths.enumerate() {
+    for path in paths {
         let dir_path = path.unwrap().path();
+        if !dir_path.is_dir() {
+            continue;
+        }
 
         let paths = fs::read_dir(dir_path).expect("Could not find the input directory.");
         for path in paths {
@@ -80,23 +87,60 @@ pub(crate) fn parse_dgm_01(input_directory: &str, output_directory: &str) {
             let origin_x = &file_name[7..10].parse::<usize>().unwrap() * 1000;
             let origin_y = &file_name[11..15].parse::<usize>().unwrap() * 1000;
 
-            let image = parse_xyz(
-                file_path,
-                origin_x,
-                origin_y,
-                DGM_01_DIMENSION,
-                DGM_01_SCALE,
-            );
+            let image = parse_xyz(file_path, origin_x, origin_y, DGM01_DIMENSION, DGM01_SCALE);
             image
                 .save(format!("{output_directory}/{file_name}.png"))
                 .expect("Could not save file.");
         }
 
         println!("Finished parsing {n} of {count} files.");
+        n += 1;
     }
 }
 
-pub(crate) fn parse_dgm_20(input_directory: &str, output_directory: &str) {
+pub(crate) fn parse_dop20(input_directory: &str, output_directory: &str) {
+    let paths = fs::read_dir(input_directory).expect("Could not find the input directory.");
+    let count = paths.count() - 1;
+    let mut n = 1;
+    let paths = fs::read_dir(input_directory).expect("Could not find the input directory.");
+
+    for path in paths {
+        let dir_path = path.unwrap().path();
+        if !dir_path.is_dir() {
+            continue;
+        }
+
+        let paths = fs::read_dir(dir_path).expect("Could not find the input directory.");
+        for path in paths {
+            let file_path = path.unwrap().path();
+
+            if file_path.extension().unwrap() != "tif" {
+                continue;
+            }
+
+            let file_name = file_path
+                .with_extension("")
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string();
+
+            let mut reader = Reader::open(file_path).unwrap();
+            reader.no_limits();
+            let image = reader.decode().unwrap();
+
+            image
+                .save(format!("{output_directory}/{file_name}.png"))
+                .expect("Could not save file.");
+        }
+
+        println!("Finished parsing {n} of {count} files.");
+        n += 1;
+    }
+}
+
+pub(crate) fn parse_dgm20(input_directory: &str, output_directory: &str) {
     let paths = fs::read_dir(input_directory).expect("Could not find the input directory.");
 
     for path in paths {
@@ -112,23 +156,17 @@ pub(crate) fn parse_dgm_20(input_directory: &str, output_directory: &str) {
         let origin_x = &file_name[8..11].parse::<usize>().unwrap() * 1000;
         let origin_y = &file_name[12..16].parse::<usize>().unwrap() * 1000;
 
-        let image = parse_xyz(
-            file_path,
-            origin_x,
-            origin_y,
-            DGM_20_DIMENSION,
-            DGM_20_SCALE,
-        );
+        let image = parse_xyz(file_path, origin_x, origin_y, DGM20_DIMENSION, DGM20_SCALE);
         image
             .save(format!("{output_directory}/{file_name}.png"))
             .expect("Could not save file.");
     }
 }
 
-pub(crate) fn combine_dgm_20(input_directory: &str, output_file_path: &str) {
+pub(crate) fn combine_dgm20_as_dgm16(input_directory: &str, output_file_path: &str) {
     let paths = fs::read_dir(input_directory).expect("Could not find the input directory.");
 
-    let mut output = <ImageBuffer<Luma<u16>, _>>::new(DGM_20_TILE_SIZE, DGM_20_TILE_SIZE);
+    let mut output = <ImageBuffer<Luma<u16>, _>>::new(DGM20_TILE_SIZE, DGM20_TILE_SIZE);
 
     for path in paths {
         let file_path = path.unwrap().path();
@@ -140,17 +178,60 @@ pub(crate) fn combine_dgm_20(input_directory: &str, output_file_path: &str) {
             .unwrap()
             .to_string();
 
-        let x = (&file_name[8..11].parse::<usize>().unwrap() - 278) / 2;
-        let y = (&file_name[12..16].parse::<usize>().unwrap() - 5560) / 2;
+        let initial_pos = (278, 5560);
+
+        let x = (&file_name[8..11].parse::<usize>().unwrap() - initial_pos.0) / 2;
+        let y = (&file_name[12..16].parse::<usize>().unwrap() - initial_pos.1) / 2;
 
         let input = image::open(file_path).unwrap().into_luma16();
-        // let input: &dyn GenericImageView<Pixel = Luma<u16>> = &input;
 
         output
             .copy_from(
                 &input,
-                (DGM_20_DIMENSION * x) as u32,
-                (DGM_20_DIMENSION * y) as u32,
+                (DGM20_DIMENSION * x) as u32,
+                (DGM20_DIMENSION * y) as u32,
+            )
+            .unwrap();
+    }
+
+    let mut output = imageops::resize(
+        &mut output,
+        DGM16_TILE_SIZE,
+        DGM16_TILE_SIZE,
+        FilterType::Lanczos3,
+    );
+    imageops::flip_horizontal_in_place(&mut output);
+
+    output.save(output_file_path).expect("Could not save file.");
+}
+
+pub(crate) fn combine_dgm01(input_directory: &str, output_file_path: &str) {
+    let paths = fs::read_dir(input_directory).expect("Could not find the input directory.");
+
+    let mut output = <ImageBuffer<Luma<u16>, _>>::new(DGM01_TILE_SIZE, DGM01_TILE_SIZE);
+
+    for path in paths {
+        let file_path = path.unwrap().path();
+        let file_name = file_path
+            .with_extension("")
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
+
+        let initial_pos = (328, 5606);
+
+        let x = (&file_name[7..10].parse::<usize>().unwrap() - initial_pos.0) / 2;
+        let y = (&file_name[11..15].parse::<usize>().unwrap() - initial_pos.1) / 2;
+
+        let input = image::open(file_path).unwrap().into_luma16();
+
+        output
+            .copy_from(
+                &input,
+                (DGM01_DIMENSION * x) as u32,
+                (DGM01_DIMENSION * y) as u32,
             )
             .unwrap();
     }
