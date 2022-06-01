@@ -95,6 +95,15 @@ fn setup_scene(mut commands: Commands) {
         "terrains/Hartenstein/".to_string(),
     );
 
+    bevy_terrain::preprocess::new::split_tile(
+        "data/test/test.png",
+        "data/test/chunks",
+        (0, 0),
+        0,
+        128,
+        2,
+    );
+
     // parse_new::parse_dgm01("data/dgm01_source", "data/dgm01_parsed");
     // parse_new::parse_dop20("data/dop20_source", "data/dop20_parsed");
     // parse_new::combine_dgm01(

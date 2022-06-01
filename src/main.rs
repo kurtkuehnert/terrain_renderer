@@ -4,11 +4,6 @@ use bevy::{prelude::*, window::PresentMode};
 fn main() {
     let mut app = App::new();
 
-    // app.world
-    //     .resource::<AssetServer>()
-    //     .watch_for_changes()
-    //     .unwrap();
-
     app.insert_resource(WindowDescriptor {
         width: 1920.,
         height: 1080.,
@@ -18,10 +13,16 @@ fn main() {
         ..default()
     })
     .add_plugins_with(DefaultPlugins, |plugins| {
-        plugins.disable::<bevy::log::LogPlugin>();
+        // plugins.disable::<bevy::log::LogPlugin>();
         plugins
-    })
-    .add_plugin(AppPlugin);
+    });
+
+    app.world
+        .resource::<AssetServer>()
+        .watch_for_changes()
+        .unwrap();
+
+    app.add_plugin(AppPlugin);
 
     app.run()
 }
