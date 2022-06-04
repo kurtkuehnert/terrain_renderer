@@ -195,11 +195,11 @@ fn vertex(vertex: Vertex) -> Fragment {
     let lookup = atlas_lookup(log_distance, local_position);
     var height = height_vertex(lookup.atlas_index, lookup.atlas_coords);
 
-    if (ratio < 1.0) {
-        let lookup2 = atlas_lookup(log_distance + 1.0, local_position);
-        var height2 = height_vertex(lookup2.atlas_index, lookup2.atlas_coords);
-        height = mix(height2, height, ratio);
-    }
+    // if (ratio < 1.0) {
+    //     let lookup2 = atlas_lookup(log_distance + 1.0, local_position);
+    //     var height2 = height_vertex(lookup2.atlas_index, lookup2.atlas_coords);
+    //     height = mix(height2, height, ratio);
+    // }
 
     let world_position = mesh.model * vec4<f32>(local_position.x, height, local_position.y, 1.0);
 

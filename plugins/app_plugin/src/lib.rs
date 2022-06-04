@@ -15,6 +15,7 @@ use bevy::{
     utils::HashSet,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
+use bevy_terrain::preprocess::new::ImageFormat;
 use bevy_terrain::{
     attachment_loader::TextureAttachmentFromDiskLoader, bundles::TerrainBundle,
     config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree, TerrainPlugin,
@@ -64,15 +65,15 @@ impl Plugin for AppPlugin {
     }
 }
 
-fn setup_scene(mut commands: Commands) {
-    // let mut config = TerrainConfig::new(
-    //     128,
-    //     7,
-    //     UVec2::new(2, 2),
-    //     1.0,
-    //     200.0,
-    //     "terrains/Sachsen/".to_string(),
-    // );
+fn sachsen(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainConfig {
+    let mut config = TerrainConfig::new(
+        128,
+        7,
+        UVec2::new(2, 2),
+        1.0,
+        200.0,
+        "terrains/Sachsen/".to_string(),
+    );
 
     // parse_new::parse_dgm20("data/dgm20_source", "data/dgm20_parsed");
     // parse_new::combine_dgm20_as_dgm16(
@@ -86,23 +87,21 @@ fn setup_scene(mut commands: Commands) {
     //     128,
     // );
 
+    terrain_setup::setup_default_sampler(&mut config, 2);
+    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 3, 128 + 4);
+
+    config
+}
+
+fn hartenstein_large(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainConfig {
     let mut config = TerrainConfig::new(
         128,
         7,
         UVec2::new(2, 2),
         1.0,
         1000.0,
-        "terrains/Hartenstein/".to_string(),
+        "terrains/Hartenstein_large/".to_string(),
     );
-
-    // bevy_terrain::preprocess::new::split_tile(
-    //     "data/test/test.png",
-    //     "data/test/chunks",
-    //     (0, 0),
-    //     0,
-    //     128,
-    //     2,
-    // );
 
     // parse_new::parse_dgm01("data/dgm01_source", "data/dgm01_parsed");
     // parse_new::parse_dop20("data/dop20_source", "data/dop20_parsed");
@@ -110,9 +109,26 @@ fn setup_scene(mut commands: Commands) {
     //     "data/dgm01_parsed",
     //     "assets/terrains/Hartenstein/source/DGM01.png",
     // );
+
+    terrain_setup::setup_default_sampler(&mut config, 2);
+    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 3, 128 + 4);
+
+    config
+}
+
+fn hartenstein(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainConfig {
+    let mut config = TerrainConfig::new(
+        128,
+        5,
+        UVec2::new(2, 2),
+        1.0,
+        1000.0,
+        "terrains/Hartenstein/".to_string(),
+    );
+
     // bevy_terrain::preprocess::generate_node_textures(
     //     &config,
-    //     "assets/terrains/Hartenstein/source/DGM01.png",
+    //     "assets/terrains/Hartenstein/source/height.png",
     //     "assets/terrains/Hartenstein/data/height",
     //     128,
     // );
@@ -123,10 +139,55 @@ fn setup_scene(mut commands: Commands) {
     //     128 * 5,
     // );
 
+    terrain_setup::setup_default_sampler(&mut config, 2);
+    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 3, 128 + 4);
+    terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 4, 128 * 5 + 2);
+
+    config
+}
+
+fn setup_scene(mut commands: Commands) {
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
+
+    // let config = sachsen(&mut from_disk_loader);
+    // let config = hartenstein_large(&mut from_disk_loader);
+    // let config = hartenstein(&mut from_disk_loader);
+
+    let mut config = TerrainConfig::new(
+        128,
+        5,
+        UVec2::new(2, 2),
+        1.0,
+        1000.0,
+        "terrains/Test/".to_string(),
+    );
+
     terrain_setup::setup_default_sampler(&mut config, 2);
     terrain_setup::setup_height_texture(&mut config, &mut from_disk_loader, 3, 128 + 4);
-    // terrain_setup::setup_albedo_texture(&mut config, &mut from_disk_loader, 4, 128 * 5 + 2);
+    terrain_setup::setup_albedo_texture(&mut config, &mut from_disk_loader, 4, 128 + 4);
+
+    bevy_terrain::preprocess::new::preprocess_tiles(
+        "assets/terrains/Test/source/dgm1",
+        "assets/terrains/Test/data/height",
+        0,
+        5,
+        (0, 0),
+        2000,
+        128,
+        2,
+        ImageFormat::LUMA16,
+    );
+    // bevy_terrain::preprocess::new::preprocess_tiles(
+    //     "assets/terrains/Test/source/height",
+    //     "assets/terrains/Test/data/height",
+    //     0,
+    //     5,
+    //     (0, 0),
+    //     4000,
+    //     128,
+    //     2,
+    //     ImageFormat::LUMA16,
+    // );
 
     commands
         .spawn_bundle(TerrainBundle::new(config))
