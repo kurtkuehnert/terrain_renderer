@@ -17,10 +17,10 @@ fn main() {
         plugins
     });
 
-    app.world
-        .resource::<AssetServer>()
-        .watch_for_changes()
-        .unwrap();
+    // app.world
+    //     .resource::<AssetServer>()
+    //     .watch_for_changes()
+    //      .unwrap();
 
     app.add_plugin(AppPlugin);
 

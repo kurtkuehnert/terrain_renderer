@@ -155,8 +155,8 @@ fn setup_scene(mut commands: Commands) {
 
     let mut config = TerrainConfig::new(
         128,
-        5,
-        UVec2::new(2, 2),
+        7,
+        UVec2::new(1, 1),
         1.0,
         1000.0,
         "terrains/Test/".to_string(),
@@ -164,29 +164,34 @@ fn setup_scene(mut commands: Commands) {
 
     terrain_setup::setup_default_sampler(&mut config, 2);
     terrain_setup::setup_height_texture(&mut config, &mut from_disk_loader, 3, 128 + 4);
-    terrain_setup::setup_albedo_texture(&mut config, &mut from_disk_loader, 4, 128 + 4);
+    terrain_setup::setup_albedo_texture(&mut config, &mut from_disk_loader, 4, 128 * 5 + 2);
 
-    bevy_terrain::preprocess::new::preprocess_tiles(
-        "assets/terrains/Test/source/dgm1",
-        "assets/terrains/Test/data/height",
-        0,
-        5,
-        (0, 0),
-        2000,
-        128,
-        2,
-        ImageFormat::LUMA16,
-    );
+    // parse_new::parse_dgm20("data/dgm20_source", "data/dgm20_parsed");
+    // parse_new::parse_dgm01("data/dgm01_source", "data/dgm01_parsed");
+    // parse_new::parse_dop20("data/dop20_source", "data/dop20_parsed");
+
     // bevy_terrain::preprocess::new::preprocess_tiles(
-    //     "assets/terrains/Test/source/height",
+    //     "data/dgm01_parsed",
     //     "assets/terrains/Test/data/height",
     //     0,
-    //     5,
+    //     7,
     //     (0, 0),
-    //     4000,
+    //     2000,
     //     128,
     //     2,
     //     ImageFormat::LUMA16,
+    // );
+
+    // bevy_terrain::preprocess::new::preprocess_tiles(
+    //     "data/dop20_parsed",
+    //     "assets/terrains/Test/data/albedo",
+    //     0,
+    //     7,
+    //     (0, 0),
+    //     10000,
+    //     128 * 5,
+    //     1,
+    //     ImageFormat::RGB,
     // );
 
     commands

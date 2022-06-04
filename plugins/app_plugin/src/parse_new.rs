@@ -40,13 +40,15 @@ fn parse_xyz(
             .unwrap()
             - origin_x)
             / scale;
-        let y = (coordinate
-            .next()
-            .and_then(|value| value.split_once('.'))
-            .and_then(|(value, _)| value.parse::<usize>().ok())
-            .unwrap()
-            - origin_y)
-            / scale;
+        let y = dimension
+            - 1
+            - (coordinate
+                .next()
+                .and_then(|value| value.split_once('.'))
+                .and_then(|(value, _)| value.parse::<usize>().ok())
+                .unwrap()
+                - origin_y)
+                / scale;
         let height = (coordinate.next().unwrap().parse::<f32>().unwrap() / MAX_HEIGHT
             * u16::MAX as f32) as u16;
 
@@ -57,6 +59,9 @@ fn parse_xyz(
 }
 
 pub(crate) fn parse_dgm01(input_directory: &str, output_directory: &str) {
+    fs::remove_dir_all(output_directory).unwrap();
+    fs::create_dir(output_directory).unwrap();
+
     let paths = fs::read_dir(input_directory).expect("Could not find the input directory.");
     let count = paths.count() - 1;
     let mut n = 1;
@@ -84,12 +89,24 @@ pub(crate) fn parse_dgm01(input_directory: &str, output_directory: &str) {
                 .unwrap()
                 .to_string();
 
-            let origin_x = &file_name[7..10].parse::<usize>().unwrap() * 1000;
-            let origin_y = &file_name[11..15].parse::<usize>().unwrap() * 1000;
+            let origin_x = file_name[7..10].parse::<usize>().unwrap();
+            let origin_y = file_name[11..15].parse::<usize>().unwrap();
 
-            let image = parse_xyz(file_path, origin_x, origin_y, DGM01_DIMENSION, DGM01_SCALE);
+            let initial_pos = (328, 5620);
+
+            let tile_x = (origin_x - initial_pos.0) / 2;
+            let tile_y = (initial_pos.1 - origin_y) / 2;
+
+            let image = parse_xyz(
+                file_path,
+                origin_x * 1000,
+                origin_y * 1000,
+                DGM01_DIMENSION,
+                DGM01_SCALE,
+            );
+
             image
-                .save(format!("{output_directory}/{file_name}.png"))
+                .save(format!("{output_directory}/dgm01_{tile_x}_{tile_y}.png"))
                 .expect("Could not save file.");
         }
 
@@ -99,6 +116,9 @@ pub(crate) fn parse_dgm01(input_directory: &str, output_directory: &str) {
 }
 
 pub(crate) fn parse_dop20(input_directory: &str, output_directory: &str) {
+    fs::remove_dir_all(output_directory).unwrap();
+    fs::create_dir(output_directory).unwrap();
+
     let paths = fs::read_dir(input_directory).expect("Could not find the input directory.");
     let count = paths.count() - 1;
     let mut n = 1;
@@ -126,12 +146,20 @@ pub(crate) fn parse_dop20(input_directory: &str, output_directory: &str) {
                 .unwrap()
                 .to_string();
 
+            let origin_x = file_name[11..14].parse::<usize>().unwrap();
+            let origin_y = file_name[15..19].parse::<usize>().unwrap();
+
+            let initial_pos = (328, 5620);
+
+            let tile_x = (origin_x - initial_pos.0) / 2;
+            let tile_y = (initial_pos.1 - origin_y) / 2;
+
             let mut reader = Reader::open(file_path).unwrap();
             reader.no_limits();
-            let image = reader.decode().unwrap();
+            let mut image = reader.decode().unwrap();
 
             image
-                .save(format!("{output_directory}/{file_name}.png"))
+                .save(format!("{output_directory}/dop20_{tile_x}_{tile_y}.png"))
                 .expect("Could not save file.");
         }
 
@@ -141,6 +169,9 @@ pub(crate) fn parse_dop20(input_directory: &str, output_directory: &str) {
 }
 
 pub(crate) fn parse_dgm20(input_directory: &str, output_directory: &str) {
+    fs::remove_dir_all(output_directory).unwrap();
+    fs::create_dir(output_directory).unwrap();
+
     let paths = fs::read_dir(input_directory).expect("Could not find the input directory.");
 
     for path in paths {
@@ -153,12 +184,24 @@ pub(crate) fn parse_dgm20(input_directory: &str, output_directory: &str) {
             .unwrap()
             .to_string();
 
-        let origin_x = &file_name[8..11].parse::<usize>().unwrap() * 1000;
-        let origin_y = &file_name[12..16].parse::<usize>().unwrap() * 1000;
+        let origin_x = file_name[8..11].parse::<usize>().unwrap();
+        let origin_y = file_name[12..16].parse::<usize>().unwrap();
 
-        let image = parse_xyz(file_path, origin_x, origin_y, DGM20_DIMENSION, DGM20_SCALE);
+        let initial_pos = (278, 5780);
+
+        let tile_x = (origin_x - initial_pos.0) / 2;
+        let tile_y = (initial_pos.1 - origin_y) / 2;
+
+        let image = parse_xyz(
+            file_path,
+            origin_x * 1000,
+            origin_y * 1000,
+            DGM20_DIMENSION,
+            DGM20_SCALE,
+        );
+
         image
-            .save(format!("{output_directory}/{file_name}.png"))
+            .save(format!("{output_directory}/dgm20_{tile_x}_{tile_y}.png"))
             .expect("Could not save file.");
     }
 }
