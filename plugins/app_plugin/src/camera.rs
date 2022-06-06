@@ -1,10 +1,5 @@
-use bevy::{
-    prelude::*,
-    render::{
-        camera::{Camera3d, CameraProjection},
-        primitives::Frustum,
-    },
-};
+use bevy::render::camera::{CameraProjection, Projection};
+use bevy::{prelude::*, render::primitives::Frustum};
 use bevy_fly_camera::FlyCamera;
 
 pub(crate) fn toggle_camera_system(
@@ -32,14 +27,13 @@ pub(crate) fn setup_camera(mut commands: Commands) {
     );
 
     commands
-        .spawn_bundle(PerspectiveCameraBundle {
+        .spawn_bundle(Camera3dBundle {
             camera: Camera::default(),
-            perspective_projection,
+            projection: Projection::Perspective(perspective_projection),
             frustum,
             transform: Transform::from_xyz(300.0, 750.0, 300.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
-        .insert(Camera3d)
         .insert(FlyCamera {
             accel: 8.0,
             friction: 3.0,

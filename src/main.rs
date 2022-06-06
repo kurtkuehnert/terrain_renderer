@@ -13,7 +13,7 @@ fn main() {
         ..default()
     })
     .add_plugins_with(DefaultPlugins, |plugins| {
-        plugins.disable::<bevy::log::LogPlugin>();
+        // plugins.disable::<bevy::log::LogPlugin>();
         plugins
     });
 

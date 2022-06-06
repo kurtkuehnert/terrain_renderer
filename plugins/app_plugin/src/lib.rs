@@ -1,3 +1,5 @@
+extern crate core;
+
 mod camera;
 mod parse;
 mod parse_new;
@@ -15,7 +17,6 @@ use bevy::{
     utils::HashSet,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
-use bevy_terrain::preprocess::new::ImageFormat;
 use bevy_terrain::{
     attachment_loader::TextureAttachmentFromDiskLoader, bundles::TerrainBundle,
     config::TerrainConfig, node_atlas::NodeAtlas, quadtree::Quadtree, TerrainPlugin,
@@ -196,8 +197,7 @@ fn setup_scene(mut commands: Commands) {
 
     commands
         .spawn_bundle(TerrainBundle::new(config))
-        .insert(from_disk_loader)
-        .insert(Wireframe);
+        .insert(from_disk_loader);
 }
 
 fn toggle_wireframe_system(

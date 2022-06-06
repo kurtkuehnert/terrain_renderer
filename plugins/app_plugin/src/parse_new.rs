@@ -1,8 +1,11 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use image::io::Reader;
-use image::{imageops, imageops::FilterType, GenericImage, ImageBuffer, Luma};
+use image::{
+    imageops::{self, FilterType},
+    io::Reader,
+    GenericImage, ImageBuffer, Luma,
+};
 use std::{
     fs::{self, File},
     io::{BufRead, BufReader},
@@ -156,7 +159,7 @@ pub(crate) fn parse_dop20(input_directory: &str, output_directory: &str) {
 
             let mut reader = Reader::open(file_path).unwrap();
             reader.no_limits();
-            let mut image = reader.decode().unwrap();
+            let image = reader.decode().unwrap();
 
             image
                 .save(format!("{output_directory}/dop20_{tile_x}_{tile_y}.png"))
