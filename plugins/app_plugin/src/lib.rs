@@ -2,7 +2,6 @@ extern crate core;
 
 mod camera;
 mod parse;
-mod parse_new;
 mod terrain_setup;
 
 use crate::camera::{set_camera_viewports, setup_camera, toggle_camera_system};

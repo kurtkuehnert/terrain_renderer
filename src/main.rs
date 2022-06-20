@@ -28,10 +28,10 @@ fn main() {
     })
     .add_plugin(FrameTimeDiagnosticsPlugin);
 
-    //  app.world
-    //      .resource::<AssetServer>()
-    //      .watch_for_changes()
-    //      .unwrap();
+    // app.world
+    //     .resource::<AssetServer>()
+    //     .watch_for_changes()
+    //     .unwrap();
 
     app.add_plugin(AppPlugin);
 
