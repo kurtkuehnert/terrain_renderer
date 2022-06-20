@@ -28,6 +28,18 @@ impl Plugin for AppPlugin {
 }
 
 fn sachsen(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainConfig {
+    // parse::parse(
+    //     "data/dgm20_source",
+    //     "data/dgm20_parsed",
+    //     (278, 5780),
+    //     "dgm20",
+    //     parse::ParseFormat::XYZ {
+    //         scale: 20,
+    //         dimension: 100,
+    //         max_height: 1000.0,
+    //     },
+    // );
+    //
     // bevy_terrain::preprocess::preprocess_tiles(
     //     "data/dgm20_parsed",
     //     "assets/terrains/Sachsen/data/height",
@@ -40,7 +52,7 @@ fn sachsen(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainCon
     //     bevy_terrain::preprocess::ImageFormat::LUMA16,
     // );
 
-    let mut config = TerrainConfig::new(128, 7, 200.0, "terrains/Sachsen/".to_string());
+    let mut config = TerrainConfig::new(128, 7, 300.0, "terrains/Sachsen/".to_string());
 
     terrain_setup::setup_default_sampler(&mut config, 2);
     terrain_setup::setup_height_texture(&mut config, from_disk_loader, 3, 128 + 4);
@@ -49,6 +61,25 @@ fn sachsen(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainCon
 }
 
 fn hartenstein_large(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainConfig {
+    // parse::parse(
+    //     "data/dgm01_source",
+    //     "data/dgm01_parsed",
+    //     (328, 5620),
+    //     "dgm01",
+    //     parse::ParseFormat::XYZ {
+    //         scale: 1,
+    //         dimension: 2000,
+    //         max_height: 1000.0,
+    //     },
+    // );
+    // parse::parse(
+    //     "data/dop20_source",
+    //     "data/dop20_parsed",
+    //     (328, 5620),
+    //     "dop20",
+    //     parse::ParseFormat::TIF,
+    // );
+    //
     // bevy_terrain::preprocess::preprocess_tiles(
     //     "data/dgm01_parsed",
     //     "assets/terrains/Hartenstein_large/data/height",
