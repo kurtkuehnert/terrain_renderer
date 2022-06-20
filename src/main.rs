@@ -1,5 +1,10 @@
 use app_plugin::AppPlugin;
-use bevy::{prelude::*, window::PresentMode};
+use bevy::{
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    prelude::*,
+    window::PresentMode,
+};
+use std::time::Duration;
 
 fn main() {
     let mut app = App::new();
@@ -13,13 +18,19 @@ fn main() {
         ..default()
     })
     .add_plugins_with(DefaultPlugins, |plugins| {
-        // plugins.disable::<bevy::log::LogPlugin>();
+        plugins.disable::<bevy::log::LogPlugin>();
         plugins
-    });
+    })
+    .add_plugin(LogDiagnosticsPlugin {
+        debug: false,
+        wait_duration: Duration::from_secs(5),
+        filter: None,
+    })
+    .add_plugin(FrameTimeDiagnosticsPlugin);
 
-    // app.world
-    //     .resource::<AssetServer>()
-    //     .watch_for_changes()
+    //  app.world
+    //      .resource::<AssetServer>()
+    //      .watch_for_changes()
     //      .unwrap();
 
     app.add_plugin(AppPlugin);
