@@ -3,5 +3,6 @@
 /target
 /plugins/bevy_fly_camera/
 /plugins/bevy_terrain/
+/plugins/bevy_web_asset/
 /assets/terrains/
 /data/

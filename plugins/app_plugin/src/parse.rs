@@ -68,7 +68,7 @@ pub(crate) fn parse(
     name: &str,
     format: ParseFormat,
 ) {
-    fs::remove_dir_all(output_directory).unwrap();
+    let _ = fs::remove_dir_all(output_directory);
     fs::create_dir(output_directory).unwrap();
 
     let count = fs::read_dir(input_directory).unwrap().count() - 1;

@@ -5,18 +5,47 @@ mod parse;
 mod terrain_setup;
 
 use crate::camera::{set_camera_viewports, setup_camera, toggle_camera_system};
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use bevy::window::PresentMode;
 use bevy_fly_camera::FlyCameraPlugin;
 use bevy_terrain::{
     attachment_loader::TextureAttachmentFromDiskLoader, bundles::TerrainBundle,
     config::TerrainConfig, TerrainPlugin,
 };
+use bevy_web_asset::WebAssetPlugin;
+use std::time::Duration;
 
 /// A plugin, which sets up the testing application.
 pub struct AppPlugin;
 
 impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
+        app.insert_resource(WindowDescriptor {
+            width: 1920.,
+            height: 1080.,
+            position: Some(Vec2::new(3600.0, 220.0)),
+            title: "Terrain Rendering".into(),
+            present_mode: PresentMode::Immediate,
+            ..default()
+        });
+
+        app.add_plugins_with(DefaultPlugins, |plugins| {
+            // plugins.disable::<bevy::log::LogPlugin>();
+            plugins.add_before::<bevy::asset::AssetPlugin, _>(WebAssetPlugin);
+            plugins
+        })
+        .add_plugin(LogDiagnosticsPlugin {
+            debug: false,
+            wait_duration: Duration::from_secs(5),
+            filter: None,
+        })
+        .add_plugin(FrameTimeDiagnosticsPlugin);
+
+        // app.world
+        //     .resource::<AssetServer>()
+        //     .watch_for_changes()
+        //     .unwrap();
         app.insert_resource(Msaa { samples: 4 })
             .add_plugin(FlyCameraPlugin)
             .add_plugin(TerrainPlugin)
@@ -105,10 +134,11 @@ fn hartenstein_large(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> 
     // );
 
     let mut config = TerrainConfig::new(128, 7, 1000.0, "terrains/Hartenstein_large/".to_string());
+    // let mut config = TerrainConfig::new(128, 7, 1000.0, "http://127.0.0.1:3535/".to_string());
 
     terrain_setup::setup_default_sampler(&mut config, 2);
     terrain_setup::setup_height_texture(&mut config, from_disk_loader, 3, 128 + 4);
-    terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 4, 128 * 5 + 2);
+    // terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 4, 128 * 5 + 2);
 
     config
 }
