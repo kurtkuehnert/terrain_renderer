@@ -78,12 +78,12 @@ pub fn set_camera_viewports(
                 ..default()
             });
 
-            let mut right_camera = right_camera.single_mut();
-            right_camera.viewport = Some(Viewport {
-                physical_position: UVec2::new(window.physical_width() / 2, 0),
-                physical_size: UVec2::new(window.physical_width() / 2, window.physical_height()),
-                ..default()
-            });
+            // let mut right_camera = right_camera.single_mut();
+            // right_camera.viewport = Some(Viewport {
+            //     physical_position: UVec2::new(window.physical_width() / 2, 0),
+            //     physical_size: UVec2::new(window.physical_width() / 2, window.physical_height()),
+            //     ..default()
+            // });
         }
     }
 }

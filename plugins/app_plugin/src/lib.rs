@@ -5,15 +5,16 @@ mod parse;
 mod terrain_setup;
 
 use crate::camera::{set_camera_viewports, setup_camera, toggle_camera_system};
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
-use bevy::prelude::*;
-use bevy::window::PresentMode;
+use bevy::{
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    prelude::*,
+    window::PresentMode,
+};
 use bevy_fly_camera::FlyCameraPlugin;
 use bevy_terrain::{
     attachment_loader::TextureAttachmentFromDiskLoader, bundles::TerrainBundle,
     config::TerrainConfig, TerrainPlugin,
 };
-use bevy_web_asset::WebAssetPlugin;
 use std::time::Duration;
 
 /// A plugin, which sets up the testing application.
@@ -32,7 +33,7 @@ impl Plugin for AppPlugin {
 
         app.add_plugins_with(DefaultPlugins, |plugins| {
             // plugins.disable::<bevy::log::LogPlugin>();
-            plugins.add_before::<bevy::asset::AssetPlugin, _>(WebAssetPlugin);
+            // plugins.add_before::<bevy::asset::AssetPlugin, _>(bevy_web_asset::WebAssetPlugin);
             plugins
         })
         .add_plugin(LogDiagnosticsPlugin {
@@ -46,6 +47,7 @@ impl Plugin for AppPlugin {
         //     .resource::<AssetServer>()
         //     .watch_for_changes()
         //     .unwrap();
+
         app.insert_resource(Msaa { samples: 4 })
             .add_plugin(FlyCameraPlugin)
             .add_plugin(TerrainPlugin)
@@ -181,12 +183,21 @@ fn setup_scene(mut commands: Commands) {
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
     // let config = sachsen(&mut from_disk_loader);
-    let config = hartenstein_large(&mut from_disk_loader);
-    // let config = hartenstein(&mut from_disk_loader);
+    // let config = hartenstein_large(&mut from_disk_loader);
+    let config = hartenstein(&mut from_disk_loader);
 
     commands
         .spawn_bundle(TerrainBundle::new(config))
         .insert(from_disk_loader);
+
+    commands.spawn_bundle(DirectionalLightBundle {
+        transform: Transform {
+            translation: Vec3::new(0.0, 2.0, 0.0),
+            rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4),
+            ..default()
+        },
+        ..default()
+    });
 
     // let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
     // let config = hartenstein(&mut from_disk_loader);
