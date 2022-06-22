@@ -98,22 +98,22 @@ fn color_fragment(
         let diffuse = max(dot(direction, world_normal), 0.0);
         color = color * (ambient + diffuse);
 
-        // var pbr_input: PbrInput;
-        // pbr_input.material.base_color = color;
-        // pbr_input.material.emissive = vec4<f32>(0.0);
-        // pbr_input.material.perceptual_roughness = 0.089;
-        // pbr_input.material.metallic = 0.01;
-        // pbr_input.material.reflectance = 0.5;
-        // pbr_input.material.flags = STANDARD_MATERIAL_FLAGS_ALPHA_MODE_OPAQUE;
-        // pbr_input.material.alpha_cutoff = 0.5;
-        // pbr_input.occlusion = 1.0;
-        // pbr_input.frag_coord = in.frag_coord;
-        // pbr_input.world_position = in.world_position;
-        // pbr_input.world_normal = world_normal;
-        // pbr_input.is_orthographic = view.projection[3].w == 1.0;
-        // pbr_input.N = world_normal;
-        // pbr_input.V = calculate_view(in.world_position, pbr_input.is_orthographic);
-        // color = pbr(pbr_input);
+        var pbr_input: PbrInput;
+        pbr_input.material.base_color = color;
+        pbr_input.material.emissive = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+        pbr_input.material.perceptual_roughness = 0.089;
+        pbr_input.material.metallic = 0.01;
+        pbr_input.material.reflectance = 0.5;
+        pbr_input.material.flags = STANDARD_MATERIAL_FLAGS_ALPHA_MODE_OPAQUE;
+        pbr_input.material.alpha_cutoff = 0.5;
+        pbr_input.occlusion = 1.0;
+        pbr_input.frag_coord = in.frag_coord;
+        pbr_input.world_position = in.world_position;
+        pbr_input.world_normal = world_normal;
+        pbr_input.is_orthographic = view.projection[3].w == 1.0;
+        pbr_input.N = world_normal;
+        pbr_input.V = calculate_view(in.world_position, pbr_input.is_orthographic);
+        color = pbr(pbr_input);
     #endif
 
     return color;
