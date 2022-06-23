@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::render::camera::{Projection, Viewport};
+use bevy::render::camera::Viewport;
 use bevy::window::{WindowId, WindowResized};
 use bevy_fly_camera::FlyCamera;
 
@@ -14,34 +14,7 @@ pub(crate) fn toggle_camera_system(
     }
 }
 
-pub(crate) fn setup_camera(mut commands: Commands) {
-    let perspective_projection = PerspectiveProjection {
-        far: 10000.0,
-        ..default()
-    };
-
-    commands
-        .spawn_bundle(Camera3dBundle {
-            camera: Camera::default(),
-            projection: Projection::Perspective(perspective_projection.clone()),
-            transform: Transform::from_xyz(300.0, 750.0, 300.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..default()
-        })
-        .insert(LeftCamera)
-        .insert(FlyCamera {
-            accel: 8.0,
-            friction: 3.0,
-            max_speed: 16.0,
-            sensitivity: 30.0,
-            key_forward: KeyCode::Up,
-            key_backward: KeyCode::Down,
-            key_left: KeyCode::Left,
-            key_right: KeyCode::Right,
-            key_up: KeyCode::PageUp,
-            key_down: KeyCode::PageDown,
-            enabled: false,
-            ..default()
-        });
+pub(crate) fn setup_camera(mut _commands: Commands) {
 
     // commands
     //     .spawn_bundle(Camera3dBundle {
@@ -78,12 +51,16 @@ pub fn set_camera_viewports(
                 ..default()
             });
 
-            // let mut right_camera = right_camera.single_mut();
-            // right_camera.viewport = Some(Viewport {
-            //     physical_position: UVec2::new(window.physical_width() / 2, 0),
-            //     physical_size: UVec2::new(window.physical_width() / 2, window.physical_height()),
-            //     ..default()
-            // });
+            if let Ok(mut right_camera) = right_camera.get_single_mut() {
+                right_camera.viewport = Some(Viewport {
+                    physical_position: UVec2::new(window.physical_width() / 2, 0),
+                    physical_size: UVec2::new(
+                        window.physical_width() / 2,
+                        window.physical_height(),
+                    ),
+                    ..default()
+                });
+            }
         }
     }
 }

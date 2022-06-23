@@ -1,19 +1,27 @@
+#![allow(dead_code)]
+
 extern crate core;
 
 mod camera;
 mod parse;
 mod terrain_setup;
 
-use crate::camera::{set_camera_viewports, setup_camera, toggle_camera_system};
+use crate::camera::{
+    set_camera_viewports, setup_camera, toggle_camera_system, LeftCamera, RightCamera,
+};
+use bevy::core_pipeline::clear_color::ClearColorConfig;
+use bevy::render::camera::Projection;
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
     window::PresentMode,
 };
-use bevy_fly_camera::FlyCameraPlugin;
+use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
+use bevy_terrain::quadtree::Quadtree;
+use bevy_terrain::render::TerrainViewComponents;
 use bevy_terrain::{
     attachment_loader::TextureAttachmentFromDiskLoader, bundles::TerrainBundle,
-    config::TerrainConfig, TerrainPlugin,
+    config::TerrainConfig, TerrainPlugin, TerrainView,
 };
 use std::time::Duration;
 
@@ -85,8 +93,8 @@ fn sachsen(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainCon
 
     let mut config = TerrainConfig::new(128, 7, 300.0, "terrains/Sachsen/".to_string());
 
-    terrain_setup::setup_default_sampler(&mut config, 2);
-    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 3, 128 + 4);
+    terrain_setup::setup_default_sampler(&mut config, 1);
+    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
 
     config
 }
@@ -138,9 +146,9 @@ fn hartenstein_large(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> 
     let mut config = TerrainConfig::new(128, 7, 1000.0, "terrains/Hartenstein_large/".to_string());
     // let mut config = TerrainConfig::new(128, 7, 1000.0, "http://127.0.0.1:3535/".to_string());
 
-    terrain_setup::setup_default_sampler(&mut config, 2);
-    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 3, 128 + 4);
-    // terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 4, 128 * 5 + 2);
+    terrain_setup::setup_default_sampler(&mut config, 1);
+    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
+    terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 3, 128 * 5 + 2);
 
     config
 }
@@ -172,32 +180,93 @@ fn hartenstein(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> Terrai
 
     let mut config = TerrainConfig::new(128, 5, 1000.0, "terrains/Hartenstein/".to_string());
 
-    terrain_setup::setup_default_sampler(&mut config, 2);
-    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 3, 128 + 4);
-    terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 4, 128 * 5 + 2);
+    terrain_setup::setup_default_sampler(&mut config, 1);
+    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
+    terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 3, 128 * 5 + 2);
 
     config
 }
 
-fn setup_scene(mut commands: Commands) {
+fn setup_scene(mut commands: Commands, mut quadtrees: ResMut<TerrainViewComponents<Quadtree>>) {
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
     // let config = sachsen(&mut from_disk_loader);
-    // let config = hartenstein_large(&mut from_disk_loader);
-    let config = hartenstein(&mut from_disk_loader);
+    let config = hartenstein_large(&mut from_disk_loader);
+    // let config = hartenstein(&mut from_disk_loader);
 
-    commands
-        .spawn_bundle(TerrainBundle::new(config))
-        .insert(from_disk_loader);
+    let terrain = commands
+        .spawn_bundle(TerrainBundle::new(config.clone()))
+        .insert(from_disk_loader)
+        .id();
 
-    commands.spawn_bundle(DirectionalLightBundle {
-        transform: Transform {
-            translation: Vec3::new(0.0, 2.0, 0.0),
-            rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4),
-            ..default()
-        },
+    let perspective_projection = PerspectiveProjection {
+        far: 10000.0,
         ..default()
-    });
+    };
+
+    let view = commands
+        .spawn_bundle(Camera3dBundle {
+            camera: Camera::default(),
+            projection: Projection::Perspective(perspective_projection.clone()),
+            transform: Transform::from_xyz(300.0, 750.0, 300.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..default()
+        })
+        .insert(TerrainView)
+        .insert(LeftCamera)
+        .insert(FlyCamera {
+            accel: 8.0,
+            friction: 3.0,
+            max_speed: 16.0,
+            sensitivity: 30.0,
+            key_forward: KeyCode::Up,
+            key_backward: KeyCode::Down,
+            key_left: KeyCode::Left,
+            key_right: KeyCode::Right,
+            key_up: KeyCode::PageUp,
+            key_down: KeyCode::PageDown,
+            enabled: false,
+            ..default()
+        })
+        .id();
+
+    let quadtree = Quadtree::new(&config);
+    quadtrees.insert((terrain, view), quadtree);
+
+    let view2 = commands
+        .spawn_bundle(Camera3dBundle {
+            camera: Camera {
+                priority: 1,
+                ..default()
+            },
+            camera_3d: Camera3d {
+                clear_color: ClearColorConfig::None,
+                ..default()
+            },
+            projection: Projection::Perspective(perspective_projection.clone()),
+            transform: Transform::from_xyz(10000.0, 1000.0, 10000.0)
+                .looking_at(Vec3::ZERO, Vec3::Y),
+            ..default()
+        })
+        .insert(TerrainView)
+        .insert(RightCamera)
+        .id();
+
+    let quadtree = Quadtree::new(&config);
+    quadtrees.insert((terrain, view2), quadtree);
+
+    // commands.spawn_bundle(DirectionalLightBundle {
+    //     transform: Transform {
+    //         translation: Vec3::new(0.0, 2.0, 0.0),
+    //         rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4),
+    //         ..default()
+    //     },
+    //     ..default()
+    // });
+
+    // commands.spawn_bundle(PointLightBundle {
+    //     transform: Transform::from_xyz(0.0, 200.0, 0.0),
+    //     ..default()
+    // });
 
     // let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
     // let config = hartenstein(&mut from_disk_loader);
