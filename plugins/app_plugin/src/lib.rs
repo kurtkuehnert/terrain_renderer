@@ -190,8 +190,8 @@ fn hartenstein(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> Terrai
 fn setup_scene(mut commands: Commands, mut quadtrees: ResMut<TerrainViewComponents<Quadtree>>) {
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
-    // let config = sachsen(&mut from_disk_loader);
-    let config = hartenstein_large(&mut from_disk_loader);
+    let config = sachsen(&mut from_disk_loader);
+    // let config = hartenstein_large(&mut from_disk_loader);
     // let config = hartenstein(&mut from_disk_loader);
 
     let terrain = commands
@@ -243,8 +243,7 @@ fn setup_scene(mut commands: Commands, mut quadtrees: ResMut<TerrainViewComponen
                 ..default()
             },
             projection: Projection::Perspective(perspective_projection.clone()),
-            transform: Transform::from_xyz(10000.0, 1000.0, 10000.0)
-                .looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(6000.0, 1000.0, 6000.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(TerrainView)

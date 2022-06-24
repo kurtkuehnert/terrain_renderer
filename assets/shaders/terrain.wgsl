@@ -64,6 +64,47 @@ var quadtree: texture_2d_array<u32>;
 #import bevy_terrain::atlas
 #import bevy_terrain::debug
 
+fn calculate_position(vertex_index: u32, patch: Patch) -> vec2<f32> {
+    // use first and last index twice, to form degenerate triangles
+    // Todo: documentation
+    let row_index = clamp(vertex_index % config.vertices_per_row, 1u, config.vertices_per_row - 2u) - 1u;
+    var vertex_position = vec2<u32>((row_index & 1u) + vertex_index / config.vertices_per_row, row_index >> 1u);
+
+#ifndef MESH_MORPH
+    // stitch the edges of the patches together
+    if (vertex_position.x == 0u && (patch.stitch & 1u) != 0u) {
+        vertex_position.y = vertex_position.y & 0xFFFEu; // mod 2
+    }
+    if (vertex_position.y == 0u && (patch.stitch & 2u) != 0u) {
+        vertex_position.x = vertex_position.x & 0xFFFEu; // mod 2
+    }
+    if (vertex_position.x == config.patch_size && (patch.stitch & 4u) != 0u) {
+        vertex_position.y = vertex_position.y + 1u & 0xFFFEu; // mod 2
+    }
+    if (vertex_position.y == config.patch_size && (patch.stitch & 8u) != 0u) {
+        vertex_position.x = vertex_position.x + 1u & 0xFFFEu; // mod 2
+    }
+#endif
+
+    var local_position = vec2<f32>((patch.coords * config.patch_size + vertex_position)) * f32(patch.size) * config.patch_scale;
+
+#ifdef MESH_MORPH
+    let viewer_distance = distance(local_position, view.world_position.xz);
+    let morph_distance = f32(patch.size) * config.view_distance;
+    let morph = clamp(1.0 - (1.0 - viewer_distance / morph_distance) / morph_blend, 0.0, 1.0);
+
+    if (morph > 0.0) {
+        let frac_part = ((vec2<f32>(vertex_position) * 0.5) % 1.0) * 2.0;
+        local_position = local_position - frac_part * morph * config.patch_scale * f32(patch.size);
+    }
+#endif
+
+    local_position.x = clamp(local_position.x, 0.0, f32(config.terrain_size));
+    local_position.y = clamp(local_position.y, 0.0, f32(config.terrain_size));
+
+    return local_position;
+}
+
 fn color_fragment(
     in: FragmentInput,
     lod: u32,
@@ -129,7 +170,7 @@ fn vertex(vertex: VertexInput) -> FragmentInput {
     let local_position = calculate_position(vertex_index, patch);
 
     let viewer_distance = distance(local_position, view.world_position.xz);
-    let log_distance = log2(viewer_distance / config.view_distance);
+    let log_distance = log2(2.0 * viewer_distance / config.view_distance);
     let ratio = (1.0 - log_distance % 1.0) / vertex_blend;
 
     let lookup = atlas_lookup(log_distance, local_position);
@@ -159,7 +200,7 @@ fn vertex(vertex: VertexInput) -> FragmentInput {
 [[stage(fragment)]]
 fn fragment(fragment: FragmentInput) -> [[location(0)]] vec4<f32> {
     let viewer_distance = distance(fragment.local_position, view.world_position.xz);
-    let log_distance = log2(viewer_distance / config.view_distance);
+    let log_distance = log2(2.0 * viewer_distance / config.view_distance);
     let ratio = (1.0 - log_distance % 1.0) / fragment_blend;
 
     let lookup = atlas_lookup(log_distance, fragment.local_position);
