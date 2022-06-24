@@ -89,7 +89,9 @@ fn calculate_position(vertex_index: u32, patch: Patch) -> vec2<f32> {
     var local_position = vec2<f32>((patch.coords * config.patch_size + vertex_position)) * f32(patch.size) * config.patch_scale;
 
 #ifdef MESH_MORPH
-    let viewer_distance = distance(local_position, view.world_position.xz);
+    // Todo: consider finding a way to morph more than 1 patch size
+    let world_position = vec3<f32>(local_position.x, config.height / 2.0, local_position.y);
+    let viewer_distance = distance(world_position, view.world_position.xyz);
     let morph_distance = f32(patch.size) * config.view_distance;
     let morph = clamp(1.0 - (1.0 - viewer_distance / morph_distance) / morph_blend, 0.0, 1.0);
 
@@ -121,7 +123,7 @@ fn color_fragment(
     #endif
 
     #ifdef SHOW_LOD
-        color = mix(color, show_lod(lod, in.world_position.xz), 0.4);
+        color = mix(color, show_lod(lod, in.world_position.xyz), 0.4);
     #endif
 
     #ifdef ALBEDO
@@ -169,7 +171,8 @@ fn vertex(vertex: VertexInput) -> FragmentInput {
     let patch = patch_list.data[patch_index];
     let local_position = calculate_position(vertex_index, patch);
 
-    let viewer_distance = distance(local_position, view.world_position.xz);
+    let world_position = vec3<f32>(local_position.x, config.height / 2.0, local_position.y);
+    let viewer_distance = distance(world_position, view.world_position.xyz);
     let log_distance = log2(2.0 * viewer_distance / config.view_distance);
     let ratio = (1.0 - log_distance % 1.0) / vertex_blend;
 
@@ -199,7 +202,7 @@ fn vertex(vertex: VertexInput) -> FragmentInput {
 
 [[stage(fragment)]]
 fn fragment(fragment: FragmentInput) -> [[location(0)]] vec4<f32> {
-    let viewer_distance = distance(fragment.local_position, view.world_position.xz);
+    let viewer_distance = distance(fragment.world_position.xyz, view.world_position.xyz);
     let log_distance = log2(2.0 * viewer_distance / config.view_distance);
     let ratio = (1.0 - log_distance % 1.0) / fragment_blend;
 

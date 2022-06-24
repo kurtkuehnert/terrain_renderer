@@ -1,6 +1,4 @@
-use bevy::prelude::*;
-use bevy::render::camera::Viewport;
-use bevy::window::{WindowId, WindowResized};
+use bevy::{prelude::*, render::camera::Viewport, window::WindowResized};
 use bevy_fly_camera::FlyCamera;
 
 pub(crate) fn toggle_camera_system(
@@ -26,41 +24,39 @@ pub(crate) fn setup_camera(mut _commands: Commands) {
     //     .insert(RightCamera);
 }
 
-#[derive(Component)]
-pub struct LeftCamera;
-
-#[derive(Component)]
-pub struct RightCamera;
+#[derive(Default, Component)]
+pub struct SplitScreenCameras(pub(crate) Vec<Entity>);
 
 pub fn set_camera_viewports(
     windows: Res<Windows>,
+    cameras: Res<SplitScreenCameras>,
     mut resize_events: EventReader<WindowResized>,
-    mut left_camera: Query<&mut Camera, (With<LeftCamera>, Without<RightCamera>)>,
-    mut right_camera: Query<&mut Camera, With<RightCamera>>,
+    mut camera_query: Query<&mut Camera>,
 ) {
-    // We need to dynamically resize the camera's viewports whenever the window size changes
-    // so then each camera always takes up half the screen.
-    // A resize_event is sent when the window is first created, allowing us to reuse this system for initial setup.
-    for resize_event in resize_events.iter() {
-        if resize_event.id == WindowId::primary() {
-            let window = windows.primary();
-            let mut left_camera = left_camera.single_mut();
+    for _resize_event in resize_events.iter() {
+        let window = windows.primary();
+
+        if cameras.0.len() == 1 {
+            let mut camera = camera_query.get_mut(cameras.0[0]).unwrap();
+            camera.viewport = Some(Viewport {
+                physical_position: UVec2::new(0, 0),
+                physical_size: UVec2::new(window.physical_width(), window.physical_height()),
+                ..default()
+            });
+        } else if cameras.0.len() == 2 {
+            let mut left_camera = camera_query.get_mut(cameras.0[0]).unwrap();
             left_camera.viewport = Some(Viewport {
                 physical_position: UVec2::new(0, 0),
                 physical_size: UVec2::new(window.physical_width() / 2, window.physical_height()),
                 ..default()
             });
 
-            if let Ok(mut right_camera) = right_camera.get_single_mut() {
-                right_camera.viewport = Some(Viewport {
-                    physical_position: UVec2::new(window.physical_width() / 2, 0),
-                    physical_size: UVec2::new(
-                        window.physical_width() / 2,
-                        window.physical_height(),
-                    ),
-                    ..default()
-                });
-            }
+            let mut right_camera = camera_query.get_mut(cameras.0[1]).unwrap();
+            right_camera.viewport = Some(Viewport {
+                physical_position: UVec2::new(window.physical_width() / 2, 0),
+                physical_size: UVec2::new(window.physical_width() / 2, window.physical_height()),
+                ..default()
+            });
         }
     }
 }

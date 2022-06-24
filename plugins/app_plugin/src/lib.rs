@@ -6,9 +6,7 @@ mod camera;
 mod parse;
 mod terrain_setup;
 
-use crate::camera::{
-    set_camera_viewports, setup_camera, toggle_camera_system, LeftCamera, RightCamera,
-};
+use crate::camera::{set_camera_viewports, setup_camera, toggle_camera_system, SplitScreenCameras};
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::render::camera::Projection;
 use bevy::{
@@ -51,12 +49,13 @@ impl Plugin for AppPlugin {
         })
         .add_plugin(FrameTimeDiagnosticsPlugin);
 
-        // app.world
-        //     .resource::<AssetServer>()
-        //     .watch_for_changes()
-        //     .unwrap();
+        app.world
+            .resource::<AssetServer>()
+            .watch_for_changes()
+            .unwrap();
 
         app.insert_resource(Msaa { samples: 4 })
+            .init_resource::<SplitScreenCameras>()
             .add_plugin(FlyCameraPlugin)
             .add_plugin(TerrainPlugin)
             .add_startup_system(setup_scene)
@@ -187,7 +186,11 @@ fn hartenstein(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> Terrai
     config
 }
 
-fn setup_scene(mut commands: Commands, mut quadtrees: ResMut<TerrainViewComponents<Quadtree>>) {
+fn setup_scene(
+    mut commands: Commands,
+    mut cameras: ResMut<SplitScreenCameras>,
+    mut quadtrees: ResMut<TerrainViewComponents<Quadtree>>,
+) {
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
     let config = sachsen(&mut from_disk_loader);
@@ -212,7 +215,6 @@ fn setup_scene(mut commands: Commands, mut quadtrees: ResMut<TerrainViewComponen
             ..default()
         })
         .insert(TerrainView)
-        .insert(LeftCamera)
         .insert(FlyCamera {
             accel: 8.0,
             friction: 3.0,
@@ -229,29 +231,30 @@ fn setup_scene(mut commands: Commands, mut quadtrees: ResMut<TerrainViewComponen
         })
         .id();
 
+    cameras.0.push(view);
     let quadtree = Quadtree::new(&config);
     quadtrees.insert((terrain, view), quadtree);
 
-    let view2 = commands
-        .spawn_bundle(Camera3dBundle {
-            camera: Camera {
-                priority: 1,
-                ..default()
-            },
-            camera_3d: Camera3d {
-                clear_color: ClearColorConfig::None,
-                ..default()
-            },
-            projection: Projection::Perspective(perspective_projection.clone()),
-            transform: Transform::from_xyz(6000.0, 1000.0, 6000.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..default()
-        })
-        .insert(TerrainView)
-        .insert(RightCamera)
-        .id();
-
-    let quadtree = Quadtree::new(&config);
-    quadtrees.insert((terrain, view2), quadtree);
+    // let view2 = commands
+    //     .spawn_bundle(Camera3dBundle {
+    //         camera: Camera {
+    //             priority: 1,
+    //             ..default()
+    //         },
+    //         camera_3d: Camera3d {
+    //             clear_color: ClearColorConfig::None,
+    //             ..default()
+    //         },
+    //         projection: Projection::Perspective(perspective_projection.clone()),
+    //         transform: Transform::from_xyz(6000.0, 1000.0, 6000.0).looking_at(Vec3::ZERO, Vec3::Y),
+    //         ..default()
+    //     })
+    //     .insert(TerrainView)
+    //     .id();
+    //
+    // cameras.0.push(view2);
+    // let quadtree = Quadtree::new(&config);
+    // quadtrees.insert((terrain, view2), quadtree);
 
     // commands.spawn_bundle(DirectionalLightBundle {
     //     transform: Transform {
