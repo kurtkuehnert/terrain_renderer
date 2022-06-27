@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(unused_imports)]
 
 extern crate core;
 
@@ -7,19 +8,18 @@ mod parse;
 mod terrain_setup;
 
 use crate::camera::{set_camera_viewports, setup_camera, toggle_camera_system, SplitScreenCameras};
-use bevy::core_pipeline::clear_color::ClearColorConfig;
-use bevy::render::camera::Projection;
 use bevy::{
+    core_pipeline::clear_color::ClearColorConfig,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
+    render::camera::Projection,
     window::PresentMode,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
-use bevy_terrain::quadtree::Quadtree;
-use bevy_terrain::render::TerrainViewComponents;
 use bevy_terrain::{
     attachment_loader::TextureAttachmentFromDiskLoader, bundles::TerrainBundle,
-    config::TerrainConfig, TerrainPlugin, TerrainView,
+    config::TerrainConfig, quadtree::Quadtree, render::TerrainViewComponents, TerrainPlugin,
+    TerrainView,
 };
 use std::time::Duration;
 
@@ -193,9 +193,9 @@ fn setup_scene(
 ) {
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
-    let config = sachsen(&mut from_disk_loader);
+    // let config = sachsen(&mut from_disk_loader);
     // let config = hartenstein_large(&mut from_disk_loader);
-    // let config = hartenstein(&mut from_disk_loader);
+    let config = hartenstein(&mut from_disk_loader);
 
     let terrain = commands
         .spawn_bundle(TerrainBundle::new(config.clone()))
