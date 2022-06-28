@@ -32,11 +32,15 @@ struct FragmentInput {
     [[location(2)]] color: vec4<f32>;
 };
 
-// mesh bindings
+// terrain view bindings
 [[group(1), binding(0)]]
-var<uniform> mesh: Mesh;
+var<uniform> view_config: TerrainViewConfig;
+[[group(1), binding(1)]]
+var quadtree: texture_2d_array<u32>;
+[[group(1), binding(2)]]
+var<storage> patches: PatchList;
 
-// terrain data bindings
+// terrain bindings
 [[group(2), binding(0)]]
 var<uniform> config: TerrainConfig;
 [[group(2), binding(1)]]
@@ -48,11 +52,10 @@ var height_atlas: texture_2d_array<f32>;
 var albedo_atlas: texture_2d_array<f32>;
 #endif
 
-// view data bindings
+// mesh bindings
 [[group(3), binding(0)]]
-var<storage> patch_list: PatchList;
-[[group(3), binding(1)]]
-var quadtree: texture_2d_array<u32>;
+var<uniform> mesh: Mesh;
+
 
 #import bevy_pbr::pbr_types
 #import bevy_pbr::utils
@@ -67,8 +70,8 @@ var quadtree: texture_2d_array<u32>;
 fn calculate_position(vertex_index: u32, patch: Patch) -> vec2<f32> {
     // use first and last index twice, to form degenerate triangles
     // Todo: documentation
-    let row_index = clamp(vertex_index % config.vertices_per_row, 1u, config.vertices_per_row - 2u) - 1u;
-    var vertex_position = vec2<u32>((row_index & 1u) + vertex_index / config.vertices_per_row, row_index >> 1u);
+    let row_index = clamp(vertex_index % view_config.vertices_per_row, 1u, view_config.vertices_per_row - 2u) - 1u;
+    var vertex_position = vec2<u32>((row_index & 1u) + vertex_index / view_config.vertices_per_row, row_index >> 1u);
 
 #ifndef MESH_MORPH
     // stitch the edges of the patches together
@@ -78,31 +81,31 @@ fn calculate_position(vertex_index: u32, patch: Patch) -> vec2<f32> {
     if (vertex_position.y == 0u && (patch.stitch & 2u) != 0u) {
         vertex_position.x = vertex_position.x & 0xFFFEu; // mod 2
     }
-    if (vertex_position.x == config.patch_size && (patch.stitch & 4u) != 0u) {
+    if (vertex_position.x == view_config.patch_size && (patch.stitch & 4u) != 0u) {
         vertex_position.y = vertex_position.y + 1u & 0xFFFEu; // mod 2
     }
-    if (vertex_position.y == config.patch_size && (patch.stitch & 8u) != 0u) {
+    if (vertex_position.y == view_config.patch_size && (patch.stitch & 8u) != 0u) {
         vertex_position.x = vertex_position.x + 1u & 0xFFFEu; // mod 2
     }
 #endif
 
-    var local_position = vec2<f32>((patch.coords * config.patch_size + vertex_position)) * f32(patch.size) * config.patch_scale;
+    var local_position = vec2<f32>((patch.coords * view_config.patch_size + vertex_position)) * f32(patch.size) * view_config.patch_scale;
 
 #ifdef MESH_MORPH
-    // Todo: consider finding a way to morph more than 1 patch size
-    let world_position = vec3<f32>(local_position.x, config.height / 2.0, local_position.y);
+    // Todo: consider finding a way to morph more than one patch size difference
+    let world_position = vec3<f32>(local_position.x, view_config.height_under_viewer, local_position.y);
     let viewer_distance = distance(world_position, view.world_position.xyz);
-    let morph_distance = f32(patch.size) * config.view_distance;
+    let morph_distance = f32(patch.size) * view_config.view_distance;
     let morph = clamp(1.0 - (1.0 - viewer_distance / morph_distance) / morph_blend, 0.0, 1.0);
 
     if (morph > 0.0) {
         let frac_part = ((vec2<f32>(vertex_position) * 0.5) % 1.0) * 2.0;
-        local_position = local_position - frac_part * morph * config.patch_scale * f32(patch.size);
+        local_position = local_position - frac_part * morph * view_config.patch_scale * f32(patch.size);
     }
 #endif
 
-    local_position.x = clamp(local_position.x, 0.0, f32(config.terrain_size));
-    local_position.y = clamp(local_position.y, 0.0, f32(config.terrain_size));
+    local_position.x = clamp(local_position.x, 0.0, f32(view_config.terrain_size));
+    local_position.y = clamp(local_position.y, 0.0, f32(view_config.terrain_size));
 
     return local_position;
 }
@@ -165,15 +168,15 @@ fn color_fragment(
 
 [[stage(vertex)]]
 fn vertex(vertex: VertexInput) -> FragmentInput {
-    let patch_index = vertex.index / config.vertices_per_patch;
-    let vertex_index = vertex.index % config.vertices_per_patch;
+    let patch_index = vertex.index / view_config.vertices_per_patch;
+    let vertex_index = vertex.index % view_config.vertices_per_patch;
 
-    let patch = patch_list.data[patch_index];
+    let patch = patches.data[patch_index];
     let local_position = calculate_position(vertex_index, patch);
 
     let world_position = vec3<f32>(local_position.x, config.height / 2.0, local_position.y);
     let viewer_distance = distance(world_position, view.world_position.xyz);
-    let log_distance = log2(2.0 * viewer_distance / config.view_distance);
+    let log_distance = log2(2.0 * viewer_distance / view_config.view_distance);
     let ratio = (1.0 - log_distance % 1.0) / vertex_blend;
 
     let lookup = atlas_lookup(log_distance, local_position);
@@ -203,7 +206,7 @@ fn vertex(vertex: VertexInput) -> FragmentInput {
 [[stage(fragment)]]
 fn fragment(fragment: FragmentInput) -> [[location(0)]] vec4<f32> {
     let viewer_distance = distance(fragment.world_position.xyz, view.world_position.xyz);
-    let log_distance = log2(2.0 * viewer_distance / config.view_distance);
+    let log_distance = log2(2.0 * viewer_distance / view_config.view_distance);
     let ratio = (1.0 - log_distance % 1.0) / fragment_blend;
 
     let lookup = atlas_lookup(log_distance, fragment.local_position);

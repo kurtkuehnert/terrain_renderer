@@ -17,9 +17,12 @@ use bevy::{
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 use bevy_terrain::{
-    attachment_loader::TextureAttachmentFromDiskLoader, bundles::TerrainBundle,
-    config::TerrainConfig, quadtree::Quadtree, render::TerrainViewComponents, TerrainPlugin,
-    TerrainView,
+    attachment_loader::TextureAttachmentFromDiskLoader,
+    bundles::TerrainBundle,
+    quadtree::Quadtree,
+    terrain::TerrainConfig,
+    terrain_view::{TerrainView, TerrainViewComponents, TerrainViewConfig},
+    TerrainPlugin,
 };
 use std::time::Duration;
 
@@ -190,6 +193,7 @@ fn setup_scene(
     mut commands: Commands,
     mut cameras: ResMut<SplitScreenCameras>,
     mut quadtrees: ResMut<TerrainViewComponents<Quadtree>>,
+    mut terrain_view_configs: ResMut<TerrainViewComponents<TerrainViewConfig>>,
 ) {
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
@@ -231,9 +235,13 @@ fn setup_scene(
         })
         .id();
 
+    let view_config = TerrainViewConfig::new();
+
     cameras.0.push(view);
-    let quadtree = Quadtree::new(&config);
+    let quadtree = Quadtree::new(&config, &view_config);
     quadtrees.insert((terrain, view), quadtree);
+
+    terrain_view_configs.insert((terrain, view), view_config);
 
     // let view2 = commands
     //     .spawn_bundle(Camera3dBundle {

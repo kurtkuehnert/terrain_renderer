@@ -5,7 +5,7 @@ use bevy::{prelude::*, render::render_resource::*};
 use bevy_terrain::{
     attachment::{AtlasAttachmentConfig, AttachmentIndex},
     attachment_loader::{TextureAttachmentFromDisk, TextureAttachmentFromDiskLoader},
-    config::TerrainConfig,
+    terrain::TerrainConfig,
 };
 
 pub(crate) fn setup_default_sampler(config: &mut TerrainConfig, attachment_index: AttachmentIndex) {
