@@ -10,7 +10,7 @@ let albedo_scale :  f32 = 0.9968847352;  // 640 / 642
 let albedo_offset:  f32 = 0.00155763239; //   1 / 642
 let morph_blend:    f32 = 0.2;
 let vertex_blend:   f32 = 0.3;
-let fragment_blend: f32 = 0.3;
+let fragment_blend: f32 = 0.8;
 
 // terrain view bindings
 [[group(1), binding(0)]]

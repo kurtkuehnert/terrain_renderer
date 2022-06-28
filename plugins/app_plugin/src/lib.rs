@@ -237,7 +237,7 @@ fn setup_scene(
 
     cameras.0.push(view);
 
-    let view_config = TerrainViewConfig::new(4000, 16, 3.0, 4.0);
+    let view_config = TerrainViewConfig::new(4000, 4, 2.0, 4.0);
     let quadtree = Quadtree::new(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
