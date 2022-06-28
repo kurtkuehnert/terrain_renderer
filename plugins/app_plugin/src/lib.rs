@@ -52,10 +52,10 @@ impl Plugin for AppPlugin {
         })
         .add_plugin(FrameTimeDiagnosticsPlugin);
 
-        app.world
-            .resource::<AssetServer>()
-            .watch_for_changes()
-            .unwrap();
+        // app.world
+        //     .resource::<AssetServer>()
+        //     .watch_for_changes()
+        //     .unwrap();
 
         app.insert_resource(Msaa { samples: 4 })
             .init_resource::<SplitScreenCameras>()
@@ -235,13 +235,13 @@ fn setup_scene(
         })
         .id();
 
-    let view_config = TerrainViewConfig::new();
-
     cameras.0.push(view);
+
+    let view_config = TerrainViewConfig::new(4000, 16, 3.0, 4.0);
     let quadtree = Quadtree::new(&config, &view_config);
-    quadtrees.insert((terrain, view), quadtree);
 
     terrain_view_configs.insert((terrain, view), view_config);
+    quadtrees.insert((terrain, view), quadtree);
 
     // let view2 = commands
     //     .spawn_bundle(Camera3dBundle {
