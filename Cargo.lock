@@ -169,6 +169,16 @@ dependencies = [
  "bevy_web_asset",
  "image 0.24.2 (git+https://github.com/image-rs/image)",
  "itertools",
+ "smooth-bevy-cameras",
+]
+
+[[package]]
+name = "approx"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f2a05fd1bd10b2527e20a2cd32d8873d115b8b39fe219ee25f42a8aca6ba278"
+dependencies = [
+ "num-traits",
 ]
 
 [[package]]
@@ -995,7 +1005,7 @@ name = "bevy_winit"
 version = "0.8.0-dev"
 source = "git+https://github.com/ku95/bevy?branch=texture-formats#640f352576897eaa271e8a11ad2ed18364d50e4c"
 dependencies = [
- "approx",
+ "approx 0.5.1",
  "bevy_app",
  "bevy_ecs",
  "bevy_input",
@@ -2123,7 +2133,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc32c2334f00ca5ac3695c5009ae35da21da8c62d255b5b96d56e2597a637a38"
 dependencies = [
  "ab_glyph",
- "approx",
+ "approx 0.5.1",
  "xi-unicode",
 ]
 
@@ -3788,6 +3798,15 @@ version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc88c725d61fc6c3132893370cac4a0200e3fedf5da8331c570664b1987f5ca2"
 dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "smooth-bevy-cameras"
+version = "0.4.0"
+dependencies = [
+ "approx 0.4.0",
+ "bevy",
  "serde",
 ]
 

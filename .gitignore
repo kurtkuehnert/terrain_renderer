@@ -4,5 +4,6 @@
 /plugins/bevy_fly_camera/
 /plugins/bevy_terrain/
 /plugins/bevy_web_asset/
+/plugins/smooth-bevy_cameras/
 /assets/terrains/
 /data/

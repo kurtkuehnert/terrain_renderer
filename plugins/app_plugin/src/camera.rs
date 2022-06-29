@@ -1,9 +1,10 @@
 use bevy::{prelude::*, render::camera::Viewport, window::WindowResized};
 use bevy_fly_camera::FlyCamera;
+use smooth_bevy_cameras::controllers::fps::FpsCameraController;
 
 pub(crate) fn toggle_camera_system(
     input: Res<Input<KeyCode>>,
-    mut camera_query: Query<&mut FlyCamera>,
+    mut camera_query: Query<&mut FpsCameraController>,
 ) {
     if input.just_pressed(KeyCode::T) {
         for mut camera in camera_query.iter_mut() {

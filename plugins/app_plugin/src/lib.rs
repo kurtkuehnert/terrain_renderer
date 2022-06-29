@@ -24,6 +24,10 @@ use bevy_terrain::{
     terrain_view::{TerrainView, TerrainViewComponents, TerrainViewConfig},
     TerrainPlugin,
 };
+use smooth_bevy_cameras::controllers::fps::{
+    FpsCameraBundle, FpsCameraController, FpsCameraPlugin,
+};
+use smooth_bevy_cameras::LookTransformPlugin;
 use std::time::Duration;
 
 /// A plugin, which sets up the testing application.
@@ -60,6 +64,8 @@ impl Plugin for AppPlugin {
         app.insert_resource(Msaa { samples: 4 })
             .init_resource::<SplitScreenCameras>()
             .add_plugin(FlyCameraPlugin)
+            .add_plugin(LookTransformPlugin)
+            .add_plugin(FpsCameraPlugin::default())
             .add_plugin(TerrainPlugin)
             .add_startup_system(setup_scene)
             .add_startup_system(setup_camera)
@@ -211,28 +217,41 @@ fn setup_scene(
         ..default()
     };
 
+    // let view = commands
+    //     .spawn_bundle(Camera3dBundle {
+    //         camera: Camera::default(),
+    //         projection: Projection::Perspective(perspective_projection.clone()),
+    //         transform: Transform::from_xyz(300.0, 750.0, 300.0).looking_at(Vec3::ZERO, Vec3::Y),
+    //         ..default()
+    //     })
+    //     .insert(TerrainView)
+    //     .insert(FlyCamera {
+    //         accel: 8.0,
+    //         friction: 3.0,
+    //         max_speed: 16.0,
+    //         sensitivity: 30.0,
+    //         key_forward: KeyCode::Up,
+    //         key_backward: KeyCode::Down,
+    //         key_left: KeyCode::Left,
+    //         key_right: KeyCode::Right,
+    //         key_up: KeyCode::PageUp,
+    //         key_down: KeyCode::PageDown,
+    //         enabled: true,
+    //         ..default()
+    //     })
+    //     .id();
+
     let view = commands
         .spawn_bundle(Camera3dBundle {
-            camera: Camera::default(),
             projection: Projection::Perspective(perspective_projection.clone()),
-            transform: Transform::from_xyz(300.0, 750.0, 300.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
+        .insert_bundle(FpsCameraBundle::new(
+            FpsCameraController::default(),
+            Vec3::new(300.0, 750.0, 300.0),
+            Vec3::new(200.0, 500.0, 200.0),
+        ))
         .insert(TerrainView)
-        .insert(FlyCamera {
-            accel: 8.0,
-            friction: 3.0,
-            max_speed: 16.0,
-            sensitivity: 30.0,
-            key_forward: KeyCode::Up,
-            key_backward: KeyCode::Down,
-            key_left: KeyCode::Left,
-            key_right: KeyCode::Right,
-            key_up: KeyCode::PageUp,
-            key_down: KeyCode::PageDown,
-            enabled: false,
-            ..default()
-        })
         .id();
 
     cameras.0.push(view);
