@@ -45,7 +45,7 @@ impl Plugin for AppPlugin {
         });
 
         app.add_plugins_with(DefaultPlugins, |plugins| {
-            // plugins.disable::<bevy::log::LogPlugin>();
+            plugins.disable::<bevy::log::LogPlugin>();
             // plugins.add_before::<bevy::asset::AssetPlugin, _>(bevy_web_asset::WebAssetPlugin);
             plugins
         })
@@ -204,8 +204,8 @@ fn setup_scene(
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
     // let config = sachsen(&mut from_disk_loader);
-    // let config = hartenstein_large(&mut from_disk_loader);
-    let config = hartenstein(&mut from_disk_loader);
+    let config = hartenstein_large(&mut from_disk_loader);
+    // let config = hartenstein(&mut from_disk_loader);
 
     let terrain = commands
         .spawn_bundle(TerrainBundle::new(config.clone()))
@@ -247,41 +247,47 @@ fn setup_scene(
             ..default()
         })
         .insert_bundle(FpsCameraBundle::new(
-            FpsCameraController::default(),
-            Vec3::new(300.0, 750.0, 300.0),
-            Vec3::new(200.0, 500.0, 200.0),
+            FpsCameraController {
+                enabled: false,
+                ..default()
+            },
+            Vec3::new(300.0, 700.0, 300.0),
+            Vec3::new(400.0, 650.0, 400.0),
         ))
         .insert(TerrainView)
         .id();
 
     cameras.0.push(view);
 
-    let view_config = TerrainViewConfig::new(4000, 4, 2.0, 4.0);
+    let view_config = TerrainViewConfig::new(16000, 16, 3.0, 1.0, 0.75);
     let quadtree = Quadtree::new(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
     quadtrees.insert((terrain, view), quadtree);
 
-    // let view2 = commands
-    //     .spawn_bundle(Camera3dBundle {
-    //         camera: Camera {
-    //             priority: 1,
-    //             ..default()
-    //         },
-    //         camera_3d: Camera3d {
-    //             clear_color: ClearColorConfig::None,
-    //             ..default()
-    //         },
-    //         projection: Projection::Perspective(perspective_projection.clone()),
-    //         transform: Transform::from_xyz(6000.0, 1000.0, 6000.0).looking_at(Vec3::ZERO, Vec3::Y),
-    //         ..default()
-    //     })
-    //     .insert(TerrainView)
-    //     .id();
-    //
-    // cameras.0.push(view2);
-    // let quadtree = Quadtree::new(&config);
-    // quadtrees.insert((terrain, view2), quadtree);
+    let view2 = commands
+        .spawn_bundle(Camera3dBundle {
+            camera: Camera {
+                priority: 1,
+                ..default()
+            },
+            camera_3d: Camera3d {
+                clear_color: ClearColorConfig::None,
+                ..default()
+            },
+            projection: Projection::Perspective(perspective_projection.clone()),
+            transform: Transform::from_xyz(6000.0, 1000.0, 6000.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..default()
+        })
+        .insert(TerrainView)
+        .id();
+
+    let view_config = TerrainViewConfig::new(16000, 8, 2.0, 4.0, 0.25);
+
+    cameras.0.push(view2);
+    let quadtree = Quadtree::new(&config, &view_config);
+    terrain_view_configs.insert((terrain, view2), view_config);
+    quadtrees.insert((terrain, view2), quadtree);
 
     // commands.spawn_bundle(DirectionalLightBundle {
     //     transform: Transform {
