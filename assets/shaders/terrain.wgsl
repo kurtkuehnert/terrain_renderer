@@ -81,7 +81,7 @@ fn color_fragment(
     #ifdef LIGHTING
         let world_normal = calculate_normal(height_coords, atlas_index, lod);
 
-        let ambient = 0.1;
+        let ambient = 0.3;
         let direction = normalize(vec3<f32>(3.0, 1.0, -2.0));
         let diffuse = max(dot(direction, world_normal), 0.0);
         color = color * (ambient + diffuse);
@@ -101,13 +101,79 @@ fn color_fragment(
     return color;
 }
 
+fn calculate_position(vertex_index: u32, patch: Patch, vertices_per_row: u32, patch_lod: u32, patch_size: u32) -> vec2<f32> {
+    // use first and last index twice, to form degenerate triangles
+    // Todo: documentation
+    let row_index = clamp(vertex_index % vertices_per_row, 1u, vertices_per_row - 2u) - 1u;
+    var vertex_position = vec2<u32>((row_index & 1u) + vertex_index / vertices_per_row, row_index >> 1u);
+
+    var lod_diff = patch.lod_diff;
+
+    // // stitch the edges of the patches together
+    // if (vertex_position.x == 0u) {
+    //     let offset = 1u << ((patch.stitch >>  0u) & 0x000Fu);
+    //     // if (lod_diff != 0u) {
+    //     //     vertex_position.y = ((vertex_position.y + (offset >> 1u) - 1u) / offset) * offset;
+    //     // }
+    //     vertex_position.y = (vertex_position.y / offset) * offset;
+    //     lod_diff = (patch.morph >>  0u) & 0x000Fu;
+    // }
+    // if (vertex_position.y == 0u) {
+    //     let offset = 1u << ((patch.stitch >>  8u) & 0x000Fu);
+    //     // if (lod_diff != 0u) {
+    //     //     vertex_position.x = ((vertex_position.x + (offset >> 1u) - 1u) / offset) * offset;
+    //     // }
+    //     vertex_position.x = (vertex_position.x / offset) * offset;
+    //     lod_diff = (patch.morph >>  8u) & 0x000Fu;
+    // }
+    // if (vertex_position.x == patch_size) {
+    //     let offset = 1u << ((patch.stitch >> 16u) & 0x000Fu);
+    //     // vertex_position.y = ((vertex_position.y + (offset >> 1u)) / offset) * offset;
+    //     vertex_position.y = (vertex_position.y / offset) * offset;
+    //     lod_diff = (patch.morph >> 16u) & 0x000Fu;
+    // }
+    // if (vertex_position.y == patch_size) {
+    //     let offset = 1u << ((patch.stitch >> 24u) & 0x000Fu);
+    //     // vertex_position.x = ((vertex_position.x + (offset >> 1u)) / offset) * offset;
+    //     vertex_position.x = (vertex_position.x / offset) * offset;
+    //     lod_diff = (patch.morph >> 24u) & 0x000Fu;
+    // }
+
+    var local_position = (vec2<f32>(patch.coords) + vec2<f32>(vertex_position) / f32(patch_size)) * f32(patch.size) * view_config.patch_scale;
+
+#ifdef MESH_MORPH
+    let morph = calculate_morph(local_position, patch);
+    let frac_part = vec2<f32>(vertex_position % vec2<u32>(1u << lod_diff)) / f32(patch_size);
+    local_position = local_position - frac_part * morph * f32(patch.size) * view_config.patch_scale;
+#endif
+
+    local_position.x = clamp(local_position.x, 0.0, f32(view_config.terrain_size));
+    local_position.y = clamp(local_position.y, 0.0, f32(view_config.terrain_size));
+
+    return local_position;
+}
+
 [[stage(vertex)]]
 fn vertex(vertex: VertexInput) -> VertexOutput {
-    let patch_index = vertex.index / view_config.vertices_per_patch;
-    let vertex_index = vertex.index % view_config.vertices_per_patch;
+    var patch_lod = 0u;
+    for (; patch_lod < 4u; patch_lod = patch_lod + 1u) {
+        if (vertex.index < patches.counts[patch_lod].y) {
+            break;
+        }
+    }
+
+    let patch_size = 2u << patch_lod;
+    let vertices_per_row = (patch_size + 2u) << 1u;
+    let vertices_per_patch = vertices_per_row * patch_size;
+
+    let patch_index  = (vertex.index - patches.counts[patch_lod].x) / vertices_per_patch + patch_lod * 100000u;
+    let vertex_index = (vertex.index - patches.counts[patch_lod].x) % vertices_per_patch;
+
+    // let patch_index = vertex.index / view_config.vertices_per_patch;
+    // let vertex_index = vertex.index % view_config.vertices_per_patch;
 
     let patch = patches.data[patch_index];
-    let local_position = calculate_position(vertex_index, patch);
+    let local_position = calculate_position(vertex_index, patch, vertices_per_row, patch_lod, patch_size);
 
     let world_position = vec3<f32>(local_position.x, view_config.height_under_viewer, local_position.y);
     let blend = calculate_blend(world_position, vertex_blend);
@@ -124,7 +190,7 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
     var output = vertex_output(local_position, height);
 
 #ifdef SHOW_PATCHES
-    output.color = show_patches(patch, local_position);
+    output.color = show_patches(patch, local_position, patch_lod);
 #endif
 
     return output;

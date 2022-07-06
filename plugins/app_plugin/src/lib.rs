@@ -195,6 +195,51 @@ fn hartenstein(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> Terrai
     config
 }
 
+fn witcher(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainConfig {
+    // bevy_terrain::preprocess::preprocess_tiles(
+    //     "assets/terrains/Witcher/source/Witcher.png",
+    //     "assets/terrains/Witcher/data/height",
+    //     0,
+    //     7,
+    //     (0, 0),
+    //     4096,
+    //     128,
+    //     2,
+    //     bevy_terrain::preprocess::ImageFormat::LUMA16,
+    // );
+
+    // bevy_terrain::preprocess::preprocess_tiles(
+    //     "assets/terrains/Witcher/source/Witcher2.png",
+    //     "assets/terrains/Witcher/data/height",
+    //     0,
+    //     8,
+    //     (0, 0),
+    //     23552,
+    //     128,
+    //     2,
+    //     bevy_terrain::preprocess::ImageFormat::LUMA16,
+    // );
+
+    // bevy_terrain::preprocess::preprocess_tiles(
+    //     "assets/terrains/Witcher/source/Witcher3.png",
+    //     "assets/terrains/Witcher/data/height",
+    //     0,
+    //     8,
+    //     (0, 0),
+    //     16384,
+    //     128,
+    //     2,
+    //     bevy_terrain::preprocess::ImageFormat::LUMA16,
+    // );
+
+    let mut config = TerrainConfig::new(128, 8, 2500.0, "terrains/Witcher/".to_string());
+
+    terrain_setup::setup_default_sampler(&mut config, 1);
+    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
+
+    config
+}
+
 fn setup_scene(
     mut commands: Commands,
     mut cameras: ResMut<SplitScreenCameras>,
@@ -204,8 +249,9 @@ fn setup_scene(
     let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
 
     // let config = sachsen(&mut from_disk_loader);
-    let config = hartenstein_large(&mut from_disk_loader);
+    // let config = hartenstein_large(&mut from_disk_loader);
     // let config = hartenstein(&mut from_disk_loader);
+    let config = witcher(&mut from_disk_loader);
 
     let terrain = commands
         .spawn_bundle(TerrainBundle::new(config.clone()))
@@ -259,35 +305,35 @@ fn setup_scene(
 
     cameras.0.push(view);
 
-    let view_config = TerrainViewConfig::new(16000, 16, 3.0, 1.0, 0.75);
+    let view_config = TerrainViewConfig::new(10000, 3.0, 10.0, 0.5);
     let quadtree = Quadtree::new(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
     quadtrees.insert((terrain, view), quadtree);
 
-    let view2 = commands
-        .spawn_bundle(Camera3dBundle {
-            camera: Camera {
-                priority: 1,
-                ..default()
-            },
-            camera_3d: Camera3d {
-                clear_color: ClearColorConfig::None,
-                ..default()
-            },
-            projection: Projection::Perspective(perspective_projection.clone()),
-            transform: Transform::from_xyz(6000.0, 1000.0, 6000.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..default()
-        })
-        .insert(TerrainView)
-        .id();
-
-    let view_config = TerrainViewConfig::new(16000, 8, 2.0, 4.0, 0.25);
-
-    cameras.0.push(view2);
-    let quadtree = Quadtree::new(&config, &view_config);
-    terrain_view_configs.insert((terrain, view2), view_config);
-    quadtrees.insert((terrain, view2), quadtree);
+    // let view2 = commands
+    //     .spawn_bundle(Camera3dBundle {
+    //         camera: Camera {
+    //             priority: 1,
+    //             ..default()
+    //         },
+    //         camera_3d: Camera3d {
+    //             clear_color: ClearColorConfig::None,
+    //             ..default()
+    //         },
+    //         projection: Projection::Perspective(perspective_projection.clone()),
+    //         transform: Transform::from_xyz(6000.0, 1000.0, 6000.0).looking_at(Vec3::ZERO, Vec3::Y),
+    //         ..default()
+    //     })
+    //     .insert(TerrainView)
+    //     .id();
+    //
+    // let view_config = TerrainViewConfig::new(16000, 8, 2.0, 4.0, 0.25);
+    //
+    // cameras.0.push(view2);
+    // let quadtree = Quadtree::new(&config, &view_config);
+    // terrain_view_configs.insert((terrain, view2), view_config);
+    // quadtrees.insert((terrain, view2), quadtree);
 
     // commands.spawn_bundle(DirectionalLightBundle {
     //     transform: Transform {
