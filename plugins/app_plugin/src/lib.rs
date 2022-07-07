@@ -45,7 +45,7 @@ impl Plugin for AppPlugin {
         });
 
         app.add_plugins_with(DefaultPlugins, |plugins| {
-            plugins.disable::<bevy::log::LogPlugin>();
+            // plugins.disable::<bevy::log::LogPlugin>();
             // plugins.add_before::<bevy::asset::AssetPlugin, _>(bevy_web_asset::WebAssetPlugin);
             plugins
         })
@@ -53,8 +53,8 @@ impl Plugin for AppPlugin {
             debug: false,
             wait_duration: Duration::from_secs(5),
             filter: None,
-        })
-        .add_plugin(FrameTimeDiagnosticsPlugin);
+        });
+        //.add_plugin(FrameTimeDiagnosticsPlugin);
 
         // app.world
         //     .resource::<AssetServer>()
@@ -305,7 +305,7 @@ fn setup_scene(
 
     cameras.0.push(view);
 
-    let view_config = TerrainViewConfig::new(10000, 3.0, 10.0, 0.5);
+    let view_config = TerrainViewConfig::new(10000, 3.0, 50.0, 0.5);
     let quadtree = Quadtree::new(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
