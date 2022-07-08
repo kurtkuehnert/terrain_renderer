@@ -38,7 +38,7 @@ impl Plugin for AppPlugin {
         app.insert_resource(WindowDescriptor {
             width: 1920.,
             height: 1080.,
-            position: Some(Vec2::new(3600.0, 220.0)),
+            position: WindowPosition::At(Vec2::new(3600.0, 220.0)),
             title: "Terrain Rendering".into(),
             present_mode: PresentMode::Immediate,
             ..default()

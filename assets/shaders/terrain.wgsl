@@ -101,48 +101,51 @@ fn color_fragment(
     return color;
 }
 
-fn calculate_position(vertex_index: u32, patch: Patch, vertices_per_row: u32, patch_lod: u32, patch_size: f32) -> vec2<f32> {
+fn calculate_position(vertex_index: u32, patch: Patch, vertices_per_row: u32, true_count: f32) -> vec2<f32> {
     // use first and last index twice, to form degenerate triangles
     // Todo: documentation
     let row_index = clamp(vertex_index % vertices_per_row, 1u, vertices_per_row - 2u) - 1u;
     var vertex_position = vec2<f32>(f32((row_index & 1u) + vertex_index / vertices_per_row), f32(row_index >> 1u));
 
-    var parent_count = f32(patch.parent_count);
-    var size = patch_size;
+    var count = f32((patch.stitch >> 24u) & 0x003Fu);
+    var parent_count = f32((patch.morph  >> 24u) & 0x003Fu);
 
     // stitch the edges of the patches together
     if (vertex_position.x == 0.0) {
-        size = f32((patch.stitch >>  0u) & 0x000Fu);
-        parent_count = f32((patch.morph >>  0u) & 0x000Fu);
-        vertex_position.y = round(vertex_position.y * size / patch_size);
+        count = f32((patch.stitch >>  0u) & 0x003Fu);
+        parent_count = f32((patch.morph >>  0u) & 0x003Fu);
     }
     if (vertex_position.y == 0.0) {
-        size = f32((patch.stitch >>  8u) & 0x000Fu);
-        parent_count = f32((patch.morph >>  8u) & 0x000Fu);
-        vertex_position.x = round(vertex_position.x * size / patch_size);
+        count = f32((patch.stitch >>  6u) & 0x003Fu);
+        parent_count = f32((patch.morph >>  6u) & 0x003Fu);
     }
-    if (vertex_position.x == patch_size) {
-        size = f32((patch.stitch >> 16u) & 0x000Fu);
-        parent_count = f32((patch.morph >> 16u) & 0x000Fu);
-        vertex_position.x = size;
-        vertex_position.y = round(vertex_position.y * size / patch_size);
+    if (vertex_position.x == true_count) {
+        count = f32((patch.stitch >> 12u) & 0x003Fu);
+        parent_count = f32((patch.morph >> 12u) & 0x003Fu);
     }
-    if (vertex_position.y == patch_size) {
-        size = f32((patch.stitch >> 24u) & 0x000Fu);
-        parent_count = f32((patch.morph >> 24u) & 0x000Fu);
-        vertex_position.y = size;
-        vertex_position.x = round(vertex_position.x * size / patch_size);
+    if (vertex_position.y == true_count) {
+        count = f32((patch.stitch >> 18u) & 0x003Fu);
+        parent_count = f32((patch.morph >>  18u) & 0x003Fu);
     }
 
-    // var parent_count = f32(patch.parent_count);
+    vertex_position = round(vertex_position * count / true_count);
+    vertex_position = min(vertex_position, vec2<f32>(count));
 
-    var local_position = (vec2<f32>(patch.coords) + vertex_position / size) * f32(patch.size) * view_config.patch_scale;
+    var local_position = (vec2<f32>(patch.coords) + vertex_position / count) * f32(patch.size) * view_config.patch_scale;
 
 #ifdef MESH_MORPH
+    // smoothly transition between the patches true and their parent positions
     let morph = calculate_morph(local_position, patch);
-    let parent_position = round(vertex_position * parent_count / size);
-    let parent_position = (vec2<f32>(patch.coords) + parent_position / parent_count) * f32(patch.size) * view_config.patch_scale;
-    local_position = mix(local_position, parent_position, morph);
+
+    let diff  = count - parent_count;
+    let start = diff * vec2<f32>(patch.coords & vec2<u32>(1u));
+    let end   = start + parent_count;
+    let parent_vertex_position = vec2<f32>(clamp(vertex_position, start, end) - start); // to the center
+    // let parent_vertex_position = round(vertex_position * parent_count / count); // to the bottom left corner
+
+    let parent_local_position = (vec2<f32>(patch.coords) + parent_vertex_position / parent_count) * f32(patch.size) * view_config.patch_scale;
+
+    local_position = mix(local_position, parent_local_position, morph);
 #endif
 
     local_position.x = clamp(local_position.x, 0.0, f32(view_config.terrain_size));
@@ -167,11 +170,8 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
     let patch_index  = (vertex.index - patches.counts[patch_lod].x) / vertices_per_patch + patch_lod * 100000u;
     let vertex_index = (vertex.index - patches.counts[patch_lod].x) % vertices_per_patch;
 
-    // let patch_index = vertex.index / view_config.vertices_per_patch;
-    // let vertex_index = vertex.index % view_config.vertices_per_patch;
-
     let patch = patches.data[patch_index];
-    let local_position = calculate_position(vertex_index, patch, vertices_per_row, patch_lod, f32(patch_size));
+    let local_position = calculate_position(vertex_index, patch, vertices_per_row, f32(patch_size));
 
     let world_position = vec3<f32>(local_position.x, view_config.height_under_viewer, local_position.y);
     let blend = calculate_blend(world_position, vertex_blend);
