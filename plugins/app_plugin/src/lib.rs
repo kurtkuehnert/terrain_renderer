@@ -297,8 +297,8 @@ fn setup_scene(
                 enabled: false,
                 ..default()
             },
-            Vec3::new(300.0, 700.0, 300.0),
-            Vec3::new(400.0, 650.0, 400.0),
+            Vec3::new(300.0, 1400.0, 300.0),
+            Vec3::new(400.0, 1300.0, 400.0),
         ))
         .insert(TerrainView)
         .id();

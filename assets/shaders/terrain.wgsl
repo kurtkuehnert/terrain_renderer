@@ -137,15 +137,19 @@ fn calculate_position(vertex_index: u32, patch: Patch, vertices_per_row: u32, tr
     // smoothly transition between the patches true and their parent positions
     let morph = calculate_morph(local_position, patch);
 
-    let diff  = count - parent_count;
-    let start = diff * vec2<f32>(patch.coords & vec2<u32>(1u));
-    let end   = start + parent_count;
-    let parent_vertex_position = vec2<f32>(clamp(vertex_position, start, end) - start); // to the center
+    let diff  = (count - parent_count); // * morph;
+    let pos = patch.coords & vec2<u32>(1u);
+    let start = diff  * vec2<f32>(pos);
+    let end   = count - diff * vec2<f32>(pos ^ vec2<u32>(1u));
+    let parent_vertex_position = clamp(vertex_position, start, end) - start; // to the center
+
     // let parent_vertex_position = round(vertex_position * parent_count / count); // to the bottom left corner
 
     let parent_local_position = (vec2<f32>(patch.coords) + parent_vertex_position / parent_count) * f32(patch.size) * view_config.patch_scale;
-
     local_position = mix(local_position, parent_local_position, morph);
+
+    // let size = count - diff;
+    // local_position = (vec2<f32>(patch.coords) + parent_vertex_position / size) * f32(patch.size) * view_config.patch_scale;
 #endif
 
     local_position.x = clamp(local_position.x, 0.0, f32(view_config.terrain_size));
