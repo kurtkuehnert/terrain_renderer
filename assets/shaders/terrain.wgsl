@@ -117,10 +117,7 @@ fn map_position(patch: Patch, grid_position: vec2<u32>, count: u32, true_count: 
         position.y = max(position.y, h + d) - d;
     }
 
-    // position = ceil(grid_position * count / true_count);
-
-    // return (vec2<f32>(patch.coords) + vec2<f32>(grid_position) / f32(true_count)) * f32(patch.size) * view_config.patch_scale;
-
+    //
     return (vec2<f32>(patch.coords) + vec2<f32>(position) / f32(count)) * f32(patch.size) * view_config.patch_scale;
 }
 
@@ -152,17 +149,18 @@ fn calculate_position(vertex_index: u32, patch: Patch, vertices_per_row: u32, tr
         parent_count = (patch.parent_counts >> 18u) & 0x003Fu;
     }
 
+#ifndef MESH_MORPH
+    var local_position = (vec2<f32>(patch.coords) + vec2<f32>(grid_position) / f32(true_count)) * f32(patch.size) * view_config.patch_scale;
+#endif
+
+#ifdef MESH_MORPH
+    // smoothly transition between the positions of the patches and that of their parents
     var local_position        = map_position(patch, grid_position, count,        true_count);
     let parent_local_position = map_position(patch, grid_position, parent_count, true_count);
 
-#ifdef MESH_MORPH
-    // smoothly transition between the positions of patches and that of their parents
     let morph = calculate_morph(local_position, patch);
-    local_position = mix(local_position, parent_local_position, morph);
-#endif
 
-#ifdef TEST
-    local_position = parent_local_position;
+    local_position = mix(local_position, parent_local_position, morph);
 #endif
 
     local_position.x = clamp(local_position.x, 0.0, f32(view_config.terrain_size));
