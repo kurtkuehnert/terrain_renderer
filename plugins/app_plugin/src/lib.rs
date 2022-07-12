@@ -16,6 +16,7 @@ use bevy::{
     window::PresentMode,
 };
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
+use bevy_terrain::preprocess::density::{density_chunks, preprocess_density};
 use bevy_terrain::{
     attachment_loader::TextureAttachmentFromDiskLoader,
     bundles::TerrainBundle,
@@ -232,10 +233,22 @@ fn witcher(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainCon
     //     bevy_terrain::preprocess::ImageFormat::LUMA16,
     // );
 
-    let mut config = TerrainConfig::new(128, 8, 2500.0, "terrains/Witcher/".to_string());
+    // preprocess_density(
+    //     "assets/terrains/Witcher/data/height",
+    //     "assets/terrains/Witcher/data/density",
+    //     7,
+    //     (0, 0),
+    //     (33, 33),
+    //     128,
+    //     2,
+    //     250.0,
+    // );
+
+    let mut config = TerrainConfig::new(128, 8, 250.0, "terrains/Witcher/".to_string());
 
     terrain_setup::setup_default_sampler(&mut config, 1);
     terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
+    terrain_setup::setup_density_texture(&mut config, from_disk_loader, 3, 128);
 
     config
 }
@@ -305,7 +318,7 @@ fn setup_scene(
 
     cameras.0.push(view);
 
-    let view_config = TerrainViewConfig::new(10000, 3.0, 50.0, 0.5);
+    let view_config = TerrainViewConfig::new(10000, 3.0, 10.0, 0.5);
     let quadtree = Quadtree::new(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);

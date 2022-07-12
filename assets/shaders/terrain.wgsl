@@ -32,6 +32,9 @@ var height_atlas: texture_2d_array<f32>;
 var albedo_atlas: texture_2d_array<f32>;
 #endif
 
+[[group(2), binding(3)]]
+var density_atlas: texture_2d_array<f32>;
+
 // mesh bindings
 [[group(3), binding(0)]]
 var<uniform> mesh: Mesh;
@@ -43,6 +46,7 @@ var<uniform> mesh: Mesh;
 #import bevy_pbr::shadows
 #import bevy_pbr::pbr_functions
 
+#import bevy_terrain::terrain
 #import bevy_terrain::utils
 #import bevy_terrain::debug
 
@@ -98,76 +102,11 @@ fn color_fragment(
         // color = pbr(pbr_input);
     #endif
 
+    // color = mix(color, textureSample(density_atlas, filter_sampler, atlas_coords, atlas_index), 0.5);
+
     return color;
 }
 
-fn map_position(patch: Patch, grid_position: vec2<u32>, count: u32, true_count: u32) -> vec2<f32> {
-    var position = grid_position;
-
-    let d = true_count - count;
-    let h = (count) >> 1u;
-    let a = position.x > h;
-    let b = position.y > h;
-
-    if (a) {
-        position.x = max(position.x, h + d) - d;
-    }
-
-    if (b) {
-        position.y = max(position.y, h + d) - d;
-    }
-
-    //
-    return (vec2<f32>(patch.coords) + vec2<f32>(position) / f32(count)) * f32(patch.size) * view_config.patch_scale;
-}
-
-fn calculate_position(vertex_index: u32, patch: Patch, vertices_per_row: u32, true_count: u32) -> vec2<f32> {
-    // use first and last index twice, to form degenerate triangles
-    // Todo: documentation
-    let row_index    = clamp(vertex_index % vertices_per_row, 1u, vertices_per_row - 2u) - 1u;
-    let column_index = vertex_index / vertices_per_row;
-    var grid_position = vec2<u32>(column_index + (row_index & 1u), row_index >> 1u);
-
-    var count        = (patch.counts        >> 24u) & 0x003Fu;
-    var parent_count = (patch.parent_counts >> 24u) & 0x003Fu;
-
-    // override edge counts, so that they behave like their neighbours
-    if (grid_position.x == 0u) {
-        count        = (patch.counts        >>  0u) & 0x003Fu;
-        parent_count = (patch.parent_counts >>  0u) & 0x003Fu;
-    }
-    if (grid_position.y == 0u) {
-        count        = (patch.counts        >>  6u) & 0x003Fu;
-        parent_count = (patch.parent_counts >>  6u) & 0x003Fu;
-    }
-    if (grid_position.x == true_count) {
-        count        = (patch.counts        >> 12u) & 0x003Fu;
-        parent_count = (patch.parent_counts >> 12u) & 0x003Fu;
-    }
-    if (grid_position.y == true_count) {
-        count        = (patch.counts        >> 18u) & 0x003Fu;
-        parent_count = (patch.parent_counts >> 18u) & 0x003Fu;
-    }
-
-#ifndef MESH_MORPH
-    var local_position = (vec2<f32>(patch.coords) + vec2<f32>(grid_position) / f32(true_count)) * f32(patch.size) * view_config.patch_scale;
-#endif
-
-#ifdef MESH_MORPH
-    // smoothly transition between the positions of the patches and that of their parents
-    var local_position        = map_position(patch, grid_position, count,        true_count);
-    let parent_local_position = map_position(patch, grid_position, parent_count, true_count);
-
-    let morph = calculate_morph(local_position, patch);
-
-    local_position = mix(local_position, parent_local_position, morph);
-#endif
-
-    local_position.x = clamp(local_position.x, 0.0, f32(view_config.terrain_size));
-    local_position.y = clamp(local_position.y, 0.0, f32(view_config.terrain_size));
-
-    return local_position;
-}
 
 [[stage(vertex)]]
 fn vertex(vertex: VertexInput) -> VertexOutput {
