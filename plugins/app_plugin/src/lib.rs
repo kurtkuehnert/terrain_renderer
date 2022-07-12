@@ -7,7 +7,7 @@ mod camera;
 mod parse;
 mod terrain_setup;
 
-use crate::camera::{set_camera_viewports, setup_camera, toggle_camera_system, SplitScreenCameras};
+use crate::camera::{set_camera_viewports, toggle_camera_system, SplitScreenCameras};
 use bevy::{
     core_pipeline::clear_color::ClearColorConfig,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
@@ -15,20 +15,19 @@ use bevy::{
     render::camera::Projection,
     window::PresentMode,
 };
-use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
-use bevy_terrain::preprocess::density::{density_chunks, preprocess_density};
 use bevy_terrain::{
     attachment_loader::TextureAttachmentFromDiskLoader,
     bundles::TerrainBundle,
+    preprocess::density::{density_chunks, preprocess_density},
     quadtree::Quadtree,
     terrain::TerrainConfig,
     terrain_view::{TerrainView, TerrainViewComponents, TerrainViewConfig},
     TerrainPlugin,
 };
-use smooth_bevy_cameras::controllers::fps::{
-    FpsCameraBundle, FpsCameraController, FpsCameraPlugin,
+use smooth_bevy_cameras::{
+    controllers::fps::{FpsCameraBundle, FpsCameraController, FpsCameraPlugin},
+    LookTransformPlugin,
 };
-use smooth_bevy_cameras::LookTransformPlugin;
 use std::time::Duration;
 
 /// A plugin, which sets up the testing application.
@@ -64,12 +63,10 @@ impl Plugin for AppPlugin {
 
         app.insert_resource(Msaa { samples: 4 })
             .init_resource::<SplitScreenCameras>()
-            .add_plugin(FlyCameraPlugin)
             .add_plugin(LookTransformPlugin)
             .add_plugin(FpsCameraPlugin::default())
             .add_plugin(TerrainPlugin)
             .add_startup_system(setup_scene)
-            .add_startup_system(setup_camera)
             .add_system(toggle_camera_system)
             .add_system(set_camera_viewports);
     }

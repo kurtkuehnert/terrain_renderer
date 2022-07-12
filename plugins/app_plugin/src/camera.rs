@@ -1,5 +1,4 @@
 use bevy::{prelude::*, render::camera::Viewport, window::WindowResized};
-use bevy_fly_camera::FlyCamera;
 use smooth_bevy_cameras::controllers::fps::FpsCameraController;
 
 pub(crate) fn toggle_camera_system(
@@ -11,18 +10,6 @@ pub(crate) fn toggle_camera_system(
             camera.enabled = !camera.enabled;
         }
     }
-}
-
-pub(crate) fn setup_camera(mut _commands: Commands) {
-
-    // commands
-    //     .spawn_bundle(Camera3dBundle {
-    //         camera: Camera::default(),
-    //         projection: Projection::Perspective(perspective_projection.clone()),
-    //         transform: Transform::from_xyz(1300.0, 750.0, 300.0).looking_at(Vec3::ZERO, Vec3::Y),
-    //         ..default()
-    //     })
-    //     .insert(RightCamera);
 }
 
 #[derive(Default, Component)]
