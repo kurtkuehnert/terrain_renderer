@@ -1,7 +1,7 @@
 #import bevy_pbr::mesh_view_bindings
 #import bevy_pbr::mesh_types
 #import bevy_terrain::config
-#import bevy_terrain::patch
+#import bevy_terrain::tile
 
 // Todo: make these configurable
 let height_scale :  f32 = 0.96969696969; // 128 / 132
@@ -13,30 +13,30 @@ let vertex_blend:   f32 = 0.3;
 let fragment_blend: f32 = 0.8;
 
 // terrain view bindings
-[[group(1), binding(0)]]
+@group(1) @binding(0)
 var<uniform> view_config: TerrainViewConfig;
-[[group(1), binding(1)]]
+@group(1) @binding(1)
 var quadtree: texture_2d_array<u32>;
-[[group(1), binding(2)]]
-var<storage> patches: PatchList;
+@group(1) @binding(2)
+var<storage> tiles: TileList;
 
 // terrain bindings
-[[group(2), binding(0)]]
+@group(2) @binding(0)
 var<uniform> config: TerrainConfig;
-[[group(2), binding(1)]]
+@group(2) @binding(1)
 var filter_sampler: sampler;
-[[group(2), binding(2)]]
+@group(2) @binding(2)
 var height_atlas: texture_2d_array<f32>;
 #ifdef ALBEDO
-[[group(2), binding(3)]]
+@group(2) @binding(3)
 var albedo_atlas: texture_2d_array<f32>;
 #endif
 
-[[group(2), binding(3)]]
+@group(2) @binding(3)
 var density_atlas: texture_2d_array<f32>;
 
 // mesh bindings
-[[group(3), binding(0)]]
+@group(3) @binding(0)
 var<uniform> mesh: Mesh;
 
 #import bevy_pbr::pbr_types
@@ -47,7 +47,7 @@ var<uniform> mesh: Mesh;
 #import bevy_pbr::pbr_functions
 
 #import bevy_terrain::terrain
-#import bevy_terrain::utils
+#import bevy_terrain::atlas
 #import bevy_terrain::debug
 
 fn height_vertex(atlas_index: i32, atlas_coords: vec2<f32>) -> f32 {
@@ -108,24 +108,24 @@ fn color_fragment(
 }
 
 
-[[stage(vertex)]]
+@vertex
 fn vertex(vertex: VertexInput) -> VertexOutput {
-    var patch_lod = 0u;
-    for (; patch_lod < 4u; patch_lod = patch_lod + 1u) {
-        if (vertex.index < patches.counts[patch_lod].y) {
+    var tile_lod = 0u;
+    for (; tile_lod < 4u; tile_lod = tile_lod + 1u) {
+        if (vertex.index < tiles.counts[tile_lod].y) {
             break;
         }
     }
 
-    let patch_size = calc_patch_count(patch_lod);
-    let vertices_per_row = (patch_size + 2u) << 1u;
-    let vertices_per_patch = vertices_per_row * patch_size;
+    let tile_size = calc_tile_count(tile_lod);
+    let vertices_per_row = (tile_size + 2u) << 1u;
+    let vertices_per_tile = vertices_per_row * tile_size;
 
-    let patch_index  = (vertex.index - patches.counts[patch_lod].x) / vertices_per_patch + patch_lod * 100000u;
-    let vertex_index = (vertex.index - patches.counts[patch_lod].x) % vertices_per_patch;
+    let tile_index  = (vertex.index - tiles.counts[tile_lod].x) / vertices_per_tile + tile_lod * 100000u;
+    let vertex_index = (vertex.index - tiles.counts[tile_lod].x) % vertices_per_tile;
 
-    let patch = patches.data[patch_index];
-    let local_position = calculate_position(vertex_index, patch, vertices_per_row, patch_size);
+    let tile = tiles.data[tile_index];
+    let local_position = calculate_position(vertex_index, tile, vertices_per_row, tile_size);
 
     let world_position = vec3<f32>(local_position.x, view_config.height_under_viewer, local_position.y);
     let blend = calculate_blend(world_position, vertex_blend);
@@ -141,15 +141,15 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
 
     var output = vertex_output(local_position, height);
 
-#ifdef SHOW_PATCHES
-    output.color = show_patches(patch, local_position, patch_lod);
+#ifdef SHOW_TILES
+    output.color = show_tiles(tile, local_position, tile_lod);
 #endif
 
     return output;
 }
 
-[[stage(fragment)]]
-fn fragment(fragment: FragmentInput) -> [[location(0)]] vec4<f32> {
+@fragment
+fn fragment(fragment: FragmentInput) -> FragmentOutput {
     let blend = calculate_blend(fragment.world_position.xyz, fragment_blend);
 
     let lookup = atlas_lookup(blend.log_distance, fragment.local_position);
@@ -161,5 +161,7 @@ fn fragment(fragment: FragmentInput) -> [[location(0)]] vec4<f32> {
         color = mix(color2, color, blend.ratio);
     }
 
-    return mix(fragment.color, color, 0.8);
+    color = mix(fragment.color, color, 0.8);
+
+    return FragmentOutput(color);
 }
