@@ -3,14 +3,20 @@
 #import bevy_terrain::config
 #import bevy_terrain::tile
 
-// Todo: make these configurable
-let height_scale :  f32 = 0.96969696969; // 128 / 132
-let height_offset:  f32 = 0.01515151515; //   2 / 132
-let albedo_scale :  f32 = 0.9968847352;  // 640 / 642
-let albedo_offset:  f32 = 0.00155763239; //   1 / 642
-let morph_blend:    f32 = 0.2;
-let vertex_blend:   f32 = 0.3;
-let fragment_blend: f32 = 0.8;
+struct TerrainConfig {
+    lod_count: u32,
+    height: f32,
+    chunk_size: u32,
+    _padding: u32,
+    height_scale: f32,
+    density_scale: f32,
+    albedo_scale: f32,
+    _empty: u32,
+    height_offset: f32,
+    density_offset: f32,
+    albedo_offset: f32,
+    _empty: u32,
+}
 
 // terrain view bindings
 @group(1) @binding(0)
@@ -27,13 +33,13 @@ var<uniform> config: TerrainConfig;
 var filter_sampler: sampler;
 @group(2) @binding(2)
 var height_atlas: texture_2d_array<f32>;
-#ifdef ALBEDO
 @group(2) @binding(3)
+var density_atlas: texture_2d_array<f32>;
+#ifdef ALBEDO
+@group(2) @binding(4)
 var albedo_atlas: texture_2d_array<f32>;
 #endif
 
-@group(2) @binding(3)
-var density_atlas: texture_2d_array<f32>;
 
 // mesh bindings
 @group(3) @binding(0)
@@ -51,7 +57,7 @@ var<uniform> mesh: Mesh;
 #import bevy_terrain::debug
 
 fn height_vertex(atlas_index: i32, atlas_coords: vec2<f32>) -> f32 {
-    let height_coords = atlas_coords * height_scale + height_offset;
+    let height_coords = atlas_coords * config.height_scale + config.height_offset;
     return config.height * textureSampleLevel(height_atlas, filter_sampler, height_coords, atlas_index, 0.0).x;
 }
 
@@ -63,8 +69,8 @@ fn color_fragment(
 ) -> vec4<f32> {
     var color = vec4<f32>(0.0);
 
-    let height_coords = atlas_coords * height_scale + height_offset;
-    let albedo_coords = atlas_coords * albedo_scale + albedo_offset;
+    let height_coords = atlas_coords * config.height_scale + config.height_offset;
+    let albedo_coords = atlas_coords * config.albedo_scale + config.albedo_offset;
 
     #ifndef BRIGHT
         color = mix(color, vec4<f32>(1.0), 0.5);
@@ -85,28 +91,24 @@ fn color_fragment(
     #ifdef LIGHTING
         let world_normal = calculate_normal(height_coords, atlas_index, lod);
 
-        let ambient = 0.3;
-        let direction = normalize(vec3<f32>(3.0, 1.0, -2.0));
-        let diffuse = max(dot(direction, world_normal), 0.0);
-        color = color * (ambient + diffuse);
+        // let ambient = 0.3;
+        // let direction = normalize(vec3<f32>(3.0, 1.0, -2.0));
+        // let diffuse = max(dot(direction, world_normal), 0.0);
+        // color = color * (ambient + diffuse);
 
-        // var pbr_input: PbrInput = pbr_input_new();
-        // pbr_input.material.base_color = color;
-        // pbr_input.frag_coord = in.frag_coord;
-        // pbr_input.world_position = in.world_position;
-        // pbr_input.world_normal = world_normal;
-        // pbr_input.is_orthographic = view.projection[3].w == 1.0;
-        // pbr_input.N = world_normal;
-        // pbr_input.V = calculate_view(in.world_position, pbr_input.is_orthographic);
-        // color = vec4<f32>(pbr_input.V, 1.0);
-        // color = pbr(pbr_input);
+        var pbr_input: PbrInput = pbr_input_new();
+        pbr_input.material.base_color = color;
+        pbr_input.frag_coord = in.frag_coord;
+        pbr_input.world_position = in.world_position;
+        pbr_input.world_normal = world_normal;
+        pbr_input.is_orthographic = view.projection[3].w == 1.0;
+        pbr_input.N = world_normal;
+        pbr_input.V = calculate_view(in.world_position, pbr_input.is_orthographic);
+        color = pbr(pbr_input);
     #endif
-
-    // color = mix(color, textureSample(density_atlas, filter_sampler, atlas_coords, atlas_index), 0.5);
 
     return color;
 }
-
 
 @vertex
 fn vertex(vertex: VertexInput) -> VertexOutput {
@@ -128,7 +130,7 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
     let local_position = calculate_position(vertex_index, tile, vertices_per_row, tile_size);
 
     let world_position = vec3<f32>(local_position.x, view_config.height_under_viewer, local_position.y);
-    let blend = calculate_blend(world_position, vertex_blend);
+    let blend = calculate_blend(world_position, view_config.vertex_blend);
 
     let lookup = atlas_lookup(blend.log_distance, local_position);
     var height = height_vertex(lookup.atlas_index, lookup.atlas_coords);
@@ -150,7 +152,7 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
 
 @fragment
 fn fragment(fragment: FragmentInput) -> FragmentOutput {
-    let blend = calculate_blend(fragment.world_position.xyz, fragment_blend);
+    let blend = calculate_blend(fragment.world_position.xyz, view_config.fragment_blend);
 
     let lookup = atlas_lookup(blend.log_distance, fragment.local_position);
     var color = color_fragment(fragment, lookup.lod, lookup.atlas_index, lookup.atlas_coords);

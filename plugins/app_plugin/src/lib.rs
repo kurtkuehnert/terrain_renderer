@@ -5,18 +5,17 @@ extern crate core;
 
 mod camera;
 mod parse;
-mod terrain_setup;
 
 use crate::camera::{set_camera_viewports, toggle_camera_system, SplitScreenCameras};
 use bevy::{
     core_pipeline::clear_color::ClearColorConfig,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
-    render::camera::Projection,
+    render::{camera::Projection, render_resource::TextureFormat},
     window::PresentMode,
 };
 use bevy_terrain::{
-    attachment_loader::TextureAttachmentFromDiskLoader,
+    attachment_loader::AttachmentFromDiskLoader,
     bundles::TerrainBundle,
     preprocess::density::{density_chunks, preprocess_density},
     quadtree::Quadtree,
@@ -72,7 +71,7 @@ impl Plugin for AppPlugin {
     }
 }
 
-fn sachsen(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainConfig {
+fn sachsen(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
     // parse::parse(
     //     "data/dgm20_source",
     //     "data/dgm20_parsed",
@@ -99,13 +98,13 @@ fn sachsen(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainCon
 
     let mut config = TerrainConfig::new(128, 7, 300.0, "terrains/Sachsen/".to_string());
 
-    terrain_setup::setup_default_sampler(&mut config, 1);
-    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
+    // terrain_setup::setup_default_sampler(&mut config, 1);
+    // terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
 
     config
 }
 
-fn hartenstein_large(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainConfig {
+fn hartenstein_large(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
     // parse::parse(
     //     "data/dgm01_source",
     //     "data/dgm01_parsed",
@@ -152,14 +151,27 @@ fn hartenstein_large(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> 
     let mut config = TerrainConfig::new(128, 7, 1000.0, "terrains/Hartenstein_large/".to_string());
     // let mut config = TerrainConfig::new(128, 7, 1000.0, "http://127.0.0.1:3535/".to_string());
 
-    terrain_setup::setup_default_sampler(&mut config, 1);
-    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
-    terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 3, 128 * 5 + 2);
+    // setup_attachment(
+    //     &mut config,
+    //     from_disk_loader,
+    //     2,
+    //     "height",
+    //     128 + 4,
+    //     TextureFormat::R16Unorm,
+    // );
+    // setup_attachment(
+    //     &mut config,
+    //     from_disk_loader,
+    //     3,
+    //     "albedo",
+    //     128 * 5 + 2,
+    //     TextureFormat::Rgba8Uint,
+    // );
 
     config
 }
 
-fn hartenstein(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainConfig {
+fn hartenstein(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
     // bevy_terrain::preprocess::preprocess_tiles(
     //     "assets/terrains/Hartenstein/source/height.png",
     //     "assets/terrains/Hartenstein/data/height",
@@ -186,14 +198,14 @@ fn hartenstein(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> Terrai
 
     let mut config = TerrainConfig::new(128, 5, 1000.0, "terrains/Hartenstein/".to_string());
 
-    terrain_setup::setup_default_sampler(&mut config, 1);
-    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
-    terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 3, 128 * 5 + 2);
+    // terrain_setup::setup_default_sampler(&mut config, 1);
+    // terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
+    // terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 3, 128 * 5 + 2);
 
     config
 }
 
-fn witcher(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainConfig {
+fn witcher(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
     // bevy_terrain::preprocess::preprocess_tiles(
     //     "assets/terrains/Witcher/source/Witcher.png",
     //     "assets/terrains/Witcher/data/height",
@@ -243,20 +255,21 @@ fn witcher(from_disk_loader: &mut TextureAttachmentFromDiskLoader) -> TerrainCon
 
     let mut config = TerrainConfig::new(128, 8, 250.0, "terrains/Witcher/".to_string());
 
-    terrain_setup::setup_default_sampler(&mut config, 1);
-    terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
-    terrain_setup::setup_density_texture(&mut config, from_disk_loader, 3, 128);
+    config.add_attachment_from_disk(from_disk_loader, "height", TextureFormat::R16Unorm, 128, 2);
+    config.add_attachment_from_disk(from_disk_loader, "density", TextureFormat::R16Unorm, 128, 0);
 
     config
 }
 
 fn setup_scene(
     mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     mut cameras: ResMut<SplitScreenCameras>,
     mut quadtrees: ResMut<TerrainViewComponents<Quadtree>>,
     mut terrain_view_configs: ResMut<TerrainViewComponents<TerrainViewConfig>>,
 ) {
-    let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
+    let mut from_disk_loader = AttachmentFromDiskLoader::default();
 
     // let config = sachsen(&mut from_disk_loader);
     // let config = hartenstein_large(&mut from_disk_loader);
@@ -273,40 +286,13 @@ fn setup_scene(
         ..default()
     };
 
-    // let view = commands
-    //     .spawn_bundle(Camera3dBundle {
-    //         camera: Camera::default(),
-    //         projection: Projection::Perspective(perspective_projection.clone()),
-    //         transform: Transform::from_xyz(300.0, 750.0, 300.0).looking_at(Vec3::ZERO, Vec3::Y),
-    //         ..default()
-    //     })
-    //     .insert(TerrainView)
-    //     .insert(FlyCamera {
-    //         accel: 8.0,
-    //         friction: 3.0,
-    //         max_speed: 16.0,
-    //         sensitivity: 30.0,
-    //         key_forward: KeyCode::Up,
-    //         key_backward: KeyCode::Down,
-    //         key_left: KeyCode::Left,
-    //         key_right: KeyCode::Right,
-    //         key_up: KeyCode::PageUp,
-    //         key_down: KeyCode::PageDown,
-    //         enabled: true,
-    //         ..default()
-    //     })
-    //     .id();
-
     let view = commands
         .spawn_bundle(Camera3dBundle {
             projection: Projection::Perspective(perspective_projection.clone()),
             ..default()
         })
         .insert_bundle(FpsCameraBundle::new(
-            FpsCameraController {
-                enabled: false,
-                ..default()
-            },
+            FpsCameraController::default(),
             Vec3::new(300.0, 1400.0, 300.0),
             Vec3::new(400.0, 1300.0, 400.0),
         ))
@@ -345,14 +331,30 @@ fn setup_scene(
     // terrain_view_configs.insert((terrain, view2), view_config);
     // quadtrees.insert((terrain, view2), quadtree);
 
-    // commands.spawn_bundle(DirectionalLightBundle {
-    //     transform: Transform {
-    //         translation: Vec3::new(0.0, 2.0, 0.0),
-    //         rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4),
-    //         ..default()
-    //     },
-    //     ..default()
-    // });
+    commands.spawn_bundle(DirectionalLightBundle {
+        directional_light: DirectionalLight {
+            color: Color::default(),
+            illuminance: 10000.0,
+            shadows_enabled: false,
+            shadow_projection: Default::default(),
+            shadow_depth_bias: 0.0,
+            shadow_normal_bias: 0.0,
+        },
+        transform: Transform {
+            translation: Vec3::new(0.0, 2.0, 0.0),
+            rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4),
+            ..default()
+        },
+        ..default()
+    });
+
+    // cube
+    commands.spawn_bundle(PbrBundle {
+        mesh: meshes.add(Mesh::from(shape::Cube { size: 100.0 })),
+        material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
+        transform: Transform::from_xyz(500.0, 300., 500.0),
+        ..default()
+    });
 
     // commands.spawn_bundle(PointLightBundle {
     //     transform: Transform::from_xyz(0.0, 200.0, 0.0),
