@@ -14,6 +14,7 @@ use bevy::{
     render::{camera::Projection, render_resource::TextureFormat},
     window::PresentMode,
 };
+use bevy_terrain::render::TerrainPipelineConfig;
 use bevy_terrain::{
     attachment_loader::AttachmentFromDiskLoader,
     bundles::TerrainBundle,
@@ -64,6 +65,10 @@ impl Plugin for AppPlugin {
             .init_resource::<SplitScreenCameras>()
             .add_plugin(LookTransformPlugin)
             .add_plugin(FpsCameraPlugin::default())
+            .insert_resource(TerrainPipelineConfig {
+                attachment_count: 2,
+                ..default()
+            })
             .add_plugin(TerrainPlugin)
             .add_startup_system(setup_scene)
             .add_system(toggle_camera_system)
