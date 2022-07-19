@@ -882,6 +882,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bitflags",
+ "bytemuck",
  "fastrand",
  "image 0.24.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools",
