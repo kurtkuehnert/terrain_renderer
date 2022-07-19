@@ -14,12 +14,12 @@ use bevy::{
     render::{camera::Projection, render_resource::TextureFormat},
     window::PresentMode,
 };
-use bevy_terrain::render::TerrainPipelineConfig;
 use bevy_terrain::{
     attachment_loader::AttachmentFromDiskLoader,
     bundles::TerrainBundle,
     preprocess::density::{density_chunks, preprocess_density},
     quadtree::Quadtree,
+    render::TerrainPipelineConfig,
     terrain::TerrainConfig,
     terrain_view::{TerrainView, TerrainViewComponents, TerrainViewConfig},
     TerrainPlugin,
@@ -101,10 +101,10 @@ fn sachsen(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
     //     bevy_terrain::preprocess::ImageFormat::LUMA16,
     // );
 
-    let mut config = TerrainConfig::new(128, 7, 300.0, "terrains/Sachsen/".to_string());
+    let mut config = TerrainConfig::new(16000, 128, 7, 300.0, "terrains/Sachsen/".to_string());
 
-    // terrain_setup::setup_default_sampler(&mut config, 1);
-    // terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
+    config.add_attachment_from_disk(from_disk_loader, "height", TextureFormat::R16Unorm, 128, 2);
+    config.add_attachment_from_disk(from_disk_loader, "density", TextureFormat::R16Unorm, 128, 0);
 
     config
 }
@@ -153,25 +153,24 @@ fn hartenstein_large(from_disk_loader: &mut AttachmentFromDiskLoader) -> Terrain
     //     bevy_terrain::preprocess::ImageFormat::RGBA,
     // );
 
-    let mut config = TerrainConfig::new(128, 7, 1000.0, "terrains/Hartenstein_large/".to_string());
+    let mut config = TerrainConfig::new(
+        16000,
+        128,
+        7,
+        1000.0,
+        "terrains/Hartenstein_large/".to_string(),
+    );
     // let mut config = TerrainConfig::new(128, 7, 1000.0, "http://127.0.0.1:3535/".to_string());
 
-    // setup_attachment(
-    //     &mut config,
-    //     from_disk_loader,
-    //     2,
-    //     "height",
-    //     128 + 4,
-    //     TextureFormat::R16Unorm,
-    // );
-    // setup_attachment(
-    //     &mut config,
-    //     from_disk_loader,
-    //     3,
-    //     "albedo",
-    //     128 * 5 + 2,
-    //     TextureFormat::Rgba8Uint,
-    // );
+    config.add_attachment_from_disk(from_disk_loader, "height", TextureFormat::R16Unorm, 128, 2);
+    config.add_attachment_from_disk(from_disk_loader, "density", TextureFormat::R16Unorm, 128, 0);
+    config.add_attachment_from_disk(
+        from_disk_loader,
+        "albedo",
+        TextureFormat::Rgba8UnormSrgb,
+        640,
+        1,
+    );
 
     config
 }
@@ -188,7 +187,18 @@ fn hartenstein(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig
     //     2,
     //     bevy_terrain::preprocess::ImageFormat::LUMA16,
     // );
-    //
+
+    // preprocess_density(
+    //     "assets/terrains/hartenstein/data/height",
+    //     "assets/terrains/hartenstein/data/density",
+    //     5,
+    //     (0, 0),
+    //     (32, 32),
+    //     128,
+    //     2,
+    //     1000.0,
+    // );
+
     // bevy_terrain::preprocess::preprocess_tiles(
     //     "assets/terrains/Hartenstein/source/albedo.png",
     //     "assets/terrains/Hartenstein/data/albedo",
@@ -201,11 +211,17 @@ fn hartenstein(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig
     //     bevy_terrain::preprocess::ImageFormat::RGBA,
     // );
 
-    let mut config = TerrainConfig::new(128, 5, 1000.0, "terrains/Hartenstein/".to_string());
+    let mut config = TerrainConfig::new(4000, 128, 5, 1000.0, "terrains/Hartenstein/".to_string());
 
-    // terrain_setup::setup_default_sampler(&mut config, 1);
-    // terrain_setup::setup_height_texture(&mut config, from_disk_loader, 2, 128 + 4);
-    // terrain_setup::setup_albedo_texture(&mut config, from_disk_loader, 3, 128 * 5 + 2);
+    config.add_attachment_from_disk(from_disk_loader, "height", TextureFormat::R16Unorm, 128, 2);
+    config.add_attachment_from_disk(from_disk_loader, "density", TextureFormat::R16Unorm, 128, 0);
+    config.add_attachment_from_disk(
+        from_disk_loader,
+        "albedo",
+        TextureFormat::Rgba8UnormSrgb,
+        640,
+        1,
+    );
 
     config
 }
@@ -258,7 +274,7 @@ fn witcher(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
     //     250.0,
     // );
 
-    let mut config = TerrainConfig::new(128, 8, 250.0, "terrains/Witcher/".to_string());
+    let mut config = TerrainConfig::new(4096, 128, 8, 250.0, "terrains/Witcher/".to_string());
 
     config.add_attachment_from_disk(from_disk_loader, "height", TextureFormat::R16Unorm, 128, 2);
     config.add_attachment_from_disk(from_disk_loader, "density", TextureFormat::R16Unorm, 128, 0);
@@ -268,8 +284,6 @@ fn witcher(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
 
 fn setup_scene(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
     mut cameras: ResMut<SplitScreenCameras>,
     mut quadtrees: ResMut<TerrainViewComponents<Quadtree>>,
     mut terrain_view_configs: ResMut<TerrainViewComponents<TerrainViewConfig>>,
@@ -286,14 +300,12 @@ fn setup_scene(
         .insert(from_disk_loader)
         .id();
 
-    let perspective_projection = PerspectiveProjection {
-        far: 10000.0,
-        ..default()
-    };
-
     let view = commands
         .spawn_bundle(Camera3dBundle {
-            projection: Projection::Perspective(perspective_projection.clone()),
+            projection: Projection::Perspective(PerspectiveProjection {
+                far: 10000.0,
+                ..default()
+            }),
             ..default()
         })
         .insert_bundle(FpsCameraBundle::new(
@@ -305,8 +317,7 @@ fn setup_scene(
         .id();
 
     cameras.0.push(view);
-
-    let view_config = TerrainViewConfig::new(10000, 3.0, 10.0, 0.5);
+    let view_config = TerrainViewConfig::new(3.0, 10.0, 0.5);
     let quadtree = Quadtree::new(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
@@ -322,16 +333,18 @@ fn setup_scene(
     //             clear_color: ClearColorConfig::None,
     //             ..default()
     //         },
-    //         projection: Projection::Perspective(perspective_projection.clone()),
-    //         transform: Transform::from_xyz(6000.0, 1000.0, 6000.0).looking_at(Vec3::ZERO, Vec3::Y),
+    //         projection: Projection::Perspective(PerspectiveProjection {
+    //             far: 10000.0,
+    //             ..default()
+    //         }),
+    //         transform: Transform::from_xyz(3000.0, 1500.0, 3000.0).looking_at(Vec3::ZERO, Vec3::Y),
     //         ..default()
     //     })
     //     .insert(TerrainView)
     //     .id();
-    //
-    // let view_config = TerrainViewConfig::new(16000, 8, 2.0, 4.0, 0.25);
-    //
+
     // cameras.0.push(view2);
+    // let view_config = TerrainViewConfig::new(2.0, 8.0, 0.3);
     // let quadtree = Quadtree::new(&config, &view_config);
     // terrain_view_configs.insert((terrain, view2), view_config);
     // quadtrees.insert((terrain, view2), quadtree);
@@ -352,24 +365,4 @@ fn setup_scene(
         },
         ..default()
     });
-
-    // cube
-    commands.spawn_bundle(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Cube { size: 100.0 })),
-        material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
-        transform: Transform::from_xyz(500.0, 300., 500.0),
-        ..default()
-    });
-
-    // commands.spawn_bundle(PointLightBundle {
-    //     transform: Transform::from_xyz(0.0, 200.0, 0.0),
-    //     ..default()
-    // });
-
-    // let mut from_disk_loader = TextureAttachmentFromDiskLoader::default();
-    // let config = hartenstein(&mut from_disk_loader);
-    //
-    // commands
-    //     .spawn_bundle(TerrainBundle::new(config))
-    //     .insert(from_disk_loader);
 }
