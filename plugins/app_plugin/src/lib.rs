@@ -14,16 +14,7 @@ use bevy::{
     render::{camera::Projection, render_resource::TextureFormat},
     window::PresentMode,
 };
-use bevy_terrain::{
-    attachment_loader::AttachmentFromDiskLoader,
-    bundles::TerrainBundle,
-    preprocess::density::{density_chunks, preprocess_density},
-    quadtree::Quadtree,
-    render::TerrainPipelineConfig,
-    terrain::TerrainConfig,
-    terrain_view::{TerrainView, TerrainViewComponents, TerrainViewConfig},
-    TerrainPlugin,
-};
+use bevy_terrain::prelude::*;
 use smooth_bevy_cameras::{
     controllers::fps::{FpsCameraBundle, FpsCameraController, FpsCameraPlugin},
     LookTransformPlugin,
@@ -317,8 +308,8 @@ fn setup_scene(
         .id();
 
     cameras.0.push(view);
-    let view_config = TerrainViewConfig::new(3.0, 10.0, 0.5);
-    let quadtree = Quadtree::new(&config, &view_config);
+    let view_config = TerrainViewConfig::new(&config, 10, 3.0, 3.0, 10.0, 0.2, 0.2, 0.2);
+    let quadtree = Quadtree::from_configs(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
     quadtrees.insert((terrain, view), quadtree);
