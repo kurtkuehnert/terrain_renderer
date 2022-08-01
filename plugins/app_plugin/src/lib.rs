@@ -7,19 +7,32 @@ mod camera;
 mod parse;
 
 use crate::camera::{set_camera_viewports, toggle_camera_system, SplitScreenCameras};
+use bevy::pbr::{MaterialPipeline, MaterialPipelineKey};
+use bevy::render::mesh::MeshVertexBufferLayout;
 use bevy::{
     core_pipeline::clear_color::ClearColorConfig,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
-    render::{camera::Projection, render_resource::TextureFormat},
+    reflect::TypeUuid,
+    render::{camera::Projection, render_resource::*},
     window::PresentMode,
 };
-use bevy_terrain::prelude::*;
+use bevy_terrain::{prelude::*, preprocess::prelude::*};
 use smooth_bevy_cameras::{
     controllers::fps::{FpsCameraBundle, FpsCameraController, FpsCameraPlugin},
     LookTransformPlugin,
 };
 use std::time::Duration;
+
+#[derive(AsBindGroup, TypeUuid, Clone)]
+#[uuid = "003e1d5d-241c-45a6-8c25-731dee22d820"]
+pub struct TerrainMaterial {}
+
+impl Material for TerrainMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders/terrain.wgsl".into()
+    }
+}
 
 /// A plugin, which sets up the testing application.
 pub struct AppPlugin;
@@ -61,6 +74,7 @@ impl Plugin for AppPlugin {
                 ..default()
             })
             .add_plugin(TerrainPlugin)
+            .add_plugin(TerrainMaterialPlugin::<TerrainMaterial>::default())
             .add_startup_system(setup_scene)
             .add_system(toggle_camera_system)
             .add_system(set_camera_viewports);
@@ -92,7 +106,7 @@ fn sachsen(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
     //     bevy_terrain::preprocess::ImageFormat::LUMA16,
     // );
 
-    let mut config = TerrainConfig::new(16000, 128, 7, 300.0, "terrains/Sachsen/".to_string());
+    let mut config = TerrainConfig::new(16000, 128, 7, 300.0, 500, "terrains/Sachsen/".to_string());
 
     config.add_attachment_from_disk(from_disk_loader, "height", TextureFormat::R16Unorm, 128, 2);
     config.add_attachment_from_disk(from_disk_loader, "density", TextureFormat::R16Unorm, 128, 0);
@@ -149,6 +163,7 @@ fn hartenstein_large(from_disk_loader: &mut AttachmentFromDiskLoader) -> Terrain
         128,
         7,
         1000.0,
+        500,
         "terrains/Hartenstein_large/".to_string(),
     );
     // let mut config = TerrainConfig::new(128, 7, 1000.0, "http://127.0.0.1:3535/".to_string());
@@ -202,7 +217,14 @@ fn hartenstein(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig
     //     bevy_terrain::preprocess::ImageFormat::RGBA,
     // );
 
-    let mut config = TerrainConfig::new(4000, 128, 5, 1000.0, "terrains/Hartenstein/".to_string());
+    let mut config = TerrainConfig::new(
+        4000,
+        128,
+        5,
+        1000.0,
+        500,
+        "terrains/Hartenstein/".to_string(),
+    );
 
     config.add_attachment_from_disk(from_disk_loader, "height", TextureFormat::R16Unorm, 128, 2);
     config.add_attachment_from_disk(from_disk_loader, "density", TextureFormat::R16Unorm, 128, 0);
@@ -265,7 +287,39 @@ fn witcher(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
     //     250.0,
     // );
 
-    let mut config = TerrainConfig::new(4096, 128, 8, 250.0, "terrains/Witcher/".to_string());
+    let mut config = TerrainConfig::new(4096, 128, 8, 250.0, 500, "terrains/Witcher/".to_string());
+
+    config.add_attachment_from_disk(from_disk_loader, "height", TextureFormat::R16Unorm, 128, 2);
+    config.add_attachment_from_disk(from_disk_loader, "density", TextureFormat::R16Unorm, 128, 0);
+
+    config
+}
+
+fn bevy(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
+    // preprocess_tiles(
+    //     "assets/terrains/Bevy/source/heightmap.png",
+    //     "assets/terrains/Bevy/data/height",
+    //     0,
+    //     5,
+    //     (0, 0),
+    //     4096,
+    //     128,
+    //     2,
+    //     ImageFormat::LUMA16,
+    // );
+    //
+    // preprocess_density(
+    //     "assets/terrains/Bevy/data/height",
+    //     "assets/terrains/Bevy/data/density",
+    //     5,
+    //     (0, 0),
+    //     (33, 33),
+    //     128,
+    //     2,
+    //     500.0,
+    // );
+
+    let mut config = TerrainConfig::new(4096, 128, 5, 500.0, 1024, "terrains/Bevy/".to_string());
 
     config.add_attachment_from_disk(from_disk_loader, "height", TextureFormat::R16Unorm, 128, 2);
     config.add_attachment_from_disk(from_disk_loader, "density", TextureFormat::R16Unorm, 128, 0);
@@ -275,6 +329,7 @@ fn witcher(from_disk_loader: &mut AttachmentFromDiskLoader) -> TerrainConfig {
 
 fn setup_scene(
     mut commands: Commands,
+    mut materials: ResMut<Assets<TerrainMaterial>>,
     mut cameras: ResMut<SplitScreenCameras>,
     mut quadtrees: ResMut<TerrainViewComponents<Quadtree>>,
     mut terrain_view_configs: ResMut<TerrainViewComponents<TerrainViewConfig>>,
@@ -284,11 +339,13 @@ fn setup_scene(
     // let config = sachsen(&mut from_disk_loader);
     // let config = hartenstein_large(&mut from_disk_loader);
     // let config = hartenstein(&mut from_disk_loader);
-    let config = witcher(&mut from_disk_loader);
+    // let config = witcher(&mut from_disk_loader);
+    let config = bevy(&mut from_disk_loader);
 
     let terrain = commands
         .spawn_bundle(TerrainBundle::new(config.clone()))
         .insert(from_disk_loader)
+        .insert(materials.add(TerrainMaterial {}))
         .id();
 
     let view = commands
@@ -308,7 +365,7 @@ fn setup_scene(
         .id();
 
     cameras.0.push(view);
-    let view_config = TerrainViewConfig::new(&config, 10, 3.0, 3.0, 10.0, 0.2, 0.2, 0.2);
+    let view_config = TerrainViewConfig::new(&config, 13, 8.0, 6.0, 10.0, 0.2, 0.2, 0.2);
     let quadtree = Quadtree::from_configs(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);

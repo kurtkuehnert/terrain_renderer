@@ -20,5 +20,6 @@ default = [
 ]
 
 [dependencies]
-bevy = { git="https://github.com/bevyengine/bevy" }
+# bevy = { git="https://github.com/bevyengine/bevy" }
+bevy = "0.8.0"
 app_plugin = { path="plugins/app_plugin" }
