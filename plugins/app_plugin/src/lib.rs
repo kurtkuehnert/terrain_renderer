@@ -99,14 +99,14 @@ fn sachsen(
     //     },
     // );
 
-    let mut config = TerrainConfig::new(16000, 128, 7, 300.0, 500, "terrains/Sachsen/");
+    let mut config = TerrainConfig::new(16000, 128, 7, 300.0, 500, "terrains/Sachsen".to_string());
 
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
         CHUNK_SIZE,
         TileConfig {
-            path: "data/dgm20_parsed",
+            path: "data/dgm20_parsed".to_string(),
             lod: 0,
             offset: Default::default(),
             size: 100,
@@ -138,14 +138,21 @@ fn hartenstein_large(
     //     parse::ParseFormat::TIF,
     // );
 
-    let mut config = TerrainConfig::new(16000, 128, 7, 1000.0, 500, "terrains/Hartenstein_large/");
+    let mut config = TerrainConfig::new(
+        16000,
+        128,
+        7,
+        1000.0,
+        500,
+        "terrains/Hartenstein_large".to_string(),
+    );
 
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
         CHUNK_SIZE,
         TileConfig {
-            path: "data/dgm01_parsed",
+            path: "data/dgm01_parsed".to_string(),
             lod: 0,
             offset: Default::default(),
             size: 4000,
@@ -155,13 +162,13 @@ fn hartenstein_large(
         preprocessor,
         from_disk_loader,
         AttachmentConfig {
-            name: "albedo",
+            name: "albedo".to_string(),
             center_size: 5 * CHUNK_SIZE,
             border_size: 1,
             format: AttachmentFormat::RGBA,
         },
         TileConfig {
-            path: "data/dop20_parsed",
+            path: "data/dop20_parsed".to_string(),
             lod: 0,
             offset: Default::default(),
             size: 20000,
@@ -175,14 +182,21 @@ fn hartenstein(
     preprocessor: &mut Preprocessor,
     from_disk_loader: &mut AttachmentFromDiskLoader,
 ) -> TerrainConfig {
-    let mut config = TerrainConfig::new(4000, CHUNK_SIZE, 5, 1000.0, 1024, "terrains/Hartenstein/");
+    let mut config = TerrainConfig::new(
+        4000,
+        CHUNK_SIZE,
+        5,
+        1000.0,
+        1024,
+        "terrains/Hartenstein".to_string(),
+    );
 
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
         CHUNK_SIZE,
         TileConfig {
-            path: "assets/terrains/Hartenstein/source/height.png",
+            path: "assets/terrains/Hartenstein/source/height.png".to_string(),
             lod: 0,
             offset: Default::default(),
             size: 4000,
@@ -192,13 +206,13 @@ fn hartenstein(
         preprocessor,
         from_disk_loader,
         AttachmentConfig {
-            name: "albedo",
+            name: "albedo".to_string(),
             center_size: 5 * CHUNK_SIZE,
             border_size: 1,
             format: AttachmentFormat::RGBA,
         },
         TileConfig {
-            path: "assets/terrains/Hartenstein/source/albedo.png",
+            path: "assets/terrains/Hartenstein/source/albedo.png".to_string(),
             lod: 0,
             offset: Default::default(),
             size: 20000,
@@ -212,14 +226,21 @@ fn witcher(
     preprocessor: &mut Preprocessor,
     from_disk_loader: &mut AttachmentFromDiskLoader,
 ) -> TerrainConfig {
-    let mut config = TerrainConfig::new(16384, CHUNK_SIZE, 8, 1500.0, 1500, "terrains/Witcher/");
+    let mut config = TerrainConfig::new(
+        16384,
+        CHUNK_SIZE,
+        8,
+        1500.0,
+        1500,
+        "terrains/Witcher".to_string(),
+    );
 
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
         CHUNK_SIZE,
         TileConfig {
-            path: "assets/terrains/Witcher/source/Witcher3.png",
+            path: "assets/terrains/Witcher/source/Witcher3.png".to_string(),
             lod: 0,
             offset: Default::default(),
             size: 16384,
@@ -233,14 +254,21 @@ fn bevy(
     preprocessor: &mut Preprocessor,
     from_disk_loader: &mut AttachmentFromDiskLoader,
 ) -> TerrainConfig {
-    let mut config = TerrainConfig::new(4096, CHUNK_SIZE, 5, 500.0, 1024, "terrains/Bevy/");
+    let mut config = TerrainConfig::new(
+        4096,
+        CHUNK_SIZE,
+        5,
+        500.0,
+        1024,
+        "terrains/Bevy".to_string(),
+    );
 
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
         CHUNK_SIZE,
         TileConfig {
-            path: "assets/terrains/Bevy/source/heightmap.png",
+            path: "assets/terrains/Bevy/source/heightmap.png".to_string(),
             lod: 0,
             offset: Default::default(),
             size: 4096,

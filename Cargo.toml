@@ -16,7 +16,6 @@ members = ["plugins/*"]
 [features]
 default = [
     # "bevy/dynamic"
-    # "bevy/trace_chrome"
 ]
 
 [dependencies]
