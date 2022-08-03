@@ -25,6 +25,7 @@ use std::time::Duration;
 
 const CHUNK_SIZE: u32 = 128;
 const ATTACHMENT_COUNT: usize = 2;
+const SPLIT: bool = false;
 
 #[derive(AsBindGroup, TypeUuid, Clone)]
 #[uuid = "003e1d5d-241c-45a6-8c25-731dee22d820"]
@@ -325,32 +326,6 @@ fn setup_scene(
     terrain_view_configs.insert((terrain, view), view_config);
     quadtrees.insert((terrain, view), quadtree);
 
-    // let view2 = commands
-    //     .spawn_bundle(Camera3dBundle {
-    //         camera: Camera {
-    //             priority: 1,
-    //             ..default()
-    //         },
-    //         camera_3d: Camera3d {
-    //             clear_color: ClearColorConfig::None,
-    //             ..default()
-    //         },
-    //         projection: Projection::Perspective(PerspectiveProjection {
-    //             far: 10000.0,
-    //             ..default()
-    //         }),
-    //         transform: Transform::from_xyz(3000.0, 1500.0, 3000.0).looking_at(Vec3::ZERO, Vec3::Y),
-    //         ..default()
-    //     })
-    //     .insert(TerrainView)
-    //     .id();
-
-    // cameras.0.push(view2);
-    // let view_config = TerrainViewConfig::new(2.0, 8.0, 0.3);
-    // let quadtree = Quadtree::new(&config, &view_config);
-    // terrain_view_configs.insert((terrain, view2), view_config);
-    // quadtrees.insert((terrain, view2), quadtree);
-
     commands.spawn_bundle(DirectionalLightBundle {
         directional_light: DirectionalLight {
             color: Color::default(),
@@ -367,4 +342,38 @@ fn setup_scene(
         },
         ..default()
     });
+
+    if SPLIT {
+        let pos = config.terrain_size as f32 / 2.0;
+        let view2 = commands
+            .spawn_bundle(Camera3dBundle {
+                camera: Camera {
+                    priority: 1,
+                    ..default()
+                },
+                camera_3d: Camera3d {
+                    clear_color: ClearColorConfig::None,
+                    ..default()
+                },
+                projection: Projection::Perspective(PerspectiveProjection {
+                    far: 10000.0,
+                    ..default()
+                }),
+                ..default()
+            })
+            .insert_bundle(FpsCameraBundle::new(
+                FpsCameraController::default(),
+                Vec3::new(pos, 5000.0, pos),
+                Vec3::new(pos - 1.0, 0.0, pos),
+            ))
+            .insert(TerrainView)
+            .id();
+
+        cameras.0.push(view2);
+        let view_config = TerrainViewConfig::new(&config, 8, 5.0, 3.0, 10.0, 0.2, 0.2, 0.2);
+        let quadtree = Quadtree::from_configs(&config, &view_config);
+
+        terrain_view_configs.insert((terrain, view2), view_config);
+        quadtrees.insert((terrain, view2), quadtree);
+    }
 }

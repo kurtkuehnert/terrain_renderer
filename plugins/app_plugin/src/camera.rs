@@ -2,12 +2,26 @@ use bevy::{prelude::*, render::camera::Viewport, window::WindowResized};
 use smooth_bevy_cameras::controllers::fps::FpsCameraController;
 
 pub(crate) fn toggle_camera_system(
+    mut current_camera: Local<usize>,
     input: Res<Input<KeyCode>>,
+    cameras: Res<SplitScreenCameras>,
     mut camera_query: Query<&mut FpsCameraController>,
 ) {
     if input.just_pressed(KeyCode::T) {
-        for mut camera in camera_query.iter_mut() {
-            camera.enabled = !camera.enabled;
+        if *current_camera != 0 {
+            camera_query
+                .get_mut(cameras.0[*current_camera - 1])
+                .unwrap()
+                .enabled = false;
+        }
+
+        *current_camera = (*current_camera + 1) % (cameras.0.len() + 1);
+
+        if *current_camera != 0 {
+            camera_query
+                .get_mut(cameras.0[*current_camera - 1])
+                .unwrap()
+                .enabled = true;
         }
     }
 }
