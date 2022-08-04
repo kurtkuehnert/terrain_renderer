@@ -53,34 +53,52 @@ var albedo_atlas: texture_2d_array<f32>;
 #import bevy_terrain::functions
 #import bevy_terrain::debug
 
-fn color_fragment(
-    in: FragmentInput,
-    lod: u32,
-    atlas_index: i32,
-    atlas_coords: vec2<f32>
-) -> vec4<f32> {
-    var color = vec4<f32>(0.0);
+struct FragmentData {
+    world_normal: vec3<f32>,
+    color: vec4<f32>,
+}
+
+fn lookup_fragment_data(in: FragmentInput, lookup: AtlasLookup) -> FragmentData {
+    let lod = lookup.lod;
+    let atlas_index = lookup.atlas_index;
+    let atlas_coords = lookup.atlas_coords;
 
     let height_coords = atlas_coords * config.height_scale + config.height_offset;
     let albedo_coords = atlas_coords * config.albedo_scale + config.albedo_offset;
 
     let world_normal = calculate_normal(height_coords, atlas_index, lod);
 
-    #ifndef BRIGHT
-        color = mix(color, vec4<f32>(1.0), 0.5);
-    #endif
+    var color = vec4<f32>(0.0);
 
-    #ifdef SHOW_LOD
-        color = mix(color, show_lod(lod, in.world_position.xyz), 0.4);
-    #endif
+#ifndef BRIGHT
+    color = mix(color, vec4<f32>(1.0), 0.5);
+#endif
 
-    #ifdef ALBEDO
-        color = mix(color, textureSample(albedo_atlas, terrain_sampler, albedo_coords, atlas_index), 0.5);
-    #endif
+#ifdef SHOW_LOD
+    color = mix(color, show_lod(lod, in.world_position.xyz), 0.4);
+#endif
 
-    #ifdef SHOW_UV
-        color = mix(color, vec4<f32>(atlas_coords.x, atlas_coords.y, 0.0, 1.0), 0.5);
-    #endif
+#ifdef ALBEDO
+    color = mix(color, textureSample(albedo_atlas, terrain_sampler, albedo_coords, atlas_index), 0.5);
+#endif
+
+#ifdef SHOW_UV
+    color = mix(color, vec4<f32>(atlas_coords.x, atlas_coords.y, 0.0, 1.0), 0.5);
+#endif
+
+    return FragmentData(world_normal, color);
+}
+
+fn blend_fragment_data(data1: FragmentData, data2: FragmentData, blend_ratio: f32) -> FragmentData {
+    let world_normal = mix(data2.world_normal, data1.world_normal, blend_ratio);
+    let color = mix(data2.color, data1.color, blend_ratio);
+
+    return FragmentData(world_normal, color);
+}
+
+fn fragment_color(in: FragmentInput, data: FragmentData) -> vec4<f32> {
+    let world_normal = data.world_normal;
+    var color = data.color;
 
     #ifdef LIGHTING
         var pbr_input: PbrInput = pbr_input_new();
@@ -100,4 +118,4 @@ fn color_fragment(
     return color;
 }
 
-#import bevy_terrain::entry_points
+#import bevy_terrain::fragment
