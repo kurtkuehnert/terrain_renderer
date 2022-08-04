@@ -7,6 +7,7 @@ mod camera;
 mod parse;
 
 use crate::camera::{set_camera_viewports, toggle_camera_system, SplitScreenCameras};
+use bevy::asset::AssetServerSettings;
 use bevy::{
     core_pipeline::clear_color::ClearColorConfig,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
@@ -42,6 +43,10 @@ pub struct AppPlugin;
 
 impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
+        // app.insert_resource(AssetServerSettings {
+        //     watch_for_changes: true,
+        //     ..default()
+        // });
         app.insert_resource(WindowDescriptor {
             width: 1920.,
             height: 1080.,
@@ -49,9 +54,8 @@ impl Plugin for AppPlugin {
             title: "Terrain Rendering".into(),
             present_mode: PresentMode::Immediate,
             ..default()
-        });
-
-        app.add_plugins_with(DefaultPlugins, |plugins| {
+        })
+        .add_plugins_with(DefaultPlugins, |plugins| {
             // plugins.disable::<bevy::log::LogPlugin>();
             // plugins.add_before::<bevy::asset::AssetPlugin, _>(bevy_web_asset::WebAssetPlugin);
             plugins
@@ -60,27 +64,22 @@ impl Plugin for AppPlugin {
             debug: false,
             wait_duration: Duration::from_secs(5),
             filter: None,
-        });
+        })
         //.add_plugin(FrameTimeDiagnosticsPlugin);
-
-        // app.world
-        //     .resource::<AssetServer>()
-        //     .watch_for_changes()
-        //     .unwrap();
-
-        app.insert_resource(Msaa { samples: 4 })
-            .init_resource::<SplitScreenCameras>()
-            .add_plugin(LookTransformPlugin)
-            .add_plugin(FpsCameraPlugin::default())
-            .insert_resource(TerrainPipelineConfig {
-                attachment_count: ATTACHMENT_COUNT,
-                ..default()
-            })
-            .add_plugin(TerrainPlugin)
-            .add_plugin(TerrainMaterialPlugin::<TerrainMaterial>::default())
-            .add_startup_system(setup_scene)
-            .add_system(toggle_camera_system)
-            .add_system(set_camera_viewports);
+        .insert_resource(Msaa { samples: 4 })
+        .init_resource::<SplitScreenCameras>()
+        .add_plugin(LookTransformPlugin)
+        .add_plugin(FpsCameraPlugin::default())
+        .insert_resource(TerrainPipelineConfig {
+            attachment_count: ATTACHMENT_COUNT,
+            ..default()
+        })
+        .add_plugin(TerrainPlugin)
+        .add_plugin(TerrainDebugPlugin)
+        .add_plugin(TerrainMaterialPlugin::<TerrainMaterial>::default())
+        .add_startup_system(setup_scene)
+        .add_system(toggle_camera_system)
+        .add_system(set_camera_viewports);
     }
 }
 
