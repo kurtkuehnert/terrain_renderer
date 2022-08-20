@@ -99,17 +99,17 @@ fn sachsen(
     //     },
     // );
 
-    let mut config = TerrainConfig::new(16000, 128, 7, 300.0, 500, "terrains/Sachsen".to_string());
+    let mut config = TerrainConfig::new(16000, 128, 7, 300.0, 1024, "terrains/Sachsen".to_string());
 
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
         CHUNK_SIZE,
         TileConfig {
-            path: "data/dgm20_parsed".to_string(),
+            path: "assets/terrains/Sachsen/source/DGM16.png".to_string(),
             lod: 0,
             offset: Default::default(),
-            size: 100,
+            size: 16000,
         },
     );
     config
@@ -288,11 +288,11 @@ fn setup_scene(
     let mut preprocessor = Preprocessor::default();
     let mut from_disk_loader = AttachmentFromDiskLoader::default();
 
-    // let config = sachsen(&mut preprocessor, &mut from_disk_loader);
+    let config = sachsen(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein_large(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein(&mut preprocessor, &mut from_disk_loader);
     // let config = witcher(&mut preprocessor, &mut from_disk_loader);
-    let config = bevy(&mut preprocessor, &mut from_disk_loader);
+    // let config = bevy(&mut preprocessor, &mut from_disk_loader);
 
     // preprocessor.preprocess(&config);
 
@@ -319,7 +319,7 @@ fn setup_scene(
         .id();
 
     cameras.0.push(view);
-    let view_config = TerrainViewConfig::new(&config, 14, 8.0, 6.0, 10.0, 0.2, 0.2, 0.2);
+    let view_config = TerrainViewConfig::new(&config, 10, 6.0, 4.0, 10.0, 0.2, 0.2, 0.2);
     let quadtree = Quadtree::from_configs(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
