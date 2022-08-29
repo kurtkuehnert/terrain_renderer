@@ -289,11 +289,11 @@ fn setup_scene(
     let mut preprocessor = Preprocessor::default();
     let mut from_disk_loader = AttachmentFromDiskLoader::default();
 
-    let config = sachsen(&mut preprocessor, &mut from_disk_loader);
+    // let config = sachsen(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein_large(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein(&mut preprocessor, &mut from_disk_loader);
     // let config = witcher(&mut preprocessor, &mut from_disk_loader);
-    // let config = bevy(&mut preprocessor, &mut from_disk_loader);
+    let config = bevy(&mut preprocessor, &mut from_disk_loader);
 
     // preprocessor.preprocess(&config);
 

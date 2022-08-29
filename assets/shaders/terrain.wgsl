@@ -7,11 +7,11 @@ struct TerrainConfig {
     terrain_size: u32,
 
     height_scale: f32,
-    density_scale: f32,
+    minmax_scale: f32,
     albedo_scale: f32,
     _empty: u32,
     height_offset: f32,
-    density_offset: f32,
+    minmax_offset: f32,
     albedo_offset: f32,
     _empty: u32,
 }
@@ -35,7 +35,7 @@ var terrain_sampler: sampler;
 @group(2) @binding(2)
 var height_atlas: texture_2d_array<f32>;
 @group(2) @binding(3)
-var density_atlas: texture_2d_array<f32>;
+var minmax_atlas: texture_2d_array<f32>;
 #ifdef ALBEDO
 @group(2) @binding(4)
 var albedo_atlas: texture_2d_array<f32>;
