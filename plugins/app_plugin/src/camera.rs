@@ -26,7 +26,7 @@ pub(crate) fn toggle_camera_system(
     }
 }
 
-#[derive(Default, Component)]
+#[derive(Default, Resource)]
 pub struct SplitScreenCameras(pub(crate) Vec<Entity>);
 
 pub fn set_camera_viewports(

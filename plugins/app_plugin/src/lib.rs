@@ -7,8 +7,8 @@ mod camera;
 mod parse;
 
 use crate::camera::{set_camera_viewports, toggle_camera_system, SplitScreenCameras};
-use bevy::asset::AssetServerSettings;
 use bevy::{
+    asset::AssetServerSettings,
     core_pipeline::clear_color::ClearColorConfig,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     pbr::{MaterialPipeline, MaterialPipelineKey},
@@ -99,12 +99,13 @@ fn sachsen(
     //     },
     // );
 
-    let mut config = TerrainConfig::new(16000, 128, 7, 300.0, 1024, "terrains/Sachsen".to_string());
+    let mut config =
+        TerrainConfig::new(16000, 512, 14, 300.0, 1024, "terrains/Sachsen".to_string());
 
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
-        CHUNK_SIZE,
+        512,
         TileConfig {
             path: "assets/terrains/Sachsen/source/DGM16.png".to_string(),
             lod: 0,
@@ -165,7 +166,7 @@ fn hartenstein_large(
             name: "albedo".to_string(),
             center_size: 5 * CHUNK_SIZE,
             border_size: 1,
-            format: AttachmentFormat::RGBA,
+            format: AttachmentFormat::Rgba8,
         },
         TileConfig {
             path: "data/dop20_parsed".to_string(),
@@ -209,7 +210,7 @@ fn hartenstein(
             name: "albedo".to_string(),
             center_size: 5 * CHUNK_SIZE,
             border_size: 1,
-            format: AttachmentFormat::RGBA,
+            format: AttachmentFormat::Rgba8,
         },
         TileConfig {
             path: "assets/terrains/Hartenstein/source/albedo.png".to_string(),
@@ -257,7 +258,7 @@ fn bevy(
     let mut config = TerrainConfig::new(
         4096,
         CHUNK_SIZE,
-        5,
+        12,
         500.0,
         1024,
         "terrains/Bevy".to_string(),
@@ -319,7 +320,7 @@ fn setup_scene(
         .id();
 
     cameras.0.push(view);
-    let view_config = TerrainViewConfig::new(&config, 10, 6.0, 4.0, 10.0, 0.2, 0.2, 0.2);
+    let view_config = TerrainViewConfig::new(&config, 10, 5.0, 2.0, 10.0, 0.2, 0.2, 0.2);
     let quadtree = Quadtree::from_configs(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
@@ -369,7 +370,7 @@ fn setup_scene(
             .id();
 
         cameras.0.push(view2);
-        let view_config = TerrainViewConfig::new(&config, 8, 5.0, 3.0, 10.0, 0.2, 0.2, 0.2);
+        let view_config = TerrainViewConfig::new(&config, 8, 5.0, 3.0, 16.0, 0.2, 0.2, 0.2);
         let quadtree = Quadtree::from_configs(&config, &view_config);
 
         terrain_view_configs.insert((terrain, view2), view_config);

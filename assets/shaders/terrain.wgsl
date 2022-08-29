@@ -66,7 +66,11 @@ fn lookup_fragment_data(in: FragmentInput, lookup: AtlasLookup) -> FragmentData 
     let height_coords = atlas_coords * config.height_scale + config.height_offset;
     let albedo_coords = atlas_coords * config.albedo_scale + config.albedo_offset;
 
+#ifdef VERTEX_NORMAL
+    let world_normal = in.world_normal;
+#else
     let world_normal = calculate_normal(height_coords, atlas_index, lod);
+#endif
 
     var color = vec4<f32>(0.0);
 
