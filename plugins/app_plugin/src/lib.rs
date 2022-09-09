@@ -100,7 +100,7 @@ fn sachsen(
     // );
 
     let mut config =
-        TerrainConfig::new(16000, 512, 14, 300.0, 1024, "terrains/Sachsen".to_string());
+        TerrainConfig::new(16000, 512, 18, 300.0, 1024, "terrains/Sachsen".to_string());
 
     config.add_base_attachment(
         preprocessor,
