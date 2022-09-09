@@ -22,7 +22,7 @@ use smooth_bevy_cameras::{
     controllers::fps::{FpsCameraBundle, FpsCameraController, FpsCameraPlugin},
     LookTransformPlugin,
 };
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 const CHUNK_SIZE: u32 = 128;
 const ATTACHMENT_COUNT: usize = 2;
@@ -289,13 +289,17 @@ fn setup_scene(
     let mut preprocessor = Preprocessor::default();
     let mut from_disk_loader = AttachmentFromDiskLoader::default();
 
-    let config = sachsen(&mut preprocessor, &mut from_disk_loader);
+    // let config = sachsen(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein_large(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein(&mut preprocessor, &mut from_disk_loader);
     // let config = witcher(&mut preprocessor, &mut from_disk_loader);
-    // let config = bevy(&mut preprocessor, &mut from_disk_loader);
+    let config = bevy(&mut preprocessor, &mut from_disk_loader);
 
-    // preprocessor.preprocess(&config);
+    let start = Instant::now();
+    preprocessor.preprocess(&config);
+    let duration = start.elapsed();
+
+    println!("Time elapsed during preprocessing is: {:?}", duration);
 
     let terrain = commands
         .spawn_bundle(TerrainBundle::new(config.clone()))
@@ -320,6 +324,7 @@ fn setup_scene(
         .id();
 
     cameras.0.push(view);
+
     let view_config = TerrainViewConfig::new(&config, 10, 5.0, 2.0, 10.0, 0.2, 0.2, 0.2);
     let quadtree = Quadtree::from_configs(&config, &view_config);
 
