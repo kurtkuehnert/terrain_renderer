@@ -17,6 +17,7 @@ use bevy::{
     render::{camera::Projection, mesh::MeshVertexBufferLayout, render_resource::*},
     window::PresentMode,
 };
+use bevy_dtm::DTMPlugin;
 use bevy_terrain::prelude::*;
 use smooth_bevy_cameras::{
     controllers::fps::{FpsCameraBundle, FpsCameraController, FpsCameraPlugin},
@@ -68,6 +69,7 @@ impl Plugin for AppPlugin {
         //.add_plugin(FrameTimeDiagnosticsPlugin);
         .insert_resource(Msaa { samples: 4 })
         .init_resource::<SplitScreenCameras>()
+        .add_plugin(DTMPlugin)
         .add_plugin(LookTransformPlugin)
         .add_plugin(FpsCameraPlugin::default())
         .insert_resource(TerrainPipelineConfig {
@@ -289,16 +291,15 @@ fn setup_scene(
     let mut preprocessor = Preprocessor::default();
     let mut from_disk_loader = AttachmentFromDiskLoader::default();
 
-    // let config = sachsen(&mut preprocessor, &mut from_disk_loader);
+    let config = sachsen(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein_large(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein(&mut preprocessor, &mut from_disk_loader);
     // let config = witcher(&mut preprocessor, &mut from_disk_loader);
-    let config = bevy(&mut preprocessor, &mut from_disk_loader);
+    // let config = bevy(&mut preprocessor, &mut from_disk_loader);
 
     let start = Instant::now();
     preprocessor.preprocess(&config);
     let duration = start.elapsed();
-
     println!("Time elapsed during preprocessing is: {:?}", duration);
 
     let terrain = commands

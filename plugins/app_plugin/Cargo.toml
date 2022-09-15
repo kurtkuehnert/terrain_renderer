@@ -5,11 +5,9 @@ publish = false
 edition = "2021"
 
 [dependencies]
-bevy = { git="https://github.com/Ku95/bevy", branch="texture-format-rg16unorm" }
-# bevy = { git="https://github.com/bevyengine/bevy" }
-# bevy = "0.8.0"
-
+bevy = { git="https://github.com/bevyengine/bevy" }
 bevy_terrain = { path="../bevy_terrain" }
+bevy_dtm = { path="../bevy_dtm" }
 smooth-bevy-cameras = { path="../smooth-bevy-cameras" }
 
 itertools = "0.10"
