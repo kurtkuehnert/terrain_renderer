@@ -2,8 +2,7 @@
 .cargo
 flamegraph.svg
 /target
-/plugins/bevy_terrain/*
-/plugins/bevy_dtm/*
-/plugins/smooth-bevy_cameras/*
+/plugins/*
+!/plugins/app_plugin/*
 /assets/terrains/
 /data/

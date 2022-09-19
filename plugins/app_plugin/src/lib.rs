@@ -17,7 +17,6 @@ use bevy::{
     render::{camera::Projection, mesh::MeshVertexBufferLayout, render_resource::*},
     window::PresentMode,
 };
-use bevy_dtm::DTMPlugin;
 use bevy_terrain::prelude::*;
 use smooth_bevy_cameras::{
     controllers::fps::{FpsCameraBundle, FpsCameraController, FpsCameraPlugin},
@@ -26,8 +25,10 @@ use smooth_bevy_cameras::{
 use std::time::{Duration, Instant};
 
 const CHUNK_SIZE: u32 = 128;
-const ATTACHMENT_COUNT: usize = 2;
+const ATTACHMENT_COUNT: usize = 3;
 const SPLIT: bool = false;
+const HEIGHT_FORMAT: FileFormat = FileFormat::DTM;
+const ALBEDO_FORMAT: FileFormat = FileFormat::QOI;
 
 #[derive(AsBindGroup, TypeUuid, Clone)]
 #[uuid = "003e1d5d-241c-45a6-8c25-731dee22d820"]
@@ -69,7 +70,6 @@ impl Plugin for AppPlugin {
         //.add_plugin(FrameTimeDiagnosticsPlugin);
         .insert_resource(Msaa { samples: 4 })
         .init_resource::<SplitScreenCameras>()
-        .add_plugin(DTMPlugin)
         .add_plugin(LookTransformPlugin)
         .add_plugin(FpsCameraPlugin::default())
         .insert_resource(TerrainPipelineConfig {
@@ -107,7 +107,10 @@ fn sachsen(
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
-        512,
+        BaseConfig {
+            center_size: 512,
+            file_format: HEIGHT_FORMAT,
+        },
         TileConfig {
             path: "assets/terrains/Sachsen/source/DGM16.png".to_string(),
             lod: 0,
@@ -153,7 +156,10 @@ fn hartenstein_large(
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
-        CHUNK_SIZE,
+        BaseConfig {
+            center_size: CHUNK_SIZE,
+            file_format: HEIGHT_FORMAT,
+        },
         TileConfig {
             path: "data/dgm01_parsed".to_string(),
             lod: 0,
@@ -169,6 +175,7 @@ fn hartenstein_large(
             center_size: 5 * CHUNK_SIZE,
             border_size: 1,
             format: AttachmentFormat::Rgba8,
+            file_format: ALBEDO_FORMAT,
         },
         TileConfig {
             path: "data/dop20_parsed".to_string(),
@@ -197,7 +204,10 @@ fn hartenstein(
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
-        CHUNK_SIZE,
+        BaseConfig {
+            center_size: CHUNK_SIZE,
+            file_format: HEIGHT_FORMAT,
+        },
         TileConfig {
             path: "assets/terrains/Hartenstein/source/height.png".to_string(),
             lod: 0,
@@ -213,6 +223,7 @@ fn hartenstein(
             center_size: 5 * CHUNK_SIZE,
             border_size: 1,
             format: AttachmentFormat::Rgba8,
+            file_format: ALBEDO_FORMAT,
         },
         TileConfig {
             path: "assets/terrains/Hartenstein/source/albedo.png".to_string(),
@@ -241,7 +252,10 @@ fn witcher(
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
-        CHUNK_SIZE,
+        BaseConfig {
+            center_size: CHUNK_SIZE,
+            file_format: HEIGHT_FORMAT,
+        },
         TileConfig {
             path: "assets/terrains/Witcher/source/Witcher3.png".to_string(),
             lod: 0,
@@ -269,7 +283,10 @@ fn bevy(
     config.add_base_attachment(
         preprocessor,
         from_disk_loader,
-        CHUNK_SIZE,
+        BaseConfig {
+            center_size: CHUNK_SIZE,
+            file_format: HEIGHT_FORMAT,
+        },
         TileConfig {
             path: "assets/terrains/Bevy/source/heightmap.png".to_string(),
             lod: 0,
@@ -291,16 +308,16 @@ fn setup_scene(
     let mut preprocessor = Preprocessor::default();
     let mut from_disk_loader = AttachmentFromDiskLoader::default();
 
-    let config = sachsen(&mut preprocessor, &mut from_disk_loader);
+    // let config = sachsen(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein_large(&mut preprocessor, &mut from_disk_loader);
-    // let config = hartenstein(&mut preprocessor, &mut from_disk_loader);
+    let config = hartenstein(&mut preprocessor, &mut from_disk_loader);
     // let config = witcher(&mut preprocessor, &mut from_disk_loader);
     // let config = bevy(&mut preprocessor, &mut from_disk_loader);
 
-    let start = Instant::now();
-    preprocessor.preprocess(&config);
-    let duration = start.elapsed();
-    println!("Time elapsed during preprocessing is: {:?}", duration);
+    // let start = Instant::now();
+    // preprocessor.preprocess(&config);
+    // let duration = start.elapsed();
+    // println!("Time elapsed during preprocessing is: {:?}", duration);
 
     let terrain = commands
         .spawn_bundle(TerrainBundle::new(config.clone()))
