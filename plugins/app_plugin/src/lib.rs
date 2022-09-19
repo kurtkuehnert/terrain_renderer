@@ -314,10 +314,10 @@ fn setup_scene(
     // let config = witcher(&mut preprocessor, &mut from_disk_loader);
     // let config = bevy(&mut preprocessor, &mut from_disk_loader);
 
-    // let start = Instant::now();
-    // preprocessor.preprocess(&config);
-    // let duration = start.elapsed();
-    // println!("Time elapsed during preprocessing is: {:?}", duration);
+    // improlet start = Instant::now();
+    // impropreprocessor.preprocess(&config);
+    // improlet duration = start.elapsed();
+    // improprintln!("Time elapsed during preprocessing is: {:?}", duration);
 
     let terrain = commands
         .spawn_bundle(TerrainBundle::new(config.clone()))
