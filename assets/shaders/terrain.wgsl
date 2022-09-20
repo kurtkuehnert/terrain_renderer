@@ -107,8 +107,8 @@ fn fragment_color(in: FragmentInput, data: FragmentData) -> vec4<f32> {
     #ifdef LIGHTING
         var pbr_input: PbrInput = pbr_input_new();
         pbr_input.material.base_color = color;
-        pbr_input.material.perceptual_roughness = 0.6;
-        pbr_input.material.reflectance = 0.1;
+        pbr_input.material.perceptual_roughness = 1.0;
+        pbr_input.material.reflectance = 0.0;
         pbr_input.frag_coord = in.frag_coord;
         pbr_input.world_position = in.world_position;
         pbr_input.world_normal = world_normal;

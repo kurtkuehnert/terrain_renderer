@@ -11,3 +11,4 @@ smooth-bevy-cameras = { path="../smooth-bevy-cameras" }
 
 itertools = "0.10"
 image = "0.24"
+walkdir = "2.3"

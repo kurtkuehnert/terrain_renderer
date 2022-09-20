@@ -5,8 +5,10 @@ extern crate core;
 
 mod camera;
 mod parse;
+mod terrains;
 
-use crate::camera::{set_camera_viewports, toggle_camera_system, SplitScreenCameras};
+use crate::camera::{camera_system, set_camera_viewports, SplitScreenCameras};
+use crate::terrains::*;
 use bevy::{
     asset::AssetServerSettings,
     core_pipeline::clear_color::ClearColorConfig,
@@ -24,11 +26,8 @@ use smooth_bevy_cameras::{
 };
 use std::time::{Duration, Instant};
 
-const CHUNK_SIZE: u32 = 128;
 const ATTACHMENT_COUNT: usize = 3;
 const SPLIT: bool = false;
-const HEIGHT_FORMAT: FileFormat = FileFormat::DTM;
-const ALBEDO_FORMAT: FileFormat = FileFormat::QOI;
 
 #[derive(AsBindGroup, TypeUuid, Clone)]
 #[uuid = "003e1d5d-241c-45a6-8c25-731dee22d820"]
@@ -80,222 +79,9 @@ impl Plugin for AppPlugin {
         .add_plugin(TerrainDebugPlugin)
         .add_plugin(TerrainMaterialPlugin::<TerrainMaterial>::default())
         .add_startup_system(setup_scene)
-        .add_system(toggle_camera_system)
+        .add_system(camera_system)
         .add_system(set_camera_viewports);
     }
-}
-
-fn sachsen(
-    preprocessor: &mut Preprocessor,
-    from_disk_loader: &mut AttachmentFromDiskLoader,
-) -> TerrainConfig {
-    // parse::parse(
-    //     "data/dgm20_source",
-    //     "data/dgm20_parsed",
-    //     (278, 5780),
-    //     "dgm20",
-    //     parse::ParseFormat::XYZ {
-    //         scale: 20,
-    //         dimension: 100,
-    //         max_height: 1000.0,
-    //     },
-    // );
-
-    let mut config =
-        TerrainConfig::new(16000, 512, 18, 300.0, 1024, "terrains/Sachsen".to_string());
-
-    config.add_base_attachment(
-        preprocessor,
-        from_disk_loader,
-        BaseConfig {
-            center_size: 512,
-            file_format: HEIGHT_FORMAT,
-        },
-        TileConfig {
-            path: "assets/terrains/Sachsen/source/DGM16.png".to_string(),
-            lod: 0,
-            offset: Default::default(),
-            size: 16000,
-        },
-    );
-    config
-}
-
-fn hartenstein_large(
-    preprocessor: &mut Preprocessor,
-    from_disk_loader: &mut AttachmentFromDiskLoader,
-) -> TerrainConfig {
-    // parse::parse(
-    //     "data/dgm01_source",
-    //     "data/dgm01_parsed",
-    //     (328, 5620),
-    //     "dgm01",
-    //     parse::ParseFormat::XYZ {
-    //         scale: 1,
-    //         dimension: 2000,
-    //         max_height: 1000.0,
-    //     },
-    // );
-    // parse::parse(
-    //     "data/dop20_source",
-    //     "data/dop20_parsed",
-    //     (328, 5620),
-    //     "dop20",
-    //     parse::ParseFormat::TIF,
-    // );
-
-    let mut config = TerrainConfig::new(
-        16000,
-        128,
-        7,
-        1000.0,
-        500,
-        "terrains/Hartenstein_large".to_string(),
-    );
-
-    config.add_base_attachment(
-        preprocessor,
-        from_disk_loader,
-        BaseConfig {
-            center_size: CHUNK_SIZE,
-            file_format: HEIGHT_FORMAT,
-        },
-        TileConfig {
-            path: "data/dgm01_parsed".to_string(),
-            lod: 0,
-            offset: Default::default(),
-            size: 4000,
-        },
-    );
-    config.add_attachment_from_disk(
-        preprocessor,
-        from_disk_loader,
-        AttachmentConfig {
-            name: "albedo".to_string(),
-            center_size: 5 * CHUNK_SIZE,
-            border_size: 1,
-            format: AttachmentFormat::Rgba8,
-            file_format: ALBEDO_FORMAT,
-        },
-        TileConfig {
-            path: "data/dop20_parsed".to_string(),
-            lod: 0,
-            offset: Default::default(),
-            size: 20000,
-        },
-    );
-
-    config
-}
-
-fn hartenstein(
-    preprocessor: &mut Preprocessor,
-    from_disk_loader: &mut AttachmentFromDiskLoader,
-) -> TerrainConfig {
-    let mut config = TerrainConfig::new(
-        4000,
-        CHUNK_SIZE,
-        5,
-        1000.0,
-        1024,
-        "terrains/Hartenstein".to_string(),
-    );
-
-    config.add_base_attachment(
-        preprocessor,
-        from_disk_loader,
-        BaseConfig {
-            center_size: CHUNK_SIZE,
-            file_format: HEIGHT_FORMAT,
-        },
-        TileConfig {
-            path: "assets/terrains/Hartenstein/source/height.png".to_string(),
-            lod: 0,
-            offset: Default::default(),
-            size: 4000,
-        },
-    );
-    config.add_attachment_from_disk(
-        preprocessor,
-        from_disk_loader,
-        AttachmentConfig {
-            name: "albedo".to_string(),
-            center_size: 5 * CHUNK_SIZE,
-            border_size: 1,
-            format: AttachmentFormat::Rgba8,
-            file_format: ALBEDO_FORMAT,
-        },
-        TileConfig {
-            path: "assets/terrains/Hartenstein/source/albedo.png".to_string(),
-            lod: 0,
-            offset: Default::default(),
-            size: 20000,
-        },
-    );
-
-    config
-}
-
-fn witcher(
-    preprocessor: &mut Preprocessor,
-    from_disk_loader: &mut AttachmentFromDiskLoader,
-) -> TerrainConfig {
-    let mut config = TerrainConfig::new(
-        16384,
-        CHUNK_SIZE,
-        8,
-        1500.0,
-        1500,
-        "terrains/Witcher".to_string(),
-    );
-
-    config.add_base_attachment(
-        preprocessor,
-        from_disk_loader,
-        BaseConfig {
-            center_size: CHUNK_SIZE,
-            file_format: HEIGHT_FORMAT,
-        },
-        TileConfig {
-            path: "assets/terrains/Witcher/source/Witcher3.png".to_string(),
-            lod: 0,
-            offset: Default::default(),
-            size: 16384,
-        },
-    );
-
-    config
-}
-
-fn bevy(
-    preprocessor: &mut Preprocessor,
-    from_disk_loader: &mut AttachmentFromDiskLoader,
-) -> TerrainConfig {
-    let mut config = TerrainConfig::new(
-        4096,
-        CHUNK_SIZE,
-        12,
-        500.0,
-        1024,
-        "terrains/Bevy".to_string(),
-    );
-
-    config.add_base_attachment(
-        preprocessor,
-        from_disk_loader,
-        BaseConfig {
-            center_size: CHUNK_SIZE,
-            file_format: HEIGHT_FORMAT,
-        },
-        TileConfig {
-            path: "assets/terrains/Bevy/source/heightmap.png".to_string(),
-            lod: 0,
-            offset: Default::default(),
-            size: 4096,
-        },
-    );
-
-    config
 }
 
 fn setup_scene(
@@ -308,16 +94,17 @@ fn setup_scene(
     let mut preprocessor = Preprocessor::default();
     let mut from_disk_loader = AttachmentFromDiskLoader::default();
 
-    // let config = sachsen(&mut preprocessor, &mut from_disk_loader);
-    // let config = hartenstein_large(&mut preprocessor, &mut from_disk_loader);
-    let config = hartenstein(&mut preprocessor, &mut from_disk_loader);
-    // let config = witcher(&mut preprocessor, &mut from_disk_loader);
     // let config = bevy(&mut preprocessor, &mut from_disk_loader);
+    // let config = witcher(&mut preprocessor, &mut from_disk_loader);
+    // let config = sachsen(&mut preprocessor, &mut from_disk_loader);
+    // let config = hartenstein(&mut preprocessor, &mut from_disk_loader);
+    // let config = hartenstein_large(&mut preprocessor, &mut from_disk_loader);
+    // let config = eibenstock(&mut preprocessor, &mut from_disk_loader);
+    let config = erzgebirge(&mut preprocessor, &mut from_disk_loader);
 
-    // improlet start = Instant::now();
-    // impropreprocessor.preprocess(&config);
-    // improlet duration = start.elapsed();
-    // improprintln!("Time elapsed during preprocessing is: {:?}", duration);
+    // parse_data("Erzgebirge");
+
+    // preprocess(&config, preprocessor);
 
     let terrain = commands
         .spawn_bundle(TerrainBundle::new(config.clone()))
@@ -352,7 +139,7 @@ fn setup_scene(
     commands.spawn_bundle(DirectionalLightBundle {
         directional_light: DirectionalLight {
             color: Color::default(),
-            illuminance: 10000.0,
+            illuminance: 30000.0,
             shadows_enabled: false,
             shadow_projection: Default::default(),
             shadow_depth_bias: 0.0,
@@ -360,7 +147,7 @@ fn setup_scene(
         },
         transform: Transform {
             translation: Vec3::new(0.0, 2.0, 0.0),
-            rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4),
+            rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4 * 1.0),
             ..default()
         },
         ..default()

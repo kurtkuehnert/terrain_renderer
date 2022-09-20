@@ -117,6 +117,7 @@ dependencies = [
  "image",
  "itertools",
  "smooth-bevy-cameras",
+ "walkdir",
 ]
 
 [[package]]
@@ -723,6 +724,8 @@ dependencies = [
  "lru",
  "ndarray",
  "rapid-qoi",
+ "rayon",
+ "scan_dir",
  "strum",
  "strum_macros",
 ]
@@ -2646,6 +2649,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2f61dcf0b917cd75d4521d7343d1ffff3d1583054133c9b5cbea3375c703c40d"
 
 [[package]]
+name = "quick-error"
+version = "1.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1d01941d82fa2ab50be1e79e6714289dd7cde78eba4c074bc5a4374f650dfe0"
+
+[[package]]
 name = "quote"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2818,6 +2827,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "scan_dir"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ccb8e3d26f2775b128b053d1827feb90ed954ef97e3cb88c822f42e946c9155"
+dependencies = [
+ "quick-error",
 ]
 
 [[package]]
