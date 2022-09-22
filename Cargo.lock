@@ -114,9 +114,9 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_terrain",
+ "dolly",
  "image",
  "itertools",
- "smooth-bevy-cameras",
  "walkdir",
 ]
 
@@ -717,6 +717,7 @@ dependencies = [
  "bevy_qoi 1.0.0 (git+https://github.com/Ku95/bevy_qoi)",
  "bitflags",
  "bytemuck",
+ "dolly",
  "dtm",
  "fastrand",
  "image",
@@ -1325,6 +1326,15 @@ name = "dispatch"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd0c93bb4b0c6d9b77f4435b0ae98c24d17f1c45b2ff844c6151a07256ca923b"
+
+[[package]]
+name = "dolly"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2ae35fe7c2f8550eb2e84dd8251cbaba660d167315daff50c800aee4013da32"
+dependencies = [
+ "glam",
+]
 
 [[package]]
 name = "downcast-rs"
@@ -2920,15 +2930,6 @@ version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fd0db749597d91ff862fd1d55ea87f7855a744a8425a64695b6fca237d1dad1"
 dependencies = [
- "serde",
-]
-
-[[package]]
-name = "smooth-bevy-cameras"
-version = "0.4.0"
-dependencies = [
- "approx",
- "bevy",
  "serde",
 ]
 

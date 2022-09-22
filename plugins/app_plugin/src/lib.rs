@@ -7,8 +7,10 @@ mod camera;
 mod parse;
 mod terrains;
 
-use crate::camera::{camera_system, set_camera_viewports, SplitScreenCameras};
-use crate::terrains::*;
+use crate::{
+    camera::{toggle_camera, update_camera_viewports, SplitScreenCameras},
+    terrains::*,
+};
 use bevy::{
     asset::AssetServerSettings,
     core_pipeline::clear_color::ClearColorConfig,
@@ -20,10 +22,7 @@ use bevy::{
     window::PresentMode,
 };
 use bevy_terrain::prelude::*;
-use smooth_bevy_cameras::{
-    controllers::fps::{FpsCameraBundle, FpsCameraController, FpsCameraPlugin},
-    LookTransformPlugin,
-};
+use dolly::prelude::*;
 use std::time::{Duration, Instant};
 
 const ATTACHMENT_COUNT: usize = 3;
@@ -66,11 +65,8 @@ impl Plugin for AppPlugin {
             wait_duration: Duration::from_secs(5),
             filter: None,
         })
-        //.add_plugin(FrameTimeDiagnosticsPlugin);
         .insert_resource(Msaa { samples: 4 })
         .init_resource::<SplitScreenCameras>()
-        .add_plugin(LookTransformPlugin)
-        .add_plugin(FpsCameraPlugin::default())
         .insert_resource(TerrainPipelineConfig {
             attachment_count: ATTACHMENT_COUNT,
             ..default()
@@ -78,13 +74,13 @@ impl Plugin for AppPlugin {
         .add_plugin(TerrainPlugin)
         .add_plugin(TerrainDebugPlugin)
         .add_plugin(TerrainMaterialPlugin::<TerrainMaterial>::default())
-        .add_startup_system(setup_scene)
-        .add_system(camera_system)
-        .add_system(set_camera_viewports);
+        .add_startup_system(setup)
+        .add_system(toggle_camera)
+        .add_system(update_camera_viewports);
     }
 }
 
-fn setup_scene(
+fn setup(
     mut commands: Commands,
     mut materials: ResMut<Assets<TerrainMaterial>>,
     mut cameras: ResMut<SplitScreenCameras>,
@@ -99,8 +95,8 @@ fn setup_scene(
     // let config = sachsen(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein(&mut preprocessor, &mut from_disk_loader);
     // let config = hartenstein_large(&mut preprocessor, &mut from_disk_loader);
-    // let config = eibenstock(&mut preprocessor, &mut from_disk_loader);
-    let config = erzgebirge(&mut preprocessor, &mut from_disk_loader);
+    let config = eibenstock(&mut preprocessor, &mut from_disk_loader);
+    // let config = erzgebirge(&mut preprocessor, &mut from_disk_loader);
 
     // parse_data("Erzgebirge");
 
@@ -113,50 +109,25 @@ fn setup_scene(
         .id();
 
     let view = commands
-        .spawn_bundle(Camera3dBundle {
-            projection: Projection::Perspective(PerspectiveProjection {
-                far: 10000.0,
-                ..default()
-            }),
-            ..default()
-        })
-        .insert_bundle(FpsCameraBundle::new(
-            FpsCameraController::default(),
-            Vec3::new(300.0, 1400.0, 300.0),
-            Vec3::new(400.0, 1300.0, 400.0),
-        ))
+        .spawn()
+        .insert(DebugCamera::default())
+        .insert_bundle(Camera3dBundle::default())
         .insert(TerrainView)
         .id();
 
     cameras.0.push(view);
 
-    let view_config = TerrainViewConfig::new(&config, 10, 5.0, 2.0, 10.0, 0.2, 0.2, 0.2);
+    let view_config = TerrainViewConfig::new(&config, 10, 5.0, 2.0, 1.0, 0.2, 0.2, 0.2);
     let quadtree = Quadtree::from_configs(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
     quadtrees.insert((terrain, view), quadtree);
 
-    commands.spawn_bundle(DirectionalLightBundle {
-        directional_light: DirectionalLight {
-            color: Color::default(),
-            illuminance: 30000.0,
-            shadows_enabled: false,
-            shadow_projection: Default::default(),
-            shadow_depth_bias: 0.0,
-            shadow_normal_bias: 0.0,
-        },
-        transform: Transform {
-            translation: Vec3::new(0.0, 2.0, 0.0),
-            rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4 * 1.0),
-            ..default()
-        },
-        ..default()
-    });
-
     if SPLIT {
-        let pos = config.terrain_size as f32 / 2.0;
         let view2 = commands
-            .spawn_bundle(Camera3dBundle {
+            .spawn()
+            .insert(DebugCamera::default())
+            .insert_bundle(Camera3dBundle {
                 camera: Camera {
                     priority: 1,
                     ..default()
@@ -165,17 +136,8 @@ fn setup_scene(
                     clear_color: ClearColorConfig::None,
                     ..default()
                 },
-                projection: Projection::Perspective(PerspectiveProjection {
-                    far: 10000.0,
-                    ..default()
-                }),
                 ..default()
             })
-            .insert_bundle(FpsCameraBundle::new(
-                FpsCameraController::default(),
-                Vec3::new(pos, 5000.0, pos),
-                Vec3::new(pos - 1.0, 0.0, pos),
-            ))
             .insert(TerrainView)
             .id();
 
@@ -186,4 +148,13 @@ fn setup_scene(
         terrain_view_configs.insert((terrain, view2), view_config);
         quadtrees.insert((terrain, view2), quadtree);
     }
+
+    commands.spawn_bundle(DirectionalLightBundle {
+        directional_light: DirectionalLight {
+            illuminance: 20000.0,
+            ..default()
+        },
+        transform: Transform::from_xyz(1.0, 1.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    });
 }

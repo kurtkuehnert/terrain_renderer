@@ -116,7 +116,7 @@ fn fragment_color(in: FragmentInput, data: FragmentData) -> vec4<f32> {
         pbr_input.N = world_normal;
         pbr_input.V = calculate_view(in.world_position, pbr_input.is_orthographic);
 
-        color = pbr(pbr_input);
+        color = tone_mapping(pbr(pbr_input));
     #endif
 
     return color;

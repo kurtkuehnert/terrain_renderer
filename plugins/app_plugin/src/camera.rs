@@ -1,18 +1,21 @@
 use bevy::{prelude::*, render::camera::Viewport, window::WindowResized};
-use smooth_bevy_cameras::controllers::fps::FpsCameraController;
+use bevy_terrain::prelude::*;
 
-pub(crate) fn camera_system(
+#[derive(Default, Resource)]
+pub struct SplitScreenCameras(pub(crate) Vec<Entity>);
+
+pub(crate) fn toggle_camera(
     mut current_camera: Local<usize>,
     input: Res<Input<KeyCode>>,
     cameras: Res<SplitScreenCameras>,
-    mut camera_query: Query<&mut FpsCameraController>,
+    mut camera_query: Query<&mut DebugCamera>,
 ) {
     if input.just_pressed(KeyCode::T) {
         if *current_camera != 0 {
             camera_query
                 .get_mut(cameras.0[*current_camera - 1])
                 .unwrap()
-                .enabled = false;
+                .active = false;
         }
 
         *current_camera = (*current_camera + 1) % (cameras.0.len() + 1);
@@ -21,29 +24,12 @@ pub(crate) fn camera_system(
             camera_query
                 .get_mut(cameras.0[*current_camera - 1])
                 .unwrap()
-                .enabled = true;
+                .active = true;
         }
-    }
-
-    if input.just_pressed(KeyCode::H) {
-        let mut camera = camera_query
-            .get_mut(cameras.0[*current_camera - 1])
-            .unwrap();
-        camera.translate_sensitivity *= 0.8;
-    }
-
-    if input.just_pressed(KeyCode::J) {
-        let mut camera = camera_query
-            .get_mut(cameras.0[*current_camera - 1])
-            .unwrap();
-        camera.translate_sensitivity *= 1.3;
     }
 }
 
-#[derive(Default, Resource)]
-pub struct SplitScreenCameras(pub(crate) Vec<Entity>);
-
-pub fn set_camera_viewports(
+pub fn update_camera_viewports(
     windows: Res<Windows>,
     cameras: Res<SplitScreenCameras>,
     mut resize_events: EventReader<WindowResized>,

@@ -7,8 +7,8 @@ edition = "2021"
 [dependencies]
 bevy = { git="https://github.com/bevyengine/bevy" }
 bevy_terrain = { path="../bevy_terrain" }
-smooth-bevy-cameras = { path="../smooth-bevy-cameras" }
 
+dolly = "0.3"
 itertools = "0.10"
 image = "0.24"
 walkdir = "2.3"
