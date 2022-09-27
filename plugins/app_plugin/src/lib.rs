@@ -33,6 +33,9 @@ const SPLIT: bool = false;
 pub struct TerrainMaterial {}
 
 impl Material for TerrainMaterial {
+    fn vertex_shader() -> ShaderRef {
+        "shaders/terrain.wgsl".into()
+    }
     fn fragment_shader() -> ShaderRef {
         "shaders/terrain.wgsl".into()
     }
@@ -88,31 +91,34 @@ fn setup(
     mut terrain_view_configs: ResMut<TerrainViewComponents<TerrainViewConfig>>,
 ) {
     let mut preprocessor = Preprocessor::default();
-    let mut from_disk_loader = AttachmentFromDiskLoader::default();
+    let mut loader = AttachmentFromDiskLoader::default();
 
     // let config = bevy(&mut preprocessor, &mut from_disk_loader);
-    // let config = witcher(&mut preprocessor, &mut from_disk_loader);
-    // let config = sachsen(&mut preprocessor, &mut from_disk_loader);
-    // let config = hartenstein(&mut preprocessor, &mut from_disk_loader);
-    // let config = hartenstein_large(&mut preprocessor, &mut from_disk_loader);
-    let config = eibenstock(&mut preprocessor, &mut from_disk_loader);
-    // let config = erzgebirge(&mut preprocessor, &mut from_disk_loader);
+    // let config = witcher(&mut preprocessor, &mut from_disk_loader, 3);
+    // let config = sachsen_20(&mut preprocessor, &mut from_disk_loader);
+    // let config = terrain(&mut preprocessor, &mut from_disk_loader, "Hartenstein", 2);
+    // let config = terrain(&mut preprocessor, &mut loader, "Hartenstein_large", 8);
+    let config = terrain(&mut preprocessor, &mut loader, "Sachsen", 113);
 
-    // parse_data("Erzgebirge");
-
+    // parse_dgm("Hartenstein_large");
+    // parse_dom("Sachsen");
+    // parse_dop("Hartenstein_large");
     // preprocess(&config, preprocessor);
 
     let terrain = commands
-        .spawn_bundle(TerrainBundle::new(config.clone()))
-        .insert(from_disk_loader)
-        .insert(materials.add(TerrainMaterial {}))
+        .spawn((
+            TerrainBundle::new(config.clone()),
+            loader,
+            materials.add(TerrainMaterial {}),
+        ))
         .id();
 
     let view = commands
-        .spawn()
-        .insert(DebugCamera::default())
-        .insert_bundle(Camera3dBundle::default())
-        .insert(TerrainView)
+        .spawn((
+            TerrainView,
+            DebugCamera::default(),
+            Camera3dBundle::default(),
+        ))
         .id();
 
     cameras.0.push(view);
@@ -125,20 +131,21 @@ fn setup(
 
     if SPLIT {
         let view2 = commands
-            .spawn()
-            .insert(DebugCamera::default())
-            .insert_bundle(Camera3dBundle {
-                camera: Camera {
-                    priority: 1,
+            .spawn((
+                TerrainView,
+                DebugCamera::default(),
+                Camera3dBundle {
+                    camera: Camera {
+                        priority: 1,
+                        ..default()
+                    },
+                    camera_3d: Camera3d {
+                        clear_color: ClearColorConfig::None,
+                        ..default()
+                    },
                     ..default()
                 },
-                camera_3d: Camera3d {
-                    clear_color: ClearColorConfig::None,
-                    ..default()
-                },
-                ..default()
-            })
-            .insert(TerrainView)
+            ))
             .id();
 
         cameras.0.push(view2);
@@ -149,7 +156,7 @@ fn setup(
         quadtrees.insert((terrain, view2), quadtree);
     }
 
-    commands.spawn_bundle(DirectionalLightBundle {
+    commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
             illuminance: 20000.0,
             ..default()

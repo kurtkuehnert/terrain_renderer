@@ -10,14 +10,18 @@ opt-level = 1
 [profile.dev.package."*"]
 opt-level = 3
 
-[workspace]
-members = ["plugins/*"]
-
 [features]
 default = [
     # "bevy/dynamic"
 ]
 
+[workspace]
+members = ["plugins/*"]
+
+[workspace.dependencies]
+# bevy = { git="https://github.com/bevyengine/bevy" }
+bevy = { git="https://github.com/Ku95/bevy", branch="max_directional_lights" }
+
 [dependencies]
-bevy = { git="https://github.com/bevyengine/bevy" }
+bevy = { workspace = true }
 app_plugin = { path="plugins/app_plugin" }
