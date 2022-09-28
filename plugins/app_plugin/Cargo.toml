@@ -7,6 +7,7 @@ edition = "2021"
 [dependencies]
 bevy = { workspace = true }
 bevy_terrain = { path="../bevy_terrain" }
+bevy_atmosphere = { path="../bevy_atmosphere" }
 
 dolly = "0.3"
 itertools = "0.10"

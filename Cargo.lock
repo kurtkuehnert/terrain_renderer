@@ -113,6 +113,7 @@ name = "app_plugin"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_atmosphere",
  "bevy_terrain",
  "dolly",
  "image",
@@ -190,7 +191,7 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 [[package]]
 name = "bevy"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_internal",
 ]
@@ -198,7 +199,7 @@ dependencies = [
 [[package]]
 name = "bevy_animation"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -215,7 +216,7 @@ dependencies = [
 [[package]]
 name = "bevy_app"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_derive",
  "bevy_ecs",
@@ -228,7 +229,7 @@ dependencies = [
 [[package]]
 name = "bevy_asset"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "anyhow",
  "bevy_app",
@@ -253,9 +254,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_atmosphere"
+version = "0.4.1"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_audio"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "anyhow",
  "bevy_app",
@@ -270,7 +278,7 @@ dependencies = [
 [[package]]
 name = "bevy_core"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -284,7 +292,7 @@ dependencies = [
 [[package]]
 name = "bevy_core_pipeline"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_derive",
@@ -300,7 +308,7 @@ dependencies = [
 [[package]]
 name = "bevy_derive"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_macro_utils",
  "quote",
@@ -310,7 +318,7 @@ dependencies = [
 [[package]]
 name = "bevy_diagnostic"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -332,7 +340,7 @@ dependencies = [
 [[package]]
 name = "bevy_ecs"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "async-channel",
  "bevy_ecs_macros",
@@ -351,7 +359,7 @@ dependencies = [
 [[package]]
 name = "bevy_ecs_macros"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_macro_utils",
  "proc-macro2",
@@ -362,7 +370,7 @@ dependencies = [
 [[package]]
 name = "bevy_encase_derive"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_macro_utils",
  "encase_derive_impl",
@@ -371,7 +379,7 @@ dependencies = [
 [[package]]
 name = "bevy_gilrs"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -383,7 +391,7 @@ dependencies = [
 [[package]]
 name = "bevy_gltf"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "anyhow",
  "base64",
@@ -411,7 +419,7 @@ dependencies = [
 [[package]]
 name = "bevy_hierarchy"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_core",
@@ -425,7 +433,7 @@ dependencies = [
 [[package]]
 name = "bevy_input"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -437,7 +445,7 @@ dependencies = [
 [[package]]
 name = "bevy_internal"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_animation",
  "bevy_app",
@@ -474,22 +482,24 @@ dependencies = [
 [[package]]
 name = "bevy_log"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "android_log-sys",
  "bevy_app",
  "bevy_ecs",
  "bevy_utils",
  "console_error_panic_hook",
+ "tracing-error",
  "tracing-log",
  "tracing-subscriber",
+ "tracing-tracy",
  "tracing-wasm",
 ]
 
 [[package]]
 name = "bevy_macro_utils"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "quote",
  "syn",
@@ -499,7 +509,7 @@ dependencies = [
 [[package]]
 name = "bevy_math"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "glam",
  "serde",
@@ -508,7 +518,7 @@ dependencies = [
 [[package]]
 name = "bevy_mikktspace"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "glam",
 ]
@@ -516,7 +526,7 @@ dependencies = [
 [[package]]
 name = "bevy_pbr"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -537,7 +547,7 @@ dependencies = [
 [[package]]
 name = "bevy_ptr"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 
 [[package]]
 name = "bevy_qoi"
@@ -550,7 +560,7 @@ dependencies = [
 [[package]]
 name = "bevy_reflect"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_math",
  "bevy_ptr",
@@ -569,7 +579,7 @@ dependencies = [
 [[package]]
 name = "bevy_reflect_derive"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_macro_utils",
  "bit-set",
@@ -582,7 +592,7 @@ dependencies = [
 [[package]]
 name = "bevy_render"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "anyhow",
  "bevy_app",
@@ -613,6 +623,7 @@ dependencies = [
  "naga",
  "once_cell",
  "parking_lot 0.12.1",
+ "profiling",
  "regex",
  "serde",
  "smallvec",
@@ -624,7 +635,7 @@ dependencies = [
 [[package]]
 name = "bevy_render_macros"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_macro_utils",
  "proc-macro2",
@@ -635,7 +646,7 @@ dependencies = [
 [[package]]
 name = "bevy_scene"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "anyhow",
  "bevy_app",
@@ -656,7 +667,7 @@ dependencies = [
 [[package]]
 name = "bevy_sprite"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -681,7 +692,7 @@ dependencies = [
 [[package]]
 name = "bevy_tasks"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "async-channel",
  "async-executor",
@@ -716,7 +727,7 @@ dependencies = [
 [[package]]
 name = "bevy_text"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "ab_glyph",
  "anyhow",
@@ -738,7 +749,7 @@ dependencies = [
 [[package]]
 name = "bevy_time"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -750,7 +761,7 @@ dependencies = [
 [[package]]
 name = "bevy_transform"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -762,7 +773,7 @@ dependencies = [
 [[package]]
 name = "bevy_ui"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -789,7 +800,7 @@ dependencies = [
 [[package]]
 name = "bevy_utils"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "ahash",
  "getrandom",
@@ -802,7 +813,7 @@ dependencies = [
 [[package]]
 name = "bevy_window"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -817,7 +828,7 @@ dependencies = [
 [[package]]
 name = "bevy_winit"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#79dfb6385e754077ca421b689de03a0accb3da26"
+source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#4a1bafc2f5cebad550000738ab1707d1335856ca"
 dependencies = [
  "approx",
  "bevy_app",
@@ -1194,7 +1205,7 @@ dependencies = [
  "thiserror",
  "wasm-bindgen",
  "web-sys",
- "windows",
+ "windows 0.37.0",
 ]
 
 [[package]]
@@ -1542,6 +1553,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "generator"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc184cace1cea8335047a471cc1da80f18acf8a76f3bab2028d499e328948ec7"
+dependencies = [
+ "cc",
+ "libc",
+ "log",
+ "rustversion",
+ "windows 0.32.0",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1802,9 +1826,9 @@ checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "image"
-version = "0.24.3"
+version = "0.24.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e30ca2ecf7666107ff827a8e481de6a132a9b687ed3bb20bb1c144a36c00964"
+checksum = "bd8e4fb07cf672b1642304e731ef8a6a4c7891d67bb4fd4f5ce58cd6ed86803c"
 dependencies = [
  "bytemuck",
  "byteorder",
@@ -2048,6 +2072,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e"
 dependencies = [
  "cfg-if 1.0.0",
+]
+
+[[package]]
+name = "loom"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff50ecb28bb86013e935fb6683ab1f6d3a20016f123c76fd4c27470076ac30f5"
+dependencies = [
+ "cfg-if 1.0.0",
+ "generator",
+ "scoped-tls",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -2635,9 +2672,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.43"
+version = "1.0.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a2ca2c61bc9f3d74d2886294ab7b9853abd9c1ad903a3ac7815c58989bb7bab"
+checksum = "7bd7356a8122b6c4a24a82b278680c73357984ca2fc79a0f9fa6dea7dced7c58"
 dependencies = [
  "unicode-ident",
 ]
@@ -2647,6 +2684,20 @@ name = "profiling"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2f61dcf0b917cd75d4521d7343d1ffff3d1583054133c9b5cbea3375c703c40d"
+dependencies = [
+ "profiling-procmacros",
+ "tracing",
+]
+
+[[package]]
+name = "profiling-procmacros"
+version = "1.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "98eee3c112f2a6f784b6713fe1d7fb7d6506e066121c0a49371fdb976f72bae5"
+dependencies = [
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "quick-error"
@@ -2848,6 +2899,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "scoped-tls"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea6a9290e3c9cf0f18145ef7ffa62d68ee0bf5fcd651017e586dc7fd5da448c2"
+
+[[package]]
 name = "scoped_threadpool"
 version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2990,9 +3047,9 @@ checksum = "8fb1df15f412ee2e9dfc1c504260fa695c1c3f10fe9f4a6ee2d2184d7d6450e2"
 
 [[package]]
 name = "syn"
-version = "1.0.100"
+version = "1.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52205623b1b0f064a4e71182c3b18ae902267282930c6d5462c91b859668426e"
+checksum = "e90cde112c4b9690b8cbe810cba9ddd8bc1d7472e2cae317b69e9438c1cba7d2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3031,18 +3088,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.35"
+version = "1.0.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c53f98874615aea268107765aa1ed8f6116782501d18e53d08b471733bea6c85"
+checksum = "0a99cb8c4b9a8ef0e7907cd3b617cc8dc04d571c4e73c8ae403d80ac160bb122"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.35"
+version = "1.0.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8b463991b4eab2d801e724172285ec4195c650e8ec79b149e6c2a8e6dd3f783"
+checksum = "3a891860d3c8d66fec8e73ddb3765f90082374dbaaa833407b904a94f1a7eb43"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3136,6 +3193,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tracing-error"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d686ec1c0f384b1277f097b2f279a2ecc11afe8c133c1aabf036a27cb4cd206e"
+dependencies = [
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "tracing-log"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3165,6 +3232,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "tracing-tracy"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed3ebef1f9f0d00aaa29239537effef65b82c56040c680f540fc6cedfac7b230"
+dependencies = [
+ "tracing-core",
+ "tracing-subscriber",
+ "tracy-client",
+]
+
+[[package]]
 name = "tracing-wasm"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3173,6 +3251,26 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "tracy-client"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f901ea566c34f5fdc987962495ebfea20c18d781e271967edcc0f9897e339815"
+dependencies = [
+ "loom",
+ "once_cell",
+ "tracy-client-sys",
+]
+
+[[package]]
+name = "tracy-client-sys"
+version = "0.17.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "178d021455e83078bb38c00b70046b95117ef0a0312cbef925f426d833d11c79"
+dependencies = [
+ "cc",
 ]
 
 [[package]]
@@ -3465,6 +3563,19 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "windows"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fbedf6db9096bc2364adce0ae0aa636dcd89f3c3f2cd67947062aaf0ca2a10ec"
+dependencies = [
+ "windows_aarch64_msvc 0.32.0",
+ "windows_i686_gnu 0.32.0",
+ "windows_i686_msvc 0.32.0",
+ "windows_x86_64_gnu 0.32.0",
+ "windows_x86_64_msvc 0.32.0",
+]
+
+[[package]]
+name = "windows"
 version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57b543186b344cc61c85b5aab0d2e3adf4e0f99bc076eff9aa5927bcc0b8a647"
@@ -3491,6 +3602,12 @@ dependencies = [
 
 [[package]]
 name = "windows_aarch64_msvc"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8e92753b1c443191654ec532f14c199742964a061be25d77d7a96f09db20bf5"
+
+[[package]]
+name = "windows_aarch64_msvc"
 version = "0.36.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9bb8c3fd39ade2d67e9874ac4f3db21f0d710bee00fe7cab16949ec184eeaa47"
@@ -3500,6 +3617,12 @@ name = "windows_aarch64_msvc"
 version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2623277cb2d1c216ba3b578c0f3cf9cdebeddb6e66b1b218bb33596ea7769c3a"
+
+[[package]]
+name = "windows_i686_gnu"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a711c68811799e017b6038e0922cb27a5e2f43a2ddb609fe0b6f3eeda9de615"
 
 [[package]]
 name = "windows_i686_gnu"
@@ -3515,6 +3638,12 @@ checksum = "d3925fd0b0b804730d44d4b6278c50f9699703ec49bcd628020f46f4ba07d9e1"
 
 [[package]]
 name = "windows_i686_msvc"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "146c11bb1a02615db74680b32a68e2d61f553cc24c4eb5b4ca10311740e44172"
+
+[[package]]
+name = "windows_i686_msvc"
 version = "0.36.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2e7917148b2812d1eeafaeb22a97e4813dfa60a3f8f78ebe204bcc88f12f024"
@@ -3527,6 +3656,12 @@ checksum = "ce907ac74fe331b524c1298683efbf598bb031bc84d5e274db2083696d07c57c"
 
 [[package]]
 name = "windows_x86_64_gnu"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c912b12f7454c6620635bbff3450962753834be2a594819bd5e945af18ec64bc"
+
+[[package]]
+name = "windows_x86_64_gnu"
 version = "0.36.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4dcd171b8776c41b97521e5da127a2d86ad280114807d0b2ab1e462bc764d9e1"
@@ -3536,6 +3671,12 @@ name = "windows_x86_64_gnu"
 version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2babfba0828f2e6b32457d5341427dcbb577ceef556273229959ac23a10af33d"
+
+[[package]]
+name = "windows_x86_64_msvc"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "504a2476202769977a040c6364301a3f65d0cc9e3fb08600b2bda150a0488316"
 
 [[package]]
 name = "windows_x86_64_msvc"

@@ -21,6 +21,7 @@ use bevy::{
     render::{camera::Projection, mesh::MeshVertexBufferLayout, render_resource::*},
     window::PresentMode,
 };
+use bevy_atmosphere::prelude::*;
 use bevy_terrain::prelude::*;
 use dolly::prelude::*;
 use std::time::{Duration, Instant};
@@ -74,12 +75,18 @@ impl Plugin for AppPlugin {
             attachment_count: ATTACHMENT_COUNT,
             ..default()
         })
+        .insert_resource(Atmosphere {
+            sun_intensity: 10.0,
+            ..default()
+        })
+        .add_plugin(AtmospherePlugin)
         .add_plugin(TerrainPlugin)
         .add_plugin(TerrainDebugPlugin)
         .add_plugin(TerrainMaterialPlugin::<TerrainMaterial>::default())
         .add_startup_system(setup)
         .add_system(toggle_camera)
-        .add_system(update_camera_viewports);
+        .add_system(update_camera_viewports)
+        .add_system(daylight_cycle);
     }
 }
 
@@ -116,14 +123,34 @@ fn setup(
     let view = commands
         .spawn((
             TerrainView,
-            DebugCamera::default(),
-            Camera3dBundle::default(),
+            DebugCamera {
+                rig: CameraRig::builder()
+                    .with(Position::new(Vec3::new(30000.0, 10000.0, 30000.0)))
+                    .with(YawPitch {
+                        yaw_degrees: -135.0,
+                        pitch_degrees: 0.0,
+                    })
+                    .with(Smooth::new_position_rotation(4.0, 2.5))
+                    .build(),
+                active: false,
+                translation_speed: 10000.0,
+                rotation_speed: 5.0,
+                acceleration: 1.02,
+            },
+            Camera3dBundle {
+                projection: Projection::Perspective(PerspectiveProjection {
+                    far: 10000000.0,
+                    ..default()
+                }),
+                ..default()
+            },
+            AtmosphereCamera(None),
         ))
         .id();
 
     cameras.0.push(view);
 
-    let view_config = TerrainViewConfig::new(&config, 10, 5.0, 2.0, 1.0, 0.2, 0.2, 0.2);
+    let view_config = TerrainViewConfig::new(&config, 12, 6.0, 4.0, 4.0, 0.3, 0.3, 0.3);
     let quadtree = Quadtree::from_configs(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
@@ -156,12 +183,32 @@ fn setup(
         quadtrees.insert((terrain, view2), quadtree);
     }
 
+    commands.spawn((DirectionalLightBundle::default(), Sun));
+
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
-            illuminance: 20000.0,
+            illuminance: 1000.0,
             ..default()
         },
-        transform: Transform::from_xyz(1.0, 1.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(0.0001, 1.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
+}
+
+#[derive(Component)]
+struct Sun;
+
+fn daylight_cycle(
+    mut atmosphere: ResMut<Atmosphere>,
+    mut query: Query<(&mut Transform, &mut DirectionalLight), With<Sun>>,
+    time: Res<Time>,
+) {
+    let angle = time.time_since_startup().as_millis() as f32 / 1000.0 / 10.0;
+    atmosphere.sun_position = Vec3::new(angle.cos(), angle.sin(), 0.0);
+
+    if let Some((mut light_trans, mut directional)) = query.single_mut().into() {
+        *light_trans =
+            Transform::from_xyz(-angle.cos(), angle.sin(), 0.0).looking_at(Vec3::ZERO, Vec3::Y);
+        directional.illuminance = angle.sin().max(0.0).powf(2.0) * 25000.0;
+    }
 }
