@@ -208,8 +208,10 @@ pub(crate) fn parse(
             &image,
             &AttachmentConfig {
                 name: "".to_string(),
+                texture_size: 0,
                 center_size: 0,
                 border_size: 0,
+                mip_level_count: 0,
                 format: match format {
                     ParseFormat::XYZ { .. } => AttachmentFormat::R16,
                     ParseFormat::TIF => AttachmentFormat::Rgb8,

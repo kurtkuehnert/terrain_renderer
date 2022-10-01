@@ -6,6 +6,10 @@ struct TerrainConfig {
     chunk_size: u32,
     terrain_size: u32,
 
+    height_size: f32,
+    minmax_size: f32,
+    albedo_size: f32,
+    _empty: f32,
     height_scale: f32,
     minmax_scale: f32,
     albedo_scale: f32,
@@ -31,7 +35,7 @@ var<storage> tiles: TileList;
 @group(2) @binding(0)
 var<uniform> config: TerrainConfig;
 @group(2) @binding(1)
-var terrain_sampler: sampler;
+var atlas_sampler: sampler;
 #ifndef TEST1
 @group(2) @binding(2)
 var height_atlas: texture_2d_array<f32>;
@@ -56,7 +60,7 @@ var albedo_atlas: texture_2d_array<f32>;
 #import bevy_pbr::shadows
 #import bevy_pbr::pbr_functions
 
-#import bevy_terrain::atlas
+#import bevy_terrain::node
 #import bevy_terrain::functions
 #import bevy_terrain::debug
 
@@ -65,13 +69,13 @@ struct FragmentData {
     color: vec4<f32>,
 }
 
-fn vertex_height(lookup: AtlasLookup) -> f32 {
+fn vertex_height(lookup: NodeLookup) -> f32 {
     let height_coords = lookup.atlas_coords * config.height_scale + config.height_offset;
-    var height = textureSampleLevel(height_atlas, terrain_sampler, height_coords, lookup.atlas_index, 0.0).x;
+    var height = textureSampleLevel(height_atlas, atlas_sampler, height_coords, lookup.atlas_index, 0.0).x;
 
 #ifdef TEST3
     // still produces bugs for nodes of mip 1 and above (preprocessing)
-    let gather = textureGather(0, height_atlas, terrain_sampler, height_coords, lookup.atlas_index);
+    let gather = textureGather(0, height_atlas, atlas_sampler, height_coords, lookup.atlas_index);
 
     if (gather.x == 0.0 || gather.y == 0.0 || gather.z == 0.0 || gather.w == 0.0) {
         height = height / 0.0;
@@ -81,20 +85,32 @@ fn vertex_height(lookup: AtlasLookup) -> f32 {
     return height * config.height;
 }
 
-fn lookup_fragment_data(input: FragmentInput, lookup: AtlasLookup) -> FragmentData {
-    let lod = lookup.lod;
+fn lookup_fragment_data(input: FragmentInput, lookup: NodeLookup, ddx: vec2<f32>, ddy: vec2<f32>) -> FragmentData {
+    let atlas_lod = lookup.atlas_lod;
     let atlas_index = lookup.atlas_index;
     let atlas_coords = lookup.atlas_coords;
+    let ddx = ddx / f32(1u << atlas_lod);
+    let ddy = ddy / f32(1u << atlas_lod);
 
     let height_coords = atlas_coords * config.height_scale + config.height_offset;
+    let height_ddx = ddx / config.height_size;
+    let height_ddy = ddy / config.height_size;
     let albedo_coords = atlas_coords * config.albedo_scale + config.albedo_offset;
+    let albedo_ddx = ddx / config.albedo_size;
+    let albedo_ddy = ddy / config.albedo_size;
 
-    let world_normal = calculate_normal(height_coords, atlas_index, lod);
+    let world_normal = calculate_normal(height_coords, atlas_index, atlas_lod, height_ddx, height_ddy);
 
     var color = vec4<f32>(0.0);
 
 #ifdef ALBEDO
-    color = textureSample(albedo_atlas, terrain_sampler, albedo_coords, atlas_index);
+#ifdef SAMPLE_GRAD
+    color = textureSampleGrad(albedo_atlas, atlas_sampler, albedo_coords, atlas_index, albedo_ddx, albedo_ddy);
+#else
+    // var color = textureSampleBias(albedo_atlas, atlas_sampler, albedo_coords, atlas_index, 3.0);
+    // var color = textureSample(albedo_atlas, atlas_sampler, albedo_coords, atlas_index);
+    color = textureSampleLevel(albedo_atlas, atlas_sampler, albedo_coords, atlas_index, 0.0);
+#endif
 #endif
 
 #ifndef BRIGHT
@@ -102,7 +118,7 @@ fn lookup_fragment_data(input: FragmentInput, lookup: AtlasLookup) -> FragmentDa
 #endif
 
 #ifdef SHOW_LOD
-    color = mix(color, show_lod(lod, input.world_position.xyz), 0.4);
+    color = mix(color, show_lod(atlas_lod, input.world_position.xyz), 0.4);
 #endif
 
 #ifdef SHOW_UV

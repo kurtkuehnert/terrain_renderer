@@ -56,7 +56,7 @@ impl Plugin for AppPlugin {
             height: 1080.,
             position: WindowPosition::At(Vec2::new(3600.0, 220.0)),
             title: "Terrain Rendering".into(),
-            present_mode: PresentMode::Immediate,
+            present_mode: PresentMode::AutoVsync,
             ..default()
         })
         .add_plugins_with(DefaultPlugins, |plugins| {
@@ -64,6 +64,7 @@ impl Plugin for AppPlugin {
             // plugins.add_before::<bevy::asset::AssetPlugin, _>(bevy_web_asset::WebAssetPlugin);
             plugins
         })
+        // .add_plugin(FrameTimeDiagnosticsPlugin)
         .add_plugin(LogDiagnosticsPlugin {
             debug: false,
             wait_duration: Duration::from_secs(5),
@@ -79,14 +80,14 @@ impl Plugin for AppPlugin {
             sun_intensity: 10.0,
             ..default()
         })
-        .add_plugin(AtmospherePlugin)
+        // .add_plugin(AtmospherePlugin)
+        // .add_system(daylight_cycle)
         .add_plugin(TerrainPlugin)
         .add_plugin(TerrainDebugPlugin)
         .add_plugin(TerrainMaterialPlugin::<TerrainMaterial>::default())
         .add_startup_system(setup)
         .add_system(toggle_camera)
-        .add_system(update_camera_viewports)
-        .add_system(daylight_cycle);
+        .add_system(update_camera_viewports);
     }
 }
 
@@ -100,12 +101,12 @@ fn setup(
     let mut preprocessor = Preprocessor::default();
     let mut loader = AttachmentFromDiskLoader::default();
 
-    // let config = bevy(&mut preprocessor, &mut from_disk_loader);
-    // let config = witcher(&mut preprocessor, &mut from_disk_loader, 3);
-    // let config = sachsen_20(&mut preprocessor, &mut from_disk_loader);
-    // let config = terrain(&mut preprocessor, &mut from_disk_loader, "Hartenstein", 2);
+    // let config = bevy(&mut preprocessor, &mut loader);
+    // let config = witcher(&mut preprocessor, &mut loader, 3);
+    // let config = sachsen_20(&mut preprocessor, &mut loader);
+    let config = terrain(&mut preprocessor, &mut loader, "Hartenstein", 2);
     // let config = terrain(&mut preprocessor, &mut loader, "Hartenstein_large", 8);
-    let config = terrain(&mut preprocessor, &mut loader, "Sachsen", 113);
+    // let config = terrain(&mut preprocessor, &mut loader, "Sachsen", 113);
 
     // parse_dgm("Hartenstein_large");
     // parse_dom("Sachsen");
@@ -125,17 +126,27 @@ fn setup(
             TerrainView,
             DebugCamera {
                 rig: CameraRig::builder()
-                    .with(Position::new(Vec3::new(30000.0, 10000.0, 30000.0)))
+                    .with(Position::new(Vec3::new(-200.0, 1000.0, -200.0)))
                     .with(YawPitch {
                         yaw_degrees: -135.0,
                         pitch_degrees: 0.0,
                     })
-                    .with(Smooth::new_position_rotation(4.0, 2.5))
+                    .with(Smooth::new_position_rotation(3.0, 1.5))
                     .build(),
-                active: false,
-                translation_speed: 10000.0,
-                rotation_speed: 5.0,
-                acceleration: 1.02,
+                //     .build(),
+                // rig: CameraRig::builder()
+                //     .with(Position::new(Vec3::new(30000.0, 10000.0, 30000.0)))
+                //     .with(YawPitch {
+                //         yaw_degrees: -135.0,
+                //         pitch_degrees: 0.0,
+                //     })
+                //     .with(Smooth::new_position_rotation(4.0, 2.5))
+                //     .build(),
+                // active: false,
+                // translation_speed: 10000.0,
+                // rotation_speed: 5.0,
+                // acceleration: 1.02,
+                ..default()
             },
             Camera3dBundle {
                 projection: Projection::Perspective(PerspectiveProjection {
@@ -150,7 +161,14 @@ fn setup(
 
     cameras.0.push(view);
 
-    let view_config = TerrainViewConfig::new(&config, 12, 6.0, 4.0, 4.0, 0.3, 0.3, 0.3);
+    let view_config = TerrainViewConfig {
+        load_distance: 6.0,
+        node_count: 12,
+        tile_scale: 10.0,
+        grid_size: 4,
+        view_distance: 4.0 * config.leaf_node_size as f32,
+        ..default()
+    };
     let quadtree = Quadtree::from_configs(&config, &view_config);
 
     terrain_view_configs.insert((terrain, view), view_config);
@@ -176,14 +194,31 @@ fn setup(
             .id();
 
         cameras.0.push(view2);
-        let view_config = TerrainViewConfig::new(&config, 8, 5.0, 3.0, 16.0, 0.2, 0.2, 0.2);
+        let view_config = TerrainViewConfig {
+            load_distance: 5.0,
+            node_count: 8,
+            tile_scale: 16.0,
+            grid_size: 4,
+            view_distance: 3.0 * config.leaf_node_size as f32,
+            ..default()
+        };
         let quadtree = Quadtree::from_configs(&config, &view_config);
 
         terrain_view_configs.insert((terrain, view2), view_config);
         quadtrees.insert((terrain, view2), quadtree);
     }
 
-    commands.spawn((DirectionalLightBundle::default(), Sun));
+    commands.spawn((
+        DirectionalLightBundle {
+            directional_light: DirectionalLight {
+                illuminance: 15000.0,
+                ..default()
+            },
+            transform: Transform::from_xyz(1.0, 1.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..default()
+        },
+        Sun,
+    ));
 
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {

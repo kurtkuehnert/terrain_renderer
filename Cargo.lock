@@ -722,6 +722,7 @@ dependencies = [
  "scan_dir",
  "strum",
  "strum_macros",
+ "walkdir",
 ]
 
 [[package]]
