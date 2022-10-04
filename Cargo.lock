@@ -705,6 +705,7 @@ dependencies = [
 name = "bevy_terrain"
 version = "0.1.0-dev"
 dependencies = [
+ "anyhow",
  "bevy",
  "bevy_dtm",
  "bevy_qoi",
@@ -1339,9 +1340,8 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 [[package]]
 name = "dtm"
 version = "0.1.0"
-source = "git+https://github.com/Ku95/dtm#eb2575fa46e0aafb6868aa9a349704502d40d97d"
 dependencies = [
- "bytemuck",
+ "image",
 ]
 
 [[package]]

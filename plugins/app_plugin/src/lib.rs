@@ -80,8 +80,9 @@ impl Plugin for AppPlugin {
             sun_intensity: 10.0,
             ..default()
         })
-        // .add_plugin(AtmospherePlugin)
-        // .add_system(daylight_cycle)
+        .insert_resource(AtmosphereSettings { resolution: 64 })
+        .add_plugin(AtmospherePlugin)
+        .add_system(daylight_cycle)
         .add_plugin(TerrainPlugin)
         .add_plugin(TerrainDebugPlugin)
         .add_plugin(TerrainMaterialPlugin::<TerrainMaterial>::default())
@@ -133,7 +134,6 @@ fn setup(
                     })
                     .with(Smooth::new_position_rotation(3.0, 1.5))
                     .build(),
-                //     .build(),
                 // rig: CameraRig::builder()
                 //     .with(Position::new(Vec3::new(30000.0, 10000.0, 30000.0)))
                 //     .with(YawPitch {
