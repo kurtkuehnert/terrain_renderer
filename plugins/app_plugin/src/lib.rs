@@ -24,9 +24,11 @@ use bevy::{
 use bevy_atmosphere::prelude::*;
 use bevy_terrain::prelude::*;
 use dolly::prelude::*;
+use dotenv::dotenv;
+use std::env;
 use std::time::{Duration, Instant};
 
-const ATTACHMENT_COUNT: usize = 3;
+const ATTACHMENT_COUNT: usize = 2;
 const SPLIT: bool = false;
 
 #[derive(AsBindGroup, TypeUuid, Clone)]
@@ -47,6 +49,10 @@ pub struct AppPlugin;
 
 impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
+        let path = env::current_exe().unwrap().parent().unwrap().join(".env");
+        dotenv::from_path(path).ok();
+        dotenv::dotenv().ok();
+
         // app.insert_resource(AssetServerSettings {
         //     watch_for_changes: true,
         //     ..default()
@@ -82,7 +88,7 @@ impl Plugin for AppPlugin {
         })
         .insert_resource(AtmosphereSettings { resolution: 64 })
         .add_plugin(AtmospherePlugin)
-        .add_system(daylight_cycle)
+        // .add_system(daylight_cycle)
         .add_plugin(TerrainPlugin)
         .add_plugin(TerrainDebugPlugin)
         .add_plugin(TerrainMaterialPlugin::<TerrainMaterial>::default())
@@ -99,20 +105,20 @@ fn setup(
     mut quadtrees: ResMut<TerrainViewComponents<Quadtree>>,
     mut terrain_view_configs: ResMut<TerrainViewComponents<TerrainViewConfig>>,
 ) {
+    // let (mut config, loader) = terrain();
+
     let mut preprocessor = Preprocessor::default();
     let mut loader = AttachmentFromDiskLoader::default();
 
-    // let config = bevy(&mut preprocessor, &mut loader);
-    // let config = witcher(&mut preprocessor, &mut loader, 3);
-    // let config = sachsen_20(&mut preprocessor, &mut loader);
-    let config = terrain(&mut preprocessor, &mut loader, "Hartenstein", 2);
-    // let config = terrain(&mut preprocessor, &mut loader, "Hartenstein_large", 8);
-    // let config = terrain(&mut preprocessor, &mut loader, "Sachsen", 113);
+    // let mut config = bevy(&mut preprocessor, &mut loader);
+    let mut config = witcher(&mut preprocessor, &mut loader, 3);
 
     // parse_dgm("Hartenstein_large");
     // parse_dom("Sachsen");
     // parse_dop("Hartenstein_large");
     // preprocess(&config, preprocessor);
+
+    load_node_config(&mut config);
 
     let terrain = commands
         .spawn((
@@ -165,8 +171,9 @@ fn setup(
         load_distance: 6.0,
         node_count: 12,
         tile_scale: 10.0,
-        grid_size: 4,
+        grid_size: 8,
         view_distance: 4.0 * config.leaf_node_size as f32,
+        additional_refinement: 3,
         ..default()
     };
     let quadtree = Quadtree::from_configs(&config, &view_config);

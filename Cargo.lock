@@ -116,6 +116,7 @@ dependencies = [
  "bevy_atmosphere",
  "bevy_terrain",
  "dolly",
+ "dotenv",
  "image",
  "itertools",
  "walkdir",
@@ -709,6 +710,7 @@ dependencies = [
  "bevy",
  "bevy_dtm",
  "bevy_qoi",
+ "bincode",
  "bitflags",
  "bytemuck",
  "dolly",
@@ -844,6 +846,24 @@ dependencies = [
  "wasm-bindgen",
  "web-sys",
  "winit",
+]
+
+[[package]]
+name = "bincode"
+version = "2.0.0-rc.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f609ceb2c41b0d0277314a789ef0e7eb14593d5485f7c67320bed3924ebb1b33"
+dependencies = [
+ "bincode_derive",
+]
+
+[[package]]
+name = "bincode_derive"
+version = "2.0.0-rc.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "913287a8f3e00db4c7ae1b87e9b9b8cebd6b89217eaadfc281fa5c897da35dc3"
+dependencies = [
+ "virtue",
 ]
 
 [[package]]
@@ -1330,6 +1350,12 @@ checksum = "c2ae35fe7c2f8550eb2e84dd8251cbaba660d167315daff50c800aee4013da32"
 dependencies = [
  "glam",
 ]
+
+[[package]]
+name = "dotenv"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "downcast-rs"
@@ -3331,6 +3357,12 @@ name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
+
+[[package]]
+name = "virtue"
+version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "757cfbfe0d17ee6f22fe97e536d463047d451b47cf9d11e2b7d1398b0ef274dd"
 
 [[package]]
 name = "waker-fn"
