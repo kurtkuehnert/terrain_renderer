@@ -1,8 +1,7 @@
 .idea
 .cargo
-flamegraph.svg
-/target
-/plugins/*
-!/plugins/app_plugin/*
-/assets/terrains/
-/data/
+target/
+crates/
+!/crates/app_plugin/
+!/crates/terrain_config
+!/crates/download_tool

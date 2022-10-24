@@ -11,8 +11,8 @@ opt-level = 1
 opt-level = 3
 
 [workspace]
-members = ["plugins/*", "download_tool"]
+members = ["crates/*"]
 
 [dependencies]
 bevy = { git="https://github.com/Ku95/bevy", branch="max_directional_lights" }
-app_plugin = { path="plugins/app_plugin" }
+app_plugin = { path="crates/app_plugin" }
