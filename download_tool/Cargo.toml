@@ -1,0 +1,19 @@
+[package]
+name = "download_tool"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+terrain_config = { path="../plugins/terrain_config" }
+
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.11", features = ["stream"] }
+zip = "0.6"
+image = "0.24"
+rapid-qoi = "0.6"
+dtm = { git="https://github.com/Ku95/dtm" }
+itertools = "0.10"
+bytemuck = "1.12"
+futures = "0.3"
+anyhow = "1.0"
+indicatif = "0.17"

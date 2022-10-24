@@ -1,0 +1,22 @@
+terrain_dir = "/Volumes/EXTERN_SSD/Terrains"
+node_atlas_size = 1024
+preprocess = false
+terrain = "Hartenstein_large"
+
+[[terrains]]
+name = "Hartenstein"
+size = 2
+urls = [
+    "tile_33334_5614",
+    "tile_33334_5616",
+    "tile_33336_5614",
+    "tile_33336_5616",
+]
+
+[[terrains]]
+name = "Hartenstein_large"
+size = 8
+
+[[terrains]]
+name = "Sachsen"
+size = 113

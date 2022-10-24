@@ -1,5 +1,5 @@
 [package]
-name = "terrain-rendering"
+name = "saxony_terrain_renderer"
 version = "0.1.0"
 publish = false
 edition = "2021"
@@ -10,18 +10,9 @@ opt-level = 1
 [profile.dev.package."*"]
 opt-level = 3
 
-[features]
-default = [
-    # "bevy/dynamic"
-]
-
 [workspace]
-members = ["plugins/*"]
-
-[workspace.dependencies]
-# bevy = { git="https://github.com/bevyengine/bevy" }
-bevy = { git="https://github.com/Ku95/bevy", branch="max_directional_lights" }
+members = ["plugins/*", "download_tool"]
 
 [dependencies]
-bevy = { workspace = true }
+bevy = { git="https://github.com/Ku95/bevy", branch="max_directional_lights" }
 app_plugin = { path="plugins/app_plugin" }

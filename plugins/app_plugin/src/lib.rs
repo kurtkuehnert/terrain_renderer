@@ -4,7 +4,6 @@
 extern crate core;
 
 mod camera;
-mod parse;
 mod terrains;
 
 use crate::{
@@ -24,12 +23,13 @@ use bevy::{
 use bevy_atmosphere::prelude::*;
 use bevy_terrain::prelude::*;
 use dolly::prelude::*;
-use dotenv::dotenv;
 use std::env;
 use std::time::{Duration, Instant};
 
-const ATTACHMENT_COUNT: usize = 2;
+const ATTACHMENT_COUNT: usize = 3;
 const SPLIT: bool = false;
+const TERRAIN_SHADER: HandleUntyped =
+    HandleUntyped::weak_from_u64(Shader::TYPE_UUID, 24380770943559);
 
 #[derive(AsBindGroup, TypeUuid, Clone)]
 #[uuid = "003e1d5d-241c-45a6-8c25-731dee22d820"]
@@ -37,10 +37,10 @@ pub struct TerrainMaterial {}
 
 impl Material for TerrainMaterial {
     fn vertex_shader() -> ShaderRef {
-        "shaders/terrain.wgsl".into()
+        TERRAIN_SHADER.typed().into()
     }
     fn fragment_shader() -> ShaderRef {
-        "shaders/terrain.wgsl".into()
+        TERRAIN_SHADER.typed().into()
     }
 }
 
@@ -49,14 +49,6 @@ pub struct AppPlugin;
 
 impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
-        let path = env::current_exe().unwrap().parent().unwrap().join(".env");
-        dotenv::from_path(path).ok();
-        dotenv::dotenv().ok();
-
-        // app.insert_resource(AssetServerSettings {
-        //     watch_for_changes: true,
-        //     ..default()
-        // });
         app.insert_resource(WindowDescriptor {
             width: 1920.,
             height: 1080.,
@@ -65,11 +57,7 @@ impl Plugin for AppPlugin {
             present_mode: PresentMode::AutoVsync,
             ..default()
         })
-        .add_plugins_with(DefaultPlugins, |plugins| {
-            // plugins.disable::<bevy::log::LogPlugin>();
-            // plugins.add_before::<bevy::asset::AssetPlugin, _>(bevy_web_asset::WebAssetPlugin);
-            plugins
-        })
+        .add_plugins(DefaultPlugins)
         // .add_plugin(FrameTimeDiagnosticsPlugin)
         .add_plugin(LogDiagnosticsPlugin {
             debug: false,
@@ -95,6 +83,12 @@ impl Plugin for AppPlugin {
         .add_startup_system(setup)
         .add_system(toggle_camera)
         .add_system(update_camera_viewports);
+
+        let mut assets = app.world.resource_mut::<Assets<_>>();
+        assets.set_untracked(
+            TERRAIN_SHADER,
+            Shader::from_wgsl(include_str!("terrain.wgsl")),
+        );
     }
 }
 
@@ -105,17 +99,12 @@ fn setup(
     mut quadtrees: ResMut<TerrainViewComponents<Quadtree>>,
     mut terrain_view_configs: ResMut<TerrainViewComponents<TerrainViewConfig>>,
 ) {
-    // let (mut config, loader) = terrain();
+    let (mut config, loader) = terrain();
 
-    let mut preprocessor = Preprocessor::default();
-    let mut loader = AttachmentFromDiskLoader::default();
-
+    // let mut preprocessor = Preprocessor::default();
+    // let mut loader = AttachmentFromDiskLoader::default();
     // let mut config = bevy(&mut preprocessor, &mut loader);
-    let mut config = witcher(&mut preprocessor, &mut loader, 3);
-
-    // parse_dgm("Hartenstein_large");
-    // parse_dom("Sachsen");
-    // parse_dop("Hartenstein_large");
+    // let mut config = witcher(&mut preprocessor, &mut loader, 2);
     // preprocess(&config, preprocessor);
 
     load_node_config(&mut config);
