@@ -1,7 +1,6 @@
 .idea
 .cargo
-target/
-crates/
-!/crates/app_plugin/
-!/crates/terrain_config
-!/crates/download_tool
+target
+!crates/app_plugin
+!crates/terrain_config
+!crates/download_tool
