@@ -1,5 +1,5 @@
 [package]
-name = "terrain_config"
+name = "terrain_settings"
 version = "0.1.0"
 edition = "2021"
 

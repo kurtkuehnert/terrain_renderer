@@ -8,7 +8,7 @@ use std::{
     fs,
     io::{Cursor, Read},
 };
-use terrain_config::load_config;
+use terrain_settings::load_settings;
 use zip::ZipArchive;
 
 fn parse_coordinates(name: &str) -> Result<(u32, u32)> {
@@ -52,20 +52,20 @@ async fn process_dop(path: String, coords: (u32, u32), position: (u32, u32)) -> 
     Ok(())
 }
 
-async fn process_dom(path: String, coords: (u32, u32), position: (u32, u32)) -> Result<()> {
-    let dom_url = format!("https://geocloud.landesvermessung.sachsen.de/index.php/s/w7LQy9F6Yo3IxPp/download?path=%2F&files=dom1_33{}_{}_2_sn_xyz.zip", coords.0, coords.1);
-    let buffer = download_zip_file(dom_url, ".xyz").await?;
+async fn process_dsm(path: String, coords: (u32, u32), position: (u32, u32)) -> Result<()> {
+    let dsm_url = format!("https://geocloud.landesvermessung.sachsen.de/index.php/s/w7LQy9F6Yo3IxPp/download?path=%2F&files=dom1_33{}_{}_2_sn_xyz.zip", coords.0, coords.1);
+    let buffer = download_zip_file(dsm_url, ".xyz").await?;
     let image = parse_height(buffer, coords)?;
-    save_height(&image, &path, "dom", position)?;
+    save_height(&image, &path, "dsm", position)?;
 
     Ok(())
 }
 
-async fn process_dgm(path: String, coords: (u32, u32), position: (u32, u32)) -> Result<()> {
-    let dgm_url = format!("https://geocloud.landesvermessung.sachsen.de/index.php/s/DK9AshAQX7G1bsp/download?path=%2F&files=dgm1_33{}_{}_2_sn_xyz.zip", coords.0, coords.1);
-    let buffer = download_zip_file(dgm_url, ".xyz").await?;
+async fn process_dtm(path: String, coords: (u32, u32), position: (u32, u32)) -> Result<()> {
+    let dtm_url = format!("https://geocloud.landesvermessung.sachsen.de/index.php/s/DK9AshAQX7G1bsp/download?path=%2F&files=dgm1_33{}_{}_2_sn_xyz.zip", coords.0, coords.1);
+    let buffer = download_zip_file(dtm_url, ".xyz").await?;
     let image = parse_height(buffer, coords)?;
-    save_height(&image, &path, "dgm", position)?;
+    save_height(&image, &path, "dtm", position)?;
 
     Ok(())
 }
@@ -80,8 +80,8 @@ async fn process_tile(
     let position = ((coords.0 - origin.0) / 2, (origin.1 - coords.1) / 2);
 
     let task_dop = tokio::spawn(process_dop(path.clone(), coords, position));
-    let task_dom = tokio::spawn(process_dom(path.clone(), coords, position));
-    let task_dgm = tokio::spawn(process_dgm(path.clone(), coords, position));
+    let task_dom = tokio::spawn(process_dsm(path.clone(), coords, position));
+    let task_dgm = tokio::spawn(process_dtm(path.clone(), coords, position));
 
     let tasks = join_all([task_dop, task_dom, task_dgm]).await;
 
@@ -96,13 +96,13 @@ async fn process_tile(
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = load_config()?;
-    let path = config.terrain_path + "/source";
-    let urls = config.urls;
+    let settings = load_settings()?;
+    let path = settings.terrain_path + "/source";
+    let urls = settings.urls;
 
     fs::create_dir_all(format!("{path}/dop"))?;
-    fs::create_dir_all(format!("{path}/dom"))?;
-    fs::create_dir_all(format!("{path}/dgm"))?;
+    fs::create_dir_all(format!("{path}/dtm"))?;
+    fs::create_dir_all(format!("{path}/dsm"))?;
 
     let mut origin = (u32::MAX, u32::MIN);
 

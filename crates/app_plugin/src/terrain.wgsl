@@ -113,7 +113,7 @@ fn lookup_fragment_data(input: FragmentInput, lookup: NodeLookup, ddx: vec2<f32>
 #endif
 #endif
 
-#ifndef BRIGHT
+#ifdef BRIGHT
     color = mix(color, vec4<f32>(1.0), 0.5);
 #endif
 
