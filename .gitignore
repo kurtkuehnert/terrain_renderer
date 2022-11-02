@@ -1,5 +1,4 @@
-.idea
-.cargo
+.*
 target
 !crates/app_plugin
 !crates/terrain_config

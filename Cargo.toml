@@ -1,8 +1,13 @@
 [package]
 name = "saxony_terrain_renderer"
+description = "Large-Scale Real-World Terrain Renderer written in Rust using the Bevy game engine."
 version = "0.1.0"
-publish = false
+license = "MIT OR Apache-2.0"
 edition = "2021"
+readme = "README.md"
+authors = ["Kurt Kühnert <kurt@kuehnert.dev>"]
+repository = "https://github.com/Ku95/saxony_terrain_renderer"
+publish = false
 
 [profile.dev]
 opt-level = 1
@@ -14,5 +19,5 @@ opt-level = 3
 members = ["crates/*"]
 
 [dependencies]
-bevy = { git="https://github.com/Ku95/bevy", branch="max_directional_lights" }
+bevy = { git="https://github.com/bevyengine/bevy" }
 app_plugin = { path="crates/app_plugin" }

@@ -4,9 +4,9 @@ version = 3
 
 [[package]]
 name = "ab_glyph"
-version = "0.2.17"
+version = "0.2.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04a9283dace1c41c265496614998d5b9c4a97b3eb770e804f007c5144bf03f2b"
+checksum = "4dcdbc68024b653943864d436fe8a24b028095bc1cf91a8926f8241e4aaffe59"
 dependencies = [
  "ab_glyph_rasterizer",
  "owned_ttf_parser",
@@ -119,7 +119,7 @@ dependencies = [
  "bevy_atmosphere",
  "bevy_terrain",
  "dolly",
- "terrain_config",
+ "terrain_settings",
 ]
 
 [[package]]
@@ -184,10 +184,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
-name = "base64"
-version = "0.13.0"
+name = "base-x"
+version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
+checksum = "4cbbc9d0964165b47557570cce6c952866c2678457aca742aafc9fb771d30270"
+
+[[package]]
+name = "base64"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
 name = "base64ct"
@@ -198,7 +204,7 @@ checksum = "b645a089122eccb6111b4f81cbc1a49f5900ac4666bb93ac027feaecf15607bf"
 [[package]]
 name = "bevy"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_internal",
 ]
@@ -206,7 +212,7 @@ dependencies = [
 [[package]]
 name = "bevy_animation"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -223,12 +229,13 @@ dependencies = [
 [[package]]
 name = "bevy_app"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_derive",
  "bevy_ecs",
  "bevy_reflect",
  "bevy_utils",
+ "downcast-rs",
  "wasm-bindgen",
  "web-sys",
 ]
@@ -236,7 +243,7 @@ dependencies = [
 [[package]]
 name = "bevy_asset"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "anyhow",
  "bevy_app",
@@ -270,7 +277,7 @@ dependencies = [
 [[package]]
 name = "bevy_audio"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "anyhow",
  "bevy_app",
@@ -285,7 +292,7 @@ dependencies = [
 [[package]]
 name = "bevy_core"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -299,15 +306,17 @@ dependencies = [
 [[package]]
 name = "bevy_core_pipeline"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
+ "bevy_asset",
  "bevy_derive",
  "bevy_ecs",
  "bevy_reflect",
  "bevy_render",
  "bevy_transform",
  "bevy_utils",
+ "bitflags",
  "radsort",
  "serde",
 ]
@@ -315,7 +324,7 @@ dependencies = [
 [[package]]
 name = "bevy_derive"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_macro_utils",
  "quote",
@@ -325,7 +334,7 @@ dependencies = [
 [[package]]
 name = "bevy_diagnostic"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_core",
@@ -342,24 +351,13 @@ dependencies = [
  "anyhow",
  "bevy",
  "bytemuck",
- "dtm 0.1.0 (git+https://github.com/Ku95/dtm)",
-]
-
-[[package]]
-name = "bevy_dtm"
-version = "0.1.0"
-source = "git+https://github.com/Ku95/bevy_dtm#e1cecdf8ec0473ded8280e4136c7973e0e524c9d"
-dependencies = [
- "anyhow",
- "bevy",
- "bytemuck",
- "dtm 0.1.0 (git+https://github.com/Ku95/dtm)",
+ "dtm 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "bevy_ecs"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "async-channel",
  "bevy_ecs_macros",
@@ -378,7 +376,7 @@ dependencies = [
 [[package]]
 name = "bevy_ecs_macros"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_macro_utils",
  "proc-macro2",
@@ -389,7 +387,7 @@ dependencies = [
 [[package]]
 name = "bevy_encase_derive"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_macro_utils",
  "encase_derive_impl",
@@ -398,7 +396,7 @@ dependencies = [
 [[package]]
 name = "bevy_gilrs"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -410,7 +408,7 @@ dependencies = [
 [[package]]
 name = "bevy_gltf"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "anyhow",
  "base64",
@@ -438,7 +436,7 @@ dependencies = [
 [[package]]
 name = "bevy_hierarchy"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_core",
@@ -452,7 +450,7 @@ dependencies = [
 [[package]]
 name = "bevy_input"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -465,7 +463,7 @@ dependencies = [
 [[package]]
 name = "bevy_internal"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_animation",
  "bevy_app",
@@ -502,7 +500,7 @@ dependencies = [
 [[package]]
 name = "bevy_log"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "android_log-sys",
  "bevy_app",
@@ -519,7 +517,7 @@ dependencies = [
 [[package]]
 name = "bevy_macro_utils"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "quote",
  "syn",
@@ -529,7 +527,7 @@ dependencies = [
 [[package]]
 name = "bevy_math"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "glam",
  "serde",
@@ -538,7 +536,7 @@ dependencies = [
 [[package]]
 name = "bevy_mikktspace"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "glam",
 ]
@@ -546,7 +544,7 @@ dependencies = [
 [[package]]
 name = "bevy_pbr"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -567,20 +565,11 @@ dependencies = [
 [[package]]
 name = "bevy_ptr"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 
 [[package]]
 name = "bevy_qoi"
 version = "1.0.0"
-dependencies = [
- "bevy",
- "rapid-qoi",
-]
-
-[[package]]
-name = "bevy_qoi"
-version = "1.0.0"
-source = "git+https://github.com/Ku95/bevy_qoi#f39ef5a4692ae201c4dd0c137345ea78c4698958"
 dependencies = [
  "bevy",
  "rapid-qoi",
@@ -589,7 +578,7 @@ dependencies = [
 [[package]]
 name = "bevy_reflect"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_math",
  "bevy_ptr",
@@ -608,7 +597,7 @@ dependencies = [
 [[package]]
 name = "bevy_reflect_derive"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_macro_utils",
  "bit-set",
@@ -621,7 +610,7 @@ dependencies = [
 [[package]]
 name = "bevy_render"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "anyhow",
  "bevy_app",
@@ -663,7 +652,7 @@ dependencies = [
 [[package]]
 name = "bevy_render_macros"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_macro_utils",
  "proc-macro2",
@@ -674,7 +663,7 @@ dependencies = [
 [[package]]
 name = "bevy_scene"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "anyhow",
  "bevy_app",
@@ -695,7 +684,7 @@ dependencies = [
 [[package]]
 name = "bevy_sprite"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -719,7 +708,7 @@ dependencies = [
 [[package]]
 name = "bevy_tasks"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "async-channel",
  "async-executor",
@@ -735,30 +724,25 @@ version = "0.1.0-dev"
 dependencies = [
  "anyhow",
  "bevy",
- "bevy_dtm 0.1.0 (git+https://github.com/Ku95/bevy_dtm)",
- "bevy_qoi 1.0.0 (git+https://github.com/Ku95/bevy_qoi)",
  "bincode",
  "bitflags",
  "bytemuck",
  "dolly",
- "dtm 0.1.0 (git+https://github.com/Ku95/dtm)",
+ "dtm 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fastrand",
  "image",
  "itertools",
  "lru",
  "ndarray",
  "rapid-qoi",
- "rayon",
- "scan_dir",
  "strum",
  "strum_macros",
- "walkdir",
 ]
 
 [[package]]
 name = "bevy_text"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "ab_glyph",
  "anyhow",
@@ -780,7 +764,7 @@ dependencies = [
 [[package]]
 name = "bevy_time"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -792,7 +776,7 @@ dependencies = [
 [[package]]
 name = "bevy_transform"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -804,7 +788,7 @@ dependencies = [
 [[package]]
 name = "bevy_ui"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -826,12 +810,13 @@ dependencies = [
  "serde",
  "smallvec",
  "taffy",
+ "thiserror",
 ]
 
 [[package]]
 name = "bevy_utils"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "ahash",
  "getrandom",
@@ -844,7 +829,7 @@ dependencies = [
 [[package]]
 name = "bevy_window"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -859,7 +844,7 @@ dependencies = [
 [[package]]
 name = "bevy_winit"
 version = "0.9.0-dev"
-source = "git+https://github.com/Ku95/bevy?branch=max_directional_lights#a153793692cfd757cf814d424552a567ef584ac1"
+source = "git+https://github.com/bevyengine/bevy#dfb80ee74fe00c5d3794ba08e6aefc2fe4981f7d"
 dependencies = [
  "approx",
  "bevy_app",
@@ -1240,9 +1225,9 @@ dependencies = [
 
 [[package]]
 name = "cpal"
-version = "0.14.0"
+version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d466b47cf0ea4100186a7c12d7d0166813dda7cf648553554c9c39c6324841b"
+checksum = "e73413ddcb69c398125f5529714492e070c64c6a090ad5b01d8c082b320a0809"
 dependencies = [
  "alsa",
  "core-foundation-sys",
@@ -1253,7 +1238,7 @@ dependencies = [
  "mach",
  "ndk 0.7.0",
  "ndk-context",
- "nix 0.23.1",
+ "nix 0.25.0",
  "oboe",
  "once_cell",
  "parking_lot",
@@ -1405,6 +1390,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "discard"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "212d0f5754cb6769937f4501cc0e67f4f4483c8d2c3e1e922ee9edbe4ab4c7c0"
+
+[[package]]
 name = "dispatch"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1412,9 +1403,9 @@ checksum = "bd0c93bb4b0c6d9b77f4435b0ae98c24d17f1c45b2ff844c6151a07256ca923b"
 
 [[package]]
 name = "dolly"
-version = "0.3.2"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8864626d369492b31f5dd933a254dd41be3f3171b3e752dda206232b6b36f27"
+checksum = "e8bd01a2e160b741ea8fe693264718dda9e75a85e3fd38269b97e76361077f11"
 dependencies = [
  "glam",
 ]
@@ -1431,14 +1422,14 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytemuck",
- "dtm 0.1.0 (git+https://github.com/Ku95/dtm)",
+ "dtm 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures",
  "image",
  "indicatif",
  "itertools",
  "rapid-qoi",
  "reqwest",
- "terrain_config",
+ "terrain_settings",
  "tokio",
  "zip",
 ]
@@ -1453,7 +1444,8 @@ dependencies = [
 [[package]]
 name = "dtm"
 version = "0.1.0"
-source = "git+https://github.com/Ku95/dtm#996bbbe0b75b92e8fe7dc6aee858c67af84d26be"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f3116574c66788c40bd3fb40c96fd80d54e51270a2b68c0eb297cf74112e1f0"
 
 [[package]]
 name = "either"
@@ -1964,9 +1956,9 @@ dependencies = [
 
 [[package]]
 name = "h2"
-version = "0.3.14"
+version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ca32592cf21ac7ccab1825cd87f6c9b3d9022c44d086172ed0966bec8af30be"
+checksum = "5f9f29bc9dda355256b2916cf526ab02ce0aeaaaf2bad60d65ef3f12f11dd0f4"
 dependencies = [
  "bytes",
  "fnv",
@@ -2371,9 +2363,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.135"
+version = "0.2.137"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68783febc7782c6c5cb401fbda4de5a9898be1762314da0bb2c10ced61f18b0c"
+checksum = "fc7fcc620a3bff7cdd7a365be3376c97191aeaccc2a603e600951e452615bf89"
 
 [[package]]
 name = "libloading"
@@ -2533,14 +2525,14 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "0.8.4"
+version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57ee1c23c7c63b0c9250c339ffdc69255f110b298b901b9f6c82547b7b87caaf"
+checksum = "e5d732bc30207a6423068df043e3d02e0735b155ad7ce1a6f76fe2baa5b158de"
 dependencies = [
  "libc",
  "log",
  "wasi",
- "windows-sys 0.36.1",
+ "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -2708,6 +2700,20 @@ dependencies = [
  "bitflags",
  "cfg-if",
  "libc",
+]
+
+[[package]]
+name = "nix"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e322c04a9e3440c327fca7b6c8a63e6890a32fa2ad689db972425f07e0d22abb"
+dependencies = [
+ "autocfg",
+ "bitflags",
+ "cfg-if",
+ "libc",
+ "memoffset",
+ "pin-utils",
 ]
 
 [[package]]
@@ -2960,9 +2966,9 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
 name = "owned_ttf_parser"
-version = "0.15.2"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "05e6affeb1632d6ff6a23d2cd40ffed138e82f1532571a26f527c8a284bb2fbb"
+checksum = "4665508572151759e8d60404e20dc096ef93a99801a05ac2ac6e43bf5b4ca187"
 dependencies = [
  "ttf-parser",
 ]
@@ -3075,9 +3081,9 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "pkg-config"
-version = "0.3.25"
+version = "0.3.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1df8c4ec4b0627e53bdf214615ad287367e482558cf84b109250b37464dc03ae"
+checksum = "6ac9a59f73473f1b8d852421e59e64809f025994837ef743615c6d0c5b305160"
 
 [[package]]
 name = "png"
@@ -3139,12 +3145,6 @@ dependencies = [
  "quote",
  "syn",
 ]
-
-[[package]]
-name = "quick-error"
-version = "1.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1d01941d82fa2ab50be1e79e6714289dd7cde78eba4c074bc5a4374f650dfe0"
 
 [[package]]
 name = "quote"
@@ -3352,6 +3352,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 
 [[package]]
+name = "rustc_version"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
+dependencies = [
+ "semver",
+]
+
+[[package]]
 name = "rustversion"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3389,15 +3398,6 @@ version = "0.1.0"
 dependencies = [
  "app_plugin",
  "bevy",
-]
-
-[[package]]
-name = "scan_dir"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ccb8e3d26f2775b128b053d1827feb90ed954ef97e3cb88c822f42e946c9155"
-dependencies = [
- "quick-error",
 ]
 
 [[package]]
@@ -3452,19 +3452,34 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde"
-version = "1.0.146"
+name = "semver"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6df50b7a60a0ad48e1b42eb38373eac8ff785d619fb14db917b4e63d5439361f"
+checksum = "1d7eb9ef2c18661902cc47e535f9bc51b78acd254da71d375c2f6720d9a40403"
+dependencies = [
+ "semver-parser",
+]
+
+[[package]]
+name = "semver-parser"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
+
+[[package]]
+name = "serde"
+version = "1.0.147"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d193d69bae983fc11a79df82342761dfbf28a99fc8d203dca4c3c1b590948965"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.146"
+version = "1.0.147"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a714fd32ba1d66047ce7d53dabd809e9922d538f9047de13cc4cffca47b36205"
+checksum = "4f1d362ca8fc9c3e3a7484440752472d68a6caa98f1ab81d99b5dfe517cec852"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3496,6 +3511,15 @@ dependencies = [
 
 [[package]]
 name = "sha1"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c1da05c97445caa12d05e848c4a4fcbbea29e748ac28f7e80e9b010392063770"
+dependencies = [
+ "sha1_smol",
+]
+
+[[package]]
+name = "sha1"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f04293dc80c3993519f2d7f6f511707ee7094fe0c6d3406feb330cdb3540eba3"
@@ -3504,6 +3528,12 @@ dependencies = [
  "cpufeatures",
  "digest",
 ]
+
+[[package]]
+name = "sha1_smol"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae1a47186c03a32177042e55dbc5fd5aee900b8e0069a8d70fba96a9375cd012"
 
 [[package]]
 name = "sha2"
@@ -3604,9 +3634,52 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stdweb"
-version = "0.1.3"
+version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
+checksum = "d022496b16281348b52d0e30ae99e01a73d737b2f45d38fed4edf79f9325a1d5"
+dependencies = [
+ "discard",
+ "rustc_version",
+ "stdweb-derive",
+ "stdweb-internal-macros",
+ "stdweb-internal-runtime",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "stdweb-derive"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c87a60a40fccc84bef0652345bbbbbe20a605bf5d0ce81719fc476f5c03b50ef"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_derive",
+ "syn",
+]
+
+[[package]]
+name = "stdweb-internal-macros"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58fa5ff6ad0d98d1ffa8cb115892b6e69d67799f6763e162a1c9db421dc22e11"
+dependencies = [
+ "base-x",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "sha1 0.6.1",
+ "syn",
+]
+
+[[package]]
+name = "stdweb-internal-runtime"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "213701ba3370744dcd1a12960caa4843b3d68b4d1c0a5d575e0d65b2ee9d16c0"
 
 [[package]]
 name = "strsim"
@@ -3703,7 +3776,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "terrain_config"
+name = "terrain_settings"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -3996,9 +4069,9 @@ checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 
 [[package]]
 name = "ttf-parser"
-version = "0.15.2"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b3e06c9b9d80ed6b745c7159c40b311ad2916abb34a49e9be2653b90db0d8dd"
+checksum = "375812fa44dab6df41c195cd2f7fecb488f6c09fbaafb62807488cefab642bff"
 
 [[package]]
 name = "typenum"
@@ -4518,9 +4591,9 @@ checksum = "f40009d85759725a34da6d89a94e63d7bdc50a862acf0dbc7c8e488f1edcb6f5"
 
 [[package]]
 name = "winit"
-version = "0.27.4"
+version = "0.27.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37f64802920c4c35d12a53dad5e0c55bbc3004d8dc4f2e4dd64ad02c5665d7aa"
+checksum = "bb796d6fbd86b2fd896c9471e6f04d39d750076ebe5680a3958f00f5ab97657c"
 dependencies = [
  "bitflags",
  "cocoa",
@@ -4586,7 +4659,7 @@ dependencies = [
  "flate2",
  "hmac",
  "pbkdf2",
- "sha1",
+ "sha1 0.10.5",
  "time",
  "zstd",
 ]
