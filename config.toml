@@ -1,11 +1,17 @@
 terrain_dir = "/Volumes/EXTERN_SSD/Terrains"
-node_atlas_size = 1024
-preprocess = false
 terrain = "Hartenstein_large"
+preprocess = false
 
 [[terrains]]
 name = "Hartenstein"
-size = 2
+side_length = 2
+node_atlas_size = 1024
+texture_size = 512
+border_size = 1
+mip_level_count = 1
+node_count = 12
+load_distance = 6.0
+view_distance = 4.0
 urls = [
     "tile_33334_5614",
     "tile_33334_5616",
@@ -15,8 +21,15 @@ urls = [
 
 [[terrains]]
 name = "Hartenstein_large"
-size = 8
+#node_atlas_size = 2000
+#texture_size = 512
+#border_size = 1
+#mip_level_count = 1
+#node_count = 22
+#load_distance = 11.0
+#view_distance = 10.0
+side_length = 8
 
 [[terrains]]
-name = "Sachsen"
-size = 113
+name = "Saxony"
+side_length = 113

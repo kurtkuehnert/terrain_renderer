@@ -5,15 +5,21 @@ use std::{env, fs};
 #[derive(Deserialize, Debug)]
 struct TerrainEntry {
     name: String,
-    size: u32,
+    side_length: u32,
     height: Option<f32>,
+    node_atlas_size: Option<u32>,
+    texture_size: Option<u32>,
+    border_size: Option<u32>,
+    mip_level_count: Option<u32>,
+    node_count: Option<u32>,
+    load_distance: Option<f32>,
+    view_distance: Option<f32>,
     urls: Option<Vec<String>>,
 }
 
 #[derive(Deserialize, Debug)]
 struct TerrainSettings {
     terrain_dir: String,
-    node_atlas_size: Option<u32>,
     preprocess: Option<bool>,
     terrain: String,
     terrains: Vec<TerrainEntry>,
@@ -21,10 +27,16 @@ struct TerrainSettings {
 
 pub struct Settings {
     pub terrain_path: String,
-    pub node_atlas_size: u32,
     pub preprocess: bool,
-    pub size: u32,
+    pub node_atlas_size: u32,
     pub height: f32,
+    pub side_length: u32,
+    pub texture_size: u32,
+    pub border_size: u32,
+    pub mip_level_count: u32,
+    pub node_count: u32,
+    pub load_distance: f32,
+    pub view_distance: f32,
     pub urls: Vec<String>,
 }
 
@@ -43,10 +55,16 @@ impl TryFrom<TerrainSettings> for Settings {
 
         Ok(Self {
             terrain_path: format!("{}/{}", settings.terrain_dir, entry.name),
-            node_atlas_size: settings.node_atlas_size.unwrap_or(1028),
             preprocess: settings.preprocess.unwrap_or(false),
-            size: entry.size,
+            node_atlas_size: entry.node_atlas_size.unwrap_or(1028),
+            side_length: entry.side_length,
             height: entry.height.unwrap_or(1250.0),
+            texture_size: entry.texture_size.unwrap_or(512),
+            border_size: entry.border_size.unwrap_or(1),
+            mip_level_count: entry.mip_level_count.unwrap_or(1),
+            node_count: entry.node_count.unwrap_or(12),
+            load_distance: entry.load_distance.unwrap_or(6.0),
+            view_distance: entry.view_distance.unwrap_or(4.0),
             urls: entry.urls.unwrap_or_default(),
         })
     }

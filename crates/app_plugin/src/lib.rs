@@ -25,8 +25,6 @@ impl Material for TerrainMaterial {
     }
 }
 
-const TEXTURE_SIZE: u32 = 512;
-const MIP_LEVEL_COUNT: u32 = 4;
 const LOD_COUNT: u32 = 16;
 const TILE_SIZE: u32 = 2000;
 
@@ -39,7 +37,7 @@ impl Plugin for AppPlugin {
             window: WindowDescriptor {
                 width: 1920.,
                 height: 1080.,
-                position: WindowPosition::At(Vec2::new(3600.0, 220.0)),
+                // position: WindowPosition::At(Vec2::new(3600.0, 220.0)),
                 title: "Saxony Terrain Renderer".into(),
                 present_mode: PresentMode::AutoVsync,
                 ..default()
@@ -84,20 +82,21 @@ fn setup(
     let mut loader = AttachmentFromDiskLoader::default();
 
     let mut config = TerrainConfig::new(
-        settings.size * TILE_SIZE,
+        settings.side_length * TILE_SIZE,
         LOD_COUNT,
         settings.height,
         settings.node_atlas_size,
         settings.terrain_path.clone(),
     );
-    config.leaf_node_size = TEXTURE_SIZE - (1 << MIP_LEVEL_COUNT);
+    config.leaf_node_size = settings.texture_size - 2 * settings.border_size;
     config.add_attachment_from_disk(
         &mut preprocessor,
         &mut loader,
         AttachmentConfig::new(
             "dtm".to_string(),
-            TEXTURE_SIZE,
-            MIP_LEVEL_COUNT,
+            settings.texture_size,
+            settings.border_size,
+            settings.mip_level_count,
             AttachmentFormat::R16,
         ),
         TileConfig {
@@ -111,8 +110,9 @@ fn setup(
         &mut loader,
         AttachmentConfig::new(
             "dsm".to_string(),
-            TEXTURE_SIZE,
-            MIP_LEVEL_COUNT,
+            settings.texture_size,
+            settings.border_size,
+            settings.mip_level_count,
             AttachmentFormat::R16,
         ),
         TileConfig {
@@ -126,8 +126,9 @@ fn setup(
         &mut loader,
         AttachmentConfig::new(
             "dop".to_string(),
-            TEXTURE_SIZE,
-            MIP_LEVEL_COUNT,
+            settings.texture_size,
+            settings.border_size,
+            settings.mip_level_count,
             AttachmentFormat::Rgb8,
         ),
         TileConfig {
@@ -172,12 +173,9 @@ fn setup(
         .id();
 
     let view_config = TerrainViewConfig {
-        load_distance: 6.0,
-        node_count: 12,
-        tile_scale: 32.0,
-        grid_size: 8,
-        view_distance: 4.0 * config.leaf_node_size as f32,
-        additional_refinement: 0,
+        node_count: settings.node_count,
+        load_distance: settings.load_distance,
+        view_distance: settings.view_distance,
         ..default()
     };
     let quadtree = Quadtree::from_configs(&config, &view_config);

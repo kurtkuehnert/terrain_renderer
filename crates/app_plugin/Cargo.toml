@@ -5,8 +5,8 @@ publish = false
 edition = "2021"
 
 [dependencies]
-bevy = { git="https://github.com/bevyengine/bevy" }
+bevy = "0.9"
 bevy_terrain = { path="../bevy_terrain" }
-bevy_atmosphere = { path="../bevy_atmosphere" }
+bevy_atmosphere = { git="https://github.com/JonahPlusPlus/bevy_atmosphere" }
 terrain_settings = { path="../terrain_settings" }
 dolly = "0.4"

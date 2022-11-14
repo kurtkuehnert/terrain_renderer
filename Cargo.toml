@@ -19,5 +19,5 @@ opt-level = 3
 members = ["crates/*"]
 
 [dependencies]
-bevy = { git="https://github.com/bevyengine/bevy" }
+bevy = "0.9"
 app_plugin = { path="crates/app_plugin" }
