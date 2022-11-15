@@ -51,7 +51,7 @@ git clone https://github.com/kurtkuehnert/saxony_terrain_renderer
 Change into the crates directory and clone the bevy_terrain plugin:
 ```
 cd saxony_terrain_renderer/crates
-git clone https://github.com/kurtkuehnert/saxony_terrain_renderer
+git clone https://github.com/kurtkuehnert/bevy_terrain
 ```
 
 **Note:** make sure your rust version is up to data
@@ -77,7 +77,7 @@ The download tool will read the `urls` field of the selected terrain and downloa
 
 If you want to add an additional terrain you can provide the tiles by copying the names from this website: https://www.geodaten.sachsen.de/batch-download-4719.html.
 There select the region and the municipality and copy the links by clicking on the blue button.
-Then you can past the urls of the tiles into the `url` field and the download tool will process them accordingly.
+Then you can past the urls of the tiles into the `urls` field and the download tool will process them accordingly.
 
 ![Screenshot 2022-11-14 at 16-17-46 Batch Download - Offene Geodaten - sachsen de](https://user-images.githubusercontent.com/51823519/201697383-18c4cf86-c075-4c6a-a3cb-3a38dd99b666.png)
 
