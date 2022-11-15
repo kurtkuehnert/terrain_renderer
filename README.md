@@ -20,7 +20,7 @@ It is crucial that the geometry, as well as the terrain data, are represented se
 This thesis investigates common techniques and previous solutions to problems associated with the rendering of height field terrains and discusses their benefits and drawbacks.
 Subsequently, two solutions to the stated problems are presented, which build and expand upon the state-of-the-art rendering methods.
 A seamless and efficient mesh representation is achieved by the novel Uniform Distance-Dependent Level of Detail (UDLOD) triangulation method.
-This fully GPU-based algorithm subdivides a quadtree covering the terrain into small tiles, which can be culled in parallel, and are morphed seamlessly in the vertex shader, resulting in a densely and temporal consistent triangulated mesh. 
+This fully GPU-based algorithm subdivides a quadtree covering the terrain into small tiles, which can be culled in parallel, and are morphed seamlessly in the vertex shader, resulting in a densely and temporally consistent triangulated mesh. 
 The proposed Chunked Clipmap combines the strengths of both quadtrees and clipmaps to enable efficient out-of-core paging of terrain data.
 This data structure allows for constant time view-dependent access, graceful degradation if data is unavailable, and supports trilinear and anisotropic filtering.
 Together these, otherwise independent, techniques enable the rendering of large-scale real-world terrains, which is demonstrated on a dataset encompassing the entire Free State of Saxony at a resolution of one meter, in real-time.
