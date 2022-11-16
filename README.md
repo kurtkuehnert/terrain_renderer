@@ -3,14 +3,13 @@
 
 A large-scale real-world terrain renderer written in Rust using the Bevy game engine.
 
-This project is developed by [Kurt Kühnert](https://github.com/kurtkuehnert) and contains the reference implementation of my bachelors thesis.
+This project is developed by [Kurt Kühnert](https://github.com/kurtkuehnert) and contains the reference implementation of my bachelor thesis.
 This terrain renderer focuses on visualizing large-scale terrains in a seamless, continuous, and efficient manner. 
-The source code was developed as an open source plugin for the Bevy game engine, which can be found here: https://github.com/kurtkuehnert/bevy_terrain.
+The source code was developed as the open source plugin **[bevy_terrain](https://github.com/kurtkuehnert/bevy_terrain)** for the Bevy game engine.
+
+Additionally, this repository contains the full version of my **[Bachelor Thesis](https://github.com/kurtkuehnert/terrain_renderer/blob/main/Thesis.pdf)** describing the novel terrain rendering method in great detail.
 
 The terrain data is taken from the [Geoportal Sachsen (GeoSN, dl-de/by-2-0)](https://geoportal.sachsen.de/) and the [Federal Office of Topography swisstopo](https://www.swisstopo.admin.ch/en/home.html)
-
-Additionally, this repository contains the full version of the thesis describing the novel terrain rendering method in great detail.
-It can be found here: `todo: link to thesis`.
 
 ## Abstract
 
@@ -50,6 +49,7 @@ git clone https://github.com/kurtkuehnert/terrain_renderer
 **Note:** this step is temporary, the code will be included in this repo in the future
 
 Change into the crates directory and clone the bevy_terrain plugin:
+
 ```
 cd terrain_renderer/crates
 git clone https://github.com/kurtkuehnert/bevy_terrain
@@ -156,33 +156,36 @@ cargo run --release
 ## Controls
 
 These are the controlls of the terrain renderer.
-Use them to look at different views and adjust the terrain quality.
+Use them to fly over the terrain, experiment with the quality settings and enter the different debug views.
 
-- `T` - toggle camera active
-- move mouse to look around
-- arrow keys to move the camera horizontally
+- `T` - toggle camera movement
+- move the mouse to look around
+- press the arrow keys to move the camera horizontally
 - use `PageUp` and `PageDown` to move the camera vertically 
-- use `Home` and `End` to increase/decrease the movement speed
+- use `Home` and `End` to increase/decrease the camera's movement speed
 
-- `1` - toggle DOM/DGM
-- `W` - toggle wireframe
-- `M` - toggle mesh morph
+- `V` - toggle DTM/DSM
+- `W` - toggle wireframe view
+- `P` - toggle tile view 
+- `L` - toggle lod view
+- `U` - toggle uv view
+- `C` - toggle node view
+- `D` - toggle mesh morph
 - `A` - toggle albedo
 - `B` - toggle base color black / white
-- `C` - toggle full nodes / spherical lod
 - `S` - toggle lighting
 - `G` - toggle filtering bilinear / trilinear + anisotropic 
 - `F` - freeze frustum culling
-- `P` - show patches
-- `L` - show LOD
-- `U` - show UVs
-- `H` - decrease patch scale
-- `J` - increase patch scale
+- `H` - decrease tile scale
+- `J` - increase tile scale
 - `N` - decrease grid size
 - `E` - increase grid size
 - `I` - decrease view distance
 - `O` - increase view distance
 
+- `Z` - toggle sun rotation
+- `X` - decrease sun's period duration
+- `Q` - increase sun's period duration
 
 ## License
 Saxony Terrain Renderer is dual-licensed under either
