@@ -1,7 +1,7 @@
 terrain_dir = "/Volumes/EXTERN_SSD/Terrains"
-terrain = "Switzerland"
-parallel_downloads = 8
-preprocess = true
+terrain = "Hartenstein"
+parallel_downloads = 4
+preprocess = false
 
 [[terrains]]
 name = "Hartenstein"
