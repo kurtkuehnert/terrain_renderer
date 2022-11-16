@@ -1,16 +1,16 @@
-# Saxony Terrain Renderer
+# Terrain Renderer
 ![Screenshot 2022-10-24 at 15 44 30](https://user-images.githubusercontent.com/51823519/197553641-7e73dfce-24ca-48d9-861a-1012290f0c04.png)
 
 A large-scale real-world terrain renderer written in Rust using the Bevy game engine.
 
 This project is developed by [Kurt Kühnert](https://github.com/kurtkuehnert) and contains the reference implementation of my bachelors thesis.
 This terrain renderer focuses on visualizing large-scale terrains in a seamless, continuous, and efficient manner. 
-The source code was developed as an open source plugin for the Bevy game engine and can be found here: https://github.com/kurtkuehnert/bevy_terrain.
+The source code was developed as an open source plugin for the Bevy game engine, which can be found here: https://github.com/kurtkuehnert/bevy_terrain.
 
-The terrain data is taken from the [Geoportal Sachsen](https://geoportal.sachsen.de/). (GeoSN, dl-de/by-2-0)
+The terrain data is taken from the [Geoportal Sachsen (GeoSN, dl-de/by-2-0)](https://geoportal.sachsen.de/) and the [Federal Office of Topography swisstopo](https://www.swisstopo.admin.ch/en/home.html)
 
-The full version of the thsis describing the method in great detail can be found here: `todo: link to thesis`.
-
+Additionally, this repository contains the full version of the thesis describing the novel terrain rendering method in great detail.
+It can be found here: `todo: link to thesis`.
 
 ## Abstract
 
@@ -40,21 +40,23 @@ Simply download and install the latest version.
 
 ### From Source
 
-If a released version is not available for your OS, or you want to experiment with the code please compile the project from source.
+If a released version is not available for your OS, or you want to experiment with the code, please compile the project from source.
 
 Clone this project:
 ```
-git clone https://github.com/kurtkuehnert/saxony_terrain_renderer
+git clone https://github.com/kurtkuehnert/terrain_renderer
 ```
 
 **Note:** this step is temporary, the code will be included in this repo in the future
+
 Change into the crates directory and clone the bevy_terrain plugin:
 ```
-cd saxony_terrain_renderer/crates
+cd terrain_renderer/crates
 git clone https://github.com/kurtkuehnert/bevy_terrain
 ```
 
 **Note:** make sure your rust version is up to data
+
 Now compile both the download tool and the terrain renderer:
 ```
 cargo build --release --package download_tool
@@ -68,21 +70,73 @@ Simply modify the `config.toml` file found at the root of the repository or bund
 Here you have to specify in which directory the data for the terrains should be stored.
 Therefore edit the `terrain_dir` field.
 The `terrain` field selects wich of the different terrain configurations to use.
+Each of them will be store in a subdirectory with the same name.
 
 By default there are three terrains available: Hartenstein, Hartenstein_large and Saxony. 
 The additional parameters controll the quality and appearance of the terrain.
 
 Before the terrain can be rendered you first have to download its terrain data.
-The download tool will read the `urls` field of the selected terrain and download all required data.
+The downloader supports downloading data from the Swiss and Saxon dataset.
 
-If you want to add an additional terrain you can provide the tiles by copying the names from this website: https://www.geodaten.sachsen.de/batch-download-4719.html.
+For the downloader to work it requires a list urls of the tile data.
+The process of generating such a list is described below.
+
+#### Saxony
+
+To download a terrain from the Saxon dataset, provide the tiles by copying their urls from this website: https://www.geodaten.sachsen.de/batch-download-4719.html.
 There select the region and the municipality and copy the links by clicking on the blue button.
-Then you can past the urls of the tiles into the `urls` field and the download tool will process them accordingly.
+Then you have to past all links into a text file (.txt or .csv) and save it inside the subdirectory of the terrain you want to download.
+Finally configure the `urls_saxony` field for your terrain in the config file.
+Make sure that the `side_length` is larger or equal to the maximum amount of tiles in x or y direction.
+
+**Note:** All DTM and DSM data of the terrain is downloaded automatically as well.
+
+```config.toml
+[[terrains]]
+name = "Hartenstein"
+side_length = 4
+urls_saxony = "urls.txt"
+```
+
+```
+terrain_dir
+└── Hartenstein
+    └── urls.txt
+```
 
 ![Screenshot 2022-11-14 at 16-17-46 Batch Download - Offene Geodaten - sachsen de](https://user-images.githubusercontent.com/51823519/201697383-18c4cf86-c075-4c6a-a3cb-3a38dd99b666.png)
 
+#### Switzerland
+The process for terrains from the Swiss dataset is the similar.
+Here you have to specify the dtm and dop data seperately.
+Select individual tiles or entire regions on the following two web pages.
+https://www.swisstopo.admin.ch/en/geodata/height/alti3d.html for the height data (DTM) and https://www.swisstopo.admin.ch/en/geodata/images/ortho/swissimage10.html for the orthophotos (DOP).
+Make sure the parameters match the ones in the screenshot below.
+Then press the blue search button, export all links in the menu below and download them as a csv file.
+Finally copy both urls files into the terrains directory.
+
+**Note:** Swiss DSM data is not supported.
+
+```config.toml
+[[terrains]]
+name = "Bern"
+side_length = 200
+urls_saxony = "urls.txt"
+```
+
+```
+terrain_dir
+└── Bern
+    ├── urls_dtm.csv
+    └── urls_dop.csv
+```
+
+![Screenshot 2022-11-16 at 18-55-41 swissALTI3D](https://user-images.githubusercontent.com/51823519/202257636-9df67a16-55d6-4e70-9060-1f9f7beb6c25.png)
+
+
 With the configuration set up you can now start the download tool.
-**Note:** it may take a while untill all data has finish downloading
+
+**Note:** It may take a while untill all data has finish downloading.
 ```
 ./download_tool
 or
@@ -91,7 +145,8 @@ cargo run --release --package download_tool
 
 Finally you can visualize the data with the terrain renderer.
 Make sure to set the `preprocess` flag in the config to true, the first time you view each terrain, so that the terrain data can be imported.
-**Note:** it may take a while untill all data has been preprocessed
+
+**Note:** It may take a while untill all data has been preprocessed.
 ```
 ./saxony_terrain_renderer
 or
