@@ -25,9 +25,6 @@ impl Material for TerrainMaterial {
     }
 }
 
-const LOD_COUNT: u32 = 16;
-const TILE_SIZE: u32 = 2000;
-
 /// A plugin, which sets up the testing application.
 pub struct AppPlugin;
 
@@ -82,8 +79,8 @@ fn setup(
     let mut loader = AttachmentFromDiskLoader::default();
 
     let mut config = TerrainConfig::new(
-        settings.side_length * TILE_SIZE,
-        LOD_COUNT,
+        settings.side_length * settings.tile_size,
+        settings.lod_count,
         settings.height,
         settings.node_atlas_size,
         settings.terrain_path.clone(),
@@ -101,26 +98,48 @@ fn setup(
         ),
         TileConfig {
             path: format!("{}/source/dtm", &settings.terrain_path),
-            size: TILE_SIZE,
+            size: settings.tile_size,
             file_format: FileFormat::DTM,
         },
     );
-    config.add_attachment_from_disk(
-        &mut preprocessor,
-        &mut loader,
-        AttachmentConfig::new(
-            "dsm".to_string(),
-            settings.texture_size,
-            settings.border_size,
-            settings.mip_level_count,
-            AttachmentFormat::R16,
-        ),
-        TileConfig {
-            path: format!("{}/source/dsm", &settings.terrain_path),
-            size: TILE_SIZE,
-            file_format: FileFormat::DTM,
-        },
-    );
+    if settings.enable_dsm {
+        config.add_attachment_from_disk(
+            &mut preprocessor,
+            &mut loader,
+            AttachmentConfig::new(
+                "dsm".to_string(),
+                settings.texture_size,
+                settings.border_size,
+                settings.mip_level_count,
+                AttachmentFormat::R16,
+            ),
+            TileConfig {
+                path: format!("{}/source/dsm", &settings.terrain_path),
+                size: settings.tile_size,
+                file_format: FileFormat::DTM,
+            },
+        );
+    } else {
+        // parse and load dtm twice
+        // a little hacky I know, but it does the trick
+        config.add_attachment_from_disk(
+            &mut preprocessor,
+            &mut loader,
+            AttachmentConfig::new(
+                "dsm".to_string(),
+                settings.texture_size,
+                settings.border_size,
+                settings.mip_level_count,
+                AttachmentFormat::R16,
+            ),
+            TileConfig {
+                path: format!("{}/source/dtm", &settings.terrain_path),
+                size: settings.tile_size,
+                file_format: FileFormat::DTM,
+            },
+        );
+    }
+
     config.add_attachment_from_disk(
         &mut preprocessor,
         &mut loader,
@@ -133,7 +152,7 @@ fn setup(
         ),
         TileConfig {
             path: format!("{}/source/dop", &settings.terrain_path),
-            size: TILE_SIZE,
+            size: settings.tile_size,
             file_format: FileFormat::QOI,
         },
     );

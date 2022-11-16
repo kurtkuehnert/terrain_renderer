@@ -1,35 +1,37 @@
 terrain_dir = "/Volumes/EXTERN_SSD/Terrains"
-terrain = "Hartenstein_large"
-preprocess = false
+terrain = "Switzerland"
+parallel_downloads = 8
+preprocess = true
 
 [[terrains]]
 name = "Hartenstein"
 side_length = 2
-node_atlas_size = 1024
-texture_size = 512
-border_size = 1
-mip_level_count = 1
-node_count = 12
-load_distance = 6.0
-view_distance = 4.0
-urls = [
-    "tile_33334_5614",
-    "tile_33334_5616",
-    "tile_33336_5614",
-    "tile_33336_5616",
-]
+urls_saxony = "urls.txt"
 
 [[terrains]]
 name = "Hartenstein_large"
-#node_atlas_size = 2000
-#texture_size = 512
-#border_size = 1
-#mip_level_count = 1
-#node_count = 22
-#load_distance = 11.0
-#view_distance = 10.0
 side_length = 8
+urls_saxony = "urls.txt"
 
 [[terrains]]
 name = "Saxony"
 side_length = 113
+urls_saxony = "urls.txt"
+
+
+[[terrains]]
+name = "Uri"
+side_length = 60
+urls_switzerland_dtm = "urls_dtm.csv"
+urls_switzerland_dop = "urls_dop.csv"
+
+[[terrains]]
+name = "Switzerland"
+side_length = 8
+urls_switzerland_dtm = "urls_dtm.csv"
+urls_switzerland_dop = "urls_dop.csv"
+
+[[terrains]]
+name = "Test"
+side_length = 2
+urls_saxony = "urls.txt"

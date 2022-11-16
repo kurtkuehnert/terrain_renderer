@@ -1,89 +1,158 @@
-mod parse;
+mod saxony;
+mod switzerland;
 
-use crate::parse::{parse_albedo, parse_height, save_albedo, save_height};
-use anyhow::{anyhow, Result};
+use anyhow::Result;
+use bytemuck::cast_slice;
+use dtm::DTM;
 use futures::{future::join_all, StreamExt};
+use image::{DynamicImage, ImageBuffer, Luma};
 use indicatif::{ProgressBar, ProgressStyle};
-use std::{
-    fs,
-    io::{Cursor, Read},
-};
-use terrain_settings::load_settings;
-use zip::ZipArchive;
+use rapid_qoi::{Colors, Qoi};
+use std::fs;
+use terrain_settings::{load_settings, Dataset};
 
-fn parse_coordinates(name: &str) -> Result<(u32, u32)> {
-    let parts = name.split('_').collect::<Vec<_>>();
+pub(crate) type ImageGray = ImageBuffer<Luma<u16>, Vec<u16>>;
 
-    Ok((parts[1].parse::<u32>()? % 1000, parts[2].parse::<u32>()?))
+#[derive(Clone, Debug)]
+enum Tile {
+    Switzerland {
+        dtm_url: String,
+        dop_url: String,
+    },
+    Saxony {
+        dtm_url: String,
+        dop_url: String,
+        dsm_url: String,
+    },
 }
 
-async fn download_zip_file(path: String, extension: &str) -> Result<Vec<u8>> {
-    let response = reqwest::get(&path).await?;
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let settings = load_settings()?;
+    let path = settings.terrain_path.clone() + "/source";
 
-    if response.status().is_client_error() {
-        return Err(anyhow!("Does not exist."));
+    let tiles = match settings.dataset {
+        Dataset::None => {
+            panic!("No dataset selected.")
+        }
+        Dataset::Saxony { urls } => {
+            fs::create_dir_all(format!("{path}/dtm"))?;
+            fs::create_dir_all(format!("{path}/dop"))?;
+            fs::create_dir_all(format!("{path}/dsm"))?;
+
+            saxony::gather_tiles(&format!("{}/{}", settings.terrain_path, urls))
+        }
+        Dataset::Switzerland { urls_dtm, urls_dop } => {
+            fs::create_dir_all(format!("{path}/dtm"))?;
+            fs::create_dir_all(format!("{path}/dop"))?;
+
+            switzerland::gather_tiles(
+                &format!("{}/{}", settings.terrain_path, urls_dtm),
+                &format!("{}/{}", settings.terrain_path, urls_dop),
+            )
+        }
+    }?;
+
+    let mut origin = (u32::MAX, u32::MIN);
+
+    for tile in &tiles {
+        let coords = match tile {
+            Tile::Switzerland { dtm_url, .. } => switzerland::parse_coordinates(dtm_url)?,
+            Tile::Saxony { dtm_url, .. } => saxony::parse_coordinates(dtm_url)?,
+        };
+
+        origin = (origin.0.min(coords.0), origin.1.max(coords.1));
     }
 
-    let bytes = response.bytes().await?;
-    let reader = Cursor::new(bytes);
+    println!("Started downloading and parsing {} tiles.", tiles.len());
+    let bar = ProgressBar::new(tiles.len() as u64);
+    bar.set_style(
+        ProgressStyle::default_bar()
+            .template("{wide_bar} {pos}/{len} tiles processed | Elapsed: {elapsed}, ETA: {eta}")?,
+    );
+    bar.tick();
 
-    let mut archive = ZipArchive::new(reader)?;
+    let results = futures::stream::iter(tiles.iter().map(|tile| {
+        tokio::spawn(process_tile(
+            tile.clone(),
+            path.clone(),
+            origin,
+            settings.height,
+            bar.clone(),
+        ))
+    }))
+    .buffer_unordered(settings.parallel_downloads)
+    .collect::<Vec<_>>()
+    .await;
 
-    let file_name = archive
-        .file_names()
-        .find(|name| name.ends_with(extension))
-        .ok_or(anyhow!("File not found in archive."))?
-        .to_string();
+    bar.finish();
 
-    let mut file = archive.by_name(&file_name)?;
+    let mut failed_tiles = Vec::new();
 
-    let mut buffer = Vec::new();
-    file.read_to_end(&mut buffer)?;
+    for (result, url) in results.into_iter().zip(tiles.iter()) {
+        match result {
+            Ok(result) => {
+                if let Err(error) = result {
+                    failed_tiles.push(url);
+                    println!("{error}");
+                }
+            }
 
-    Ok(buffer)
-}
+            Err(error) => {
+                failed_tiles.push(url);
+                println!("{error}");
+            }
+        }
+    }
 
-async fn process_dop(path: String, coords: (u32, u32), position: (u32, u32)) -> Result<()> {
-    let dop_url = format!("https://geocloud.landesvermessung.sachsen.de/index.php/s/PEH5Gd2r0fPYV4r/download?path=%2F&files=dop20rgb_33{}_{}_2_sn_tiff.zip", coords.0, coords.1);
-    let buffer = download_zip_file(dop_url, ".tif").await?;
-    let image = parse_albedo(buffer)?;
-    save_albedo(&image, &path, "dop", position)?;
+    println!(
+        "\nFinished downloading and parsing {}/{} tiles successfully.",
+        tiles.len() - failed_tiles.len(),
+        tiles.len()
+    );
 
-    Ok(())
-}
+    if !failed_tiles.is_empty() {
+        println!("\nThe following tiles failed to process.");
 
-async fn process_dsm(path: String, coords: (u32, u32), position: (u32, u32)) -> Result<()> {
-    let dsm_url = format!("https://geocloud.landesvermessung.sachsen.de/index.php/s/w7LQy9F6Yo3IxPp/download?path=%2F&files=dom1_33{}_{}_2_sn_xyz.zip", coords.0, coords.1);
-    let buffer = download_zip_file(dsm_url, ".xyz").await?;
-    let image = parse_height(buffer, coords)?;
-    save_height(&image, &path, "dsm", position)?;
-
-    Ok(())
-}
-
-async fn process_dtm(path: String, coords: (u32, u32), position: (u32, u32)) -> Result<()> {
-    let dtm_url = format!("https://geocloud.landesvermessung.sachsen.de/index.php/s/DK9AshAQX7G1bsp/download?path=%2F&files=dgm1_33{}_{}_2_sn_xyz.zip", coords.0, coords.1);
-    let buffer = download_zip_file(dtm_url, ".xyz").await?;
-    let image = parse_height(buffer, coords)?;
-    save_height(&image, &path, "dtm", position)?;
+        for tile in failed_tiles {
+            println!("{:?}", tile);
+        }
+    }
 
     Ok(())
 }
 
 async fn process_tile(
-    url: String,
+    tile: Tile,
     path: String,
     origin: (u32, u32),
+    height: f32,
     bar: ProgressBar,
 ) -> Result<()> {
-    let coords = parse_coordinates(&url)?;
-    let position = ((coords.0 - origin.0) / 2, (origin.1 - coords.1) / 2);
+    let tasks = match tile {
+        Tile::Switzerland { dtm_url, dop_url } => {
+            let task_dtm = tokio::spawn(switzerland::process_dtm(
+                dtm_url,
+                path.clone(),
+                origin,
+                height,
+            ));
+            let task_dop = tokio::spawn(switzerland::process_dop(dop_url, path.clone(), origin));
 
-    let task_dop = tokio::spawn(process_dop(path.clone(), coords, position));
-    let task_dom = tokio::spawn(process_dsm(path.clone(), coords, position));
-    let task_dgm = tokio::spawn(process_dtm(path.clone(), coords, position));
+            join_all([task_dop, task_dtm]).await
+        }
+        Tile::Saxony {
+            dtm_url,
+            dop_url,
+            dsm_url,
+        } => {
+            let task_dtm = tokio::spawn(saxony::process_dtm(dtm_url, path.clone(), origin, height));
+            let task_dop = tokio::spawn(saxony::process_dop(dop_url, path.clone(), origin));
+            let task_dsm = tokio::spawn(saxony::process_dsm(dsm_url, path.clone(), origin, height));
 
-    let tasks = join_all([task_dop, task_dom, task_dgm]).await;
+            join_all([task_dtm, task_dop, task_dsm]).await
+        }
+    };
 
     for task in tasks {
         task??;
@@ -94,85 +163,41 @@ async fn process_tile(
     Ok(())
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let settings = load_settings()?;
-    let path = settings.terrain_path + "/source";
-    let urls = settings.urls;
+pub(crate) fn save_albedo(
+    image: &DynamicImage,
+    path: &str,
+    name: &str,
+    position: (u32, u32),
+) -> Result<()> {
+    let path = format!("{path}/{name}/{name}_{}_{}.qoi", position.0, position.1);
 
-    fs::create_dir_all(format!("{path}/dop"))?;
-    fs::create_dir_all(format!("{path}/dtm"))?;
-    fs::create_dir_all(format!("{path}/dsm"))?;
-
-    let mut origin = (u32::MAX, u32::MIN);
-
-    for url in &urls {
-        let coords = parse_coordinates(url)?;
-        origin = (origin.0.min(coords.0), origin.1.max(coords.1));
+    let bytes = Qoi {
+        width: image.width(),
+        height: image.height(),
+        colors: Colors::Rgb,
     }
+    .encode_alloc(cast_slice(image.as_bytes()))?;
 
-    println!("Started downloading and parsing {} tiles.", urls.len());
-    let bar = ProgressBar::new(urls.len() as u64);
-    bar.set_style(
-        ProgressStyle::default_bar()
-            .template("{wide_bar} {pos}/{len} tiles processed | Elapsed: {elapsed}, ETA: {eta}")?,
-    );
-    bar.tick();
+    fs::write(path, &bytes)?;
 
-    let results = futures::stream::iter(
-        urls.iter()
-            .map(|url| tokio::spawn(process_tile(url.clone(), path.clone(), origin, bar.clone()))),
-    )
-    .buffer_unordered(3)
-    .collect::<Vec<_>>()
-    .await;
+    Ok(())
+}
 
-    bar.finish();
+pub(crate) fn save_height(
+    image: &DynamicImage,
+    path: &str,
+    name: &str,
+    position: (u32, u32),
+) -> Result<()> {
+    let path = format!("{path}/{name}/{name}_{}_{}.dtm", position.0, position.1);
 
-    let mut failed_urls = Vec::new();
-    let mut non_existing_urls = Vec::new();
-
-    for (error, url) in results
-        .into_iter()
-        .zip(urls.iter())
-        .map(|(result, url)| match result {
-            Ok(result) => (result, url),
-            Err(_) => (Err(anyhow!("Error while joining the task.")), url),
-        })
-        .filter_map(|(result, url)| match result {
-            Ok(_) => None,
-            Err(error) => Some((error, url)),
-        })
-    {
-        if error.to_string() == "Does not exist." {
-            non_existing_urls.push(url);
-        } else {
-            failed_urls.push(url);
-            println!("{error}")
-        }
+    DTM {
+        pixel_size: 2,
+        channel_count: 1,
+        width: image.width(),
+        height: image.height(),
     }
-
-    println!(
-        "\nFinished downloading and parsing {}/{} tiles successfully.",
-        urls.len() - failed_urls.len() - non_existing_urls.len(),
-        urls.len()
-    );
-
-    if !failed_urls.is_empty() {
-        println!("\nThe following tiles failed to process.");
-
-        for url in failed_urls {
-            println!("{url}");
-        }
-    }
-
-    if !non_existing_urls.is_empty() {
-        println!("\nThe following tiles do not exist.");
-
-        for url in non_existing_urls {
-            println!("{url}");
-        }
-    }
+    .encode_file(path, cast_slice(image.as_bytes()))?;
 
     Ok(())
 }

@@ -9,6 +9,7 @@ tokio = { version = "1", features = ["full"] }
 reqwest = { version = "0.11", features = ["stream"] }
 zip = "0.6"
 image = "0.24"
+tiff = { git="https://github.com/kurtkuehnert/image-tiff", branch="YCbCr_support" }
 rapid-qoi = "0.6"
 dtm = "0.1"
 itertools = "0.10"
