@@ -72,14 +72,16 @@ Therefore edit the `terrain_dir` field.
 The `terrain` field selects wich of the different terrain configurations to use.
 Each of them will be store in a subdirectory with the same name.
 
-By default there are three terrains available: Hartenstein, Hartenstein_large and Saxony. 
+By default there are four terrains available: Hartenstein, Hartenstein_large, Saxony and Uri. 
 The additional parameters controll the quality and appearance of the terrain.
 
 Before the terrain can be rendered you first have to download its terrain data.
 The downloader supports downloading data from the Swiss and Saxon dataset.
 
 For the downloader to work it requires a list urls of the tile data.
-The process of generating such a list is described below.
+The lists for the default terrains can be found in the `urls` directory.
+Simply copy the approriate one into the directory of the terrain.
+Additionally, the process of generating such a list for any desired terrain is described below.
 
 #### Saxony
 
