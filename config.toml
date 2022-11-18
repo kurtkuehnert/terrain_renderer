@@ -1,37 +1,25 @@
 terrain_dir = "/Volumes/EXTERN_SSD/Terrains"
-terrain = "Hartenstein"
-parallel_downloads = 4
-preprocess = false
+terrain = "Saxony"
+parallel_downloads = 2
+preprocess = true
 
 [[terrains]]
 name = "Hartenstein"
 side_length = 2
-urls_saxony = "urls.txt"
+urls_saxony = "urls_hartenstein.csv"
 
 [[terrains]]
 name = "Hartenstein_large"
 side_length = 8
-urls_saxony = "urls.txt"
+urls_saxony = "urls_hartenstein_large.csv"
 
 [[terrains]]
 name = "Saxony"
 side_length = 113
-urls_saxony = "urls.txt"
-
+urls_saxony = "urls_saxony.csv"
 
 [[terrains]]
 name = "Uri"
 side_length = 60
-urls_switzerland_dtm = "urls_dtm.csv"
-urls_switzerland_dop = "urls_dop.csv"
-
-[[terrains]]
-name = "Switzerland"
-side_length = 8
-urls_switzerland_dtm = "urls_dtm.csv"
-urls_switzerland_dop = "urls_dop.csv"
-
-[[terrains]]
-name = "Test"
-side_length = 2
-urls_saxony = "urls.txt"
+urls_switzerland_dtm = "urls_uri_dtm.csv"
+urls_switzerland_dop = "urls_uri_dop.csv"

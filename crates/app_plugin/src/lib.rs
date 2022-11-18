@@ -256,14 +256,14 @@ fn daylight_cycle(
     if input.just_pressed(KeyCode::X) && sun.period_duration > 1.0 {
         sun.period_duration -= 1.0;
         println!(
-            "Decreased the sun`s period duration to {}s.",
+            "Decreased the sun's period duration to {}s.",
             sun.period_duration
         )
     }
     if input.just_pressed(KeyCode::Q) {
         sun.period_duration += 1.0;
         println!(
-            "Increased the sun`s period duration to {}s.",
+            "Increased the sun's period duration to {}s.",
             sun.period_duration
         )
     }
