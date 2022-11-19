@@ -50,7 +50,7 @@ Clone this project:
 git clone https://github.com/kurtkuehnert/terrain_renderer
 ```
 
-**Note:** make sure your rust version is up to data
+**Note:** make sure your rust version is up to data (`rustup update stable`)
 
 Now compile the terrain renderer, like so:
 ```
