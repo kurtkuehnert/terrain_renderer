@@ -92,7 +92,7 @@ impl TryFrom<TerrainSettings> for Settings {
         Ok(Self {
             terrain_path: format!("{}/{}", settings.terrain_dir, entry.name),
             preprocess: settings.preprocess.unwrap_or(false),
-            parallel_downloads: settings.parallel_downloads.unwrap_or(4),
+            parallel_downloads: settings.parallel_downloads.unwrap_or(2),
             node_atlas_size: entry.node_atlas_size.unwrap_or(1028),
             side_length: entry.side_length,
             height: entry.height.unwrap_or(height),
