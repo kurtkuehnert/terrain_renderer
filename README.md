@@ -46,20 +46,10 @@ Clone this project:
 git clone https://github.com/kurtkuehnert/terrain_renderer
 ```
 
-**Note:** this step is temporary, the code will be included in this repo in the future
-
-Change into the crates directory and clone the bevy_terrain plugin:
-
-```
-cd terrain_renderer/crates
-git clone https://github.com/kurtkuehnert/bevy_terrain
-```
-
 **Note:** make sure your rust version is up to data
 
-Now compile both the download tool and the terrain renderer:
+Now compile the terrain renderer, like so:
 ```
-cargo build --release --package download_tool
 cargo build --release 
 ```
 
@@ -73,7 +63,8 @@ The `terrain` field selects wich of the different terrain configurations to use.
 Each of them will be store in a subdirectory with the same name.
 
 By default there are four terrains available: Hartenstein, Hartenstein_large, Saxony and Uri. 
-The additional parameters controll the quality and appearance of the terrain.
+Additional parameters controll the quality and appearance of the terrain. 
+For more information on the, take a look [here](https://github.com/kurtkuehnert/terrain_renderer/blob/main/crates/terrain_settings/src/lib.rs#L5-L23).
 
 Before the terrain can be rendered you first have to download its terrain data.
 The downloader supports downloading data from the Swiss and Saxon dataset.
