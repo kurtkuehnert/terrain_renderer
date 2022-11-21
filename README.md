@@ -9,6 +9,8 @@ The source code was developed as the open-source plugin **[bevy_terrain](https:/
 
 Additionally, this repository contains the full version of my **[Bachelor Thesis](https://github.com/kurtkuehnert/terrain_renderer/blob/main/Thesis.pdf)** describing the novel terrain rendering method in great detail.
 
+This [Video](https://youtu.be/ZRMt1GV50nI) showcases the capabilities and features of this terrain renderer.
+
 The terrain data is taken from the [Geoportal Sachsen (GeoSN, dl-de/by-2-0)](https://geoportal.sachsen.de/) and the [Federal Office of Topography (©swisstopo)](https://www.swisstopo.admin.ch/en/home.html).
 
 ## Abstract
