@@ -1,5 +1,5 @@
 terrain_dir = "/Volumes/EXTERN_SSD/Terrains"
-terrain = "Saxony"
+terrain = "Hartenstein_large"
 preprocess = true
 
 [[terrains]]
