@@ -5,7 +5,7 @@ A large-scale real-world terrain renderer written in Rust using the Bevy game en
 
 This project is developed by [Kurt Kühnert](https://github.com/kurtkuehnert) and contains the reference implementation of my bachelor thesis.
 This terrain renderer focuses on visualizing large-scale terrains in a seamless, continuous, and efficient manner. 
-The source code was developed as the open source plugin **[bevy_terrain](https://github.com/kurtkuehnert/bevy_terrain)** for the Bevy game engine.
+The source code was developed as the open-source plugin **[bevy_terrain](https://github.com/kurtkuehnert/bevy_terrain)** for the Bevy game engine.
 
 Additionally, this repository contains the full version of my **[Bachelor Thesis](https://github.com/kurtkuehnert/terrain_renderer/blob/main/Thesis.pdf)** describing the novel terrain rendering method in great detail.
 
