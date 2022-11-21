@@ -1,12 +1,11 @@
-terrain_dir = "/Volumes/EXTERN_SSD/Terrains"
-terrain = "Hartenstein_large"
+terrain_dir = "absolute_path_to_your_terrain_directory"
+terrain = "Hartenstein"
 preprocess = true
 
 [[terrains]]
 name = "Hartenstein"
 side_length = 2
 urls_saxony = "urls_hartenstein.csv"
-
 [[terrains]]
 name = "Hartenstein_large"
 side_length = 8

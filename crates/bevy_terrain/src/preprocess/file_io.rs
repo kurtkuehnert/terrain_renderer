@@ -43,7 +43,7 @@ pub fn reset_directory(directory: &str) {
 }
 
 pub(crate) fn format_directory(path: &str, name: &str) -> String {
-    if path.starts_with("/") {
+    if Path::new(path).is_absolute() {
         format!("{path}/data/{name}")
     } else {
         format!("assets/{path}/data/{name}")
