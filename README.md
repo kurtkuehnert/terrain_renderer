@@ -9,6 +9,8 @@ The source code was developed as the open-source plugin **[bevy_terrain](https:/
 
 Additionally, this repository contains the full version of my **[Bachelor Thesis](https://github.com/kurtkuehnert/terrain_renderer/blob/main/Thesis.pdf)** describing the novel terrain rendering method in great detail.
 
+This [Video](https://youtu.be/ZRMt1GV50nI) showcases the capabilities and features of this terrain renderer.
+
 The terrain data is taken from the [Geoportal Sachsen (GeoSN, dl-de/by-2-0)](https://geoportal.sachsen.de/) and the [Federal Office of Topography (©swisstopo)](https://www.swisstopo.admin.ch/en/home.html).
 
 ## Abstract
@@ -38,7 +40,7 @@ Together these, otherwise independent, techniques enable the rendering of large-
 ## Instructions
 
 ### Release
-I will provide a precompiled version of the project here.
+The precompiled binaries for Windows, Linux(Debian), and MacOS are supplied on the right.
 Simply download and install the latest version.
 
 ### From Source
@@ -50,7 +52,7 @@ Clone this project:
 git clone https://github.com/kurtkuehnert/terrain_renderer
 ```
 
-**Note:** make sure your rust version is up to data (`rustup update stable`)
+**Note:** make sure your rust version is up to date (`rustup update stable`)
 
 Now compile the terrain renderer, like so:
 ```
@@ -58,32 +60,34 @@ cargo build --release
 ```
 
 ### Configuration
-Before you can run the terrain renderer you first have to setup the config file and downlad the terrain data.
+Before you can run the terrain renderer you first have to set up the config file and download the terrain data.
 Simply modify the `config.toml` file found at the root of the repository or bundled with your release.
 
 Here you have to specify in which directory the data for the terrains should be stored.
 Therefore edit the `terrain_dir` field.
-The `terrain` field selects wich of the different terrain configurations to use.
-Each of them will be store in a subdirectory with the same name.
+The `terrain` field selects which of the different terrain configurations to use.
+Each of them will be stored in a subdirectory with the same name.
 
-By default there are four terrains available: Hartenstein, Hartenstein_large, Saxony and Uri. 
-Additional parameters controll the quality and appearance of the terrain. 
+By default, there are four terrains available: Hartenstein, Hartenstein_large, Saxony, and Uri. 
+Additional parameters control the quality and appearance of the terrain. 
 For more information on the, take a look [here](https://github.com/kurtkuehnert/terrain_renderer/blob/main/crates/terrain_settings/src/lib.rs#L5-L23).
 
+**Note:** The Saxony dataset takes up over 100 GB of diskspace and is compiled from 2 TB of source data. Start by trying the Hartenstein terrain first.
+
 Before the terrain can be rendered you first have to download its terrain data.
-The downloader supports downloading data from the Swiss and Saxon dataset.
+The downloader supports downloading data from the Swiss and Saxon datasets.
 
 For the downloader to work it requires a list urls of the tile data.
 The lists for the default terrains can be found in the `urls` directory.
-Simply copy the approriate one into the directory of the terrain.
+Simply copy the appropriate one into the directory of the terrain.
 Additionally, the process of generating such a list for any desired terrain is described below.
 
 #### Saxony
 
 To download a terrain from the Saxon dataset, provide the tiles by copying their urls from this website: https://www.geodaten.sachsen.de/batch-download-4719.html.
 There select the region and the municipality and copy the links by clicking on the blue button.
-Then you have to past all links into a text file (.txt or .csv) and save it inside the subdirectory of the terrain you want to download.
-Finally configure the `urls_saxony` field for your terrain in the config file.
+Then you have to paste all links into a text file (.txt or .csv) and save it inside the subdirectory of the terrain you want to download.
+Finally, configure the `urls_saxony` field for your terrain in the config file.
 Make sure that the `side_length` is larger or equal to the maximum amount of tiles in x or y direction.
 
 **Note:** All DTM and DSM data of the terrain is downloaded automatically as well.
@@ -104,12 +108,12 @@ terrain_dir
 ![Screenshot 2022-11-14 at 16-17-46 Batch Download - Offene Geodaten - sachsen de](https://user-images.githubusercontent.com/51823519/201697383-18c4cf86-c075-4c6a-a3cb-3a38dd99b666.png)
 
 #### Switzerland
-The process for terrains from the Swiss dataset is the similar.
-Here you have to specify the dtm and dop data seperately.
+The process for terrains from the Swiss dataset is similar.
+Here you have to specify the dtm and dop data separately.
 Select individual tiles or entire regions on the following two web pages.
 https://www.swisstopo.admin.ch/en/geodata/height/alti3d.html for the height data (DTM) and https://www.swisstopo.admin.ch/en/geodata/images/ortho/swissimage10.html for the orthophotos (DOP).
 Make sure the parameters match the ones in the screenshot below.
-Then press the blue search button, export all links in the menu below and download them as a csv file.
+Then press the blue search button, export all links in the menu below, and download them as a csv file.
 Finally copy both urls files into the terrains directory.
 
 **Note:** Swiss DSM data is not supported.
@@ -133,17 +137,17 @@ terrain_dir
 
 With the configuration set up you can now start the download tool.
 
-**Note:** It may take a while untill all data has finish downloading.
+**Note:** It may take a while until all data has finished downloading.
 ```
 ./download_tool
 or
 cargo run --release --package download_tool
 ```
 
-Finally you can visualize the data with the terrain renderer.
-Make sure to set the `preprocess` flag in the config to true, the first time you view each terrain, so that the terrain data can be imported.
+Finally, you can visualize the data with the terrain renderer.
+Make sure to set the `preprocess` flag in the config to true, the first time you view each terrain so that the terrain data can be imported.
 
-**Note:** It may take a while untill all data has been preprocessed.
+**Note:** It may take a while until all data has been preprocessed.
 ```
 ./saxony_terrain_renderer
 or
@@ -152,7 +156,7 @@ cargo run --release
 
 ## Controls
 
-These are the controlls of the terrain renderer.
+These are the controls of the terrain renderer.
 Use them to fly over the terrain, experiment with the quality settings and enter the different debug views.
 
 - `T` - toggle camera movement
@@ -181,8 +185,8 @@ Use them to fly over the terrain, experiment with the quality settings and enter
 - `O` - increase view distance
 
 - `Z` - toggle sun rotation
-- `X` - decrease sun's period duration
-- `Q` - increase sun's period duration
+- `X` - decrease the sun's period duration
+- `Q` - increase the sun's period duration
 
 ## License
 Saxony Terrain Renderer is dual-licensed under either
