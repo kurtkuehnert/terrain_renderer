@@ -7,6 +7,6 @@ edition = "2021"
 [dependencies]
 bevy = "0.9"
 bevy_terrain = { path="../bevy_terrain" }
-bevy_atmosphere = { git="https://github.com/JonahPlusPlus/bevy_atmosphere" }
+bevy_atmosphere = { git="https://github.com/JonahPlusPlus/bevy_atmosphere", rev="1391dd69"}
 terrain_settings = { path="../terrain_settings" }
 dolly = "0.4"

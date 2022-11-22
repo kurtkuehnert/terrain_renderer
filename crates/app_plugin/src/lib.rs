@@ -47,7 +47,7 @@ impl Plugin for AppPlugin {
             ..default()
         })
         .insert_resource(AtmosphereSettings { resolution: 64 })
-        .add_plugin(AtmospherePlugin)
+        .add_plugin(AtmospherePlugin {})
         .add_plugin(TerrainPlugin {
             attachment_count: 3,
         })

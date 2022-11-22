@@ -274,7 +274,7 @@ dependencies = [
 [[package]]
 name = "bevy_atmosphere"
 version = "0.4.1"
-source = "git+https://github.com/JonahPlusPlus/bevy_atmosphere#e4e0ede3f604da53557351381d0071c11b5490d0"
+source = "git+https://github.com/JonahPlusPlus/bevy_atmosphere?rev=1391dd69#1391dd69481b713bd1616d051bb734974cb4c152"
 dependencies = [
  "bevy",
 ]

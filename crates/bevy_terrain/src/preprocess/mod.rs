@@ -67,7 +67,7 @@ impl BaseConfig {
         let mut attachment = AttachmentConfig::new(
             "minmax".to_string(),
             self.texture_size,
-            1,
+            self.border_size,
             self.mip_level_count,
             AttachmentFormat::Rg16,
         );
