@@ -8,7 +8,7 @@ use futures::{future::join_all, StreamExt};
 use image::{DynamicImage, ImageBuffer, Luma};
 use indicatif::{ProgressBar, ProgressStyle};
 use rapid_qoi::{Colors, Qoi};
-use std::fs;
+use std::{fs, env};
 use terrain_settings::{load_settings, Dataset};
 
 pub(crate) type ImageGray = ImageBuffer<Luma<u16>, Vec<u16>>;
@@ -29,7 +29,10 @@ enum Tile {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let settings = load_settings()?;
+
     let path = settings.terrain_path.clone() + "/source";
+
+    let url_source_path = env::current_dir()?.join("urls");
 
     let tiles = match settings.dataset {
         Dataset::None => {
@@ -40,18 +43,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             fs::create_dir_all(format!("{path}/dop"))?;
             fs::create_dir_all(format!("{path}/dsm"))?;
 
-            saxony::gather_tiles(&format!("{}/{}", settings.terrain_path, urls))
+            saxony::gather_tiles(url_source_path.join(urls).to_str().unwrap())
+
         }
         Dataset::Switzerland { urls_dtm, urls_dop } => {
             fs::create_dir_all(format!("{path}/dtm"))?;
             fs::create_dir_all(format!("{path}/dop"))?;
 
             switzerland::gather_tiles(
-                &format!("{}/{}", settings.terrain_path, urls_dtm),
-                &format!("{}/{}", settings.terrain_path, urls_dop),
+                url_source_path.join(urls_dtm).to_str().unwrap(),
+                url_source_path.join(urls_dop).to_str().unwrap(),
             )
         }
     }?;
+
 
     let mut origin = (u32::MAX, u32::MIN);
 
