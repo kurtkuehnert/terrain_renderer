@@ -79,7 +79,7 @@ The downloader supports downloading data from the Swiss and Saxon datasets.
 
 For the downloader to work it requires a list urls of the tile data.
 The lists for the default terrains can be found in the `urls` directory.
-Simply copy the appropriate one into the directory of the terrain.
+Simply copy the appropriate one into the directory of the terrain. (E.g. `my_terrain_dir/MyTerrain/my_urls.csv`)
 Additionally, the process of generating such a list for any desired terrain is described below.
 
 #### Saxony
