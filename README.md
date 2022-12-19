@@ -7,7 +7,7 @@ This project is developed by [Kurt Kühnert](https://github.com/kurtkuehnert) an
 This terrain renderer focuses on visualizing large-scale terrains in a seamless, continuous, and efficient manner. 
 The source code was developed as the open-source plugin **[bevy_terrain](https://github.com/kurtkuehnert/bevy_terrain)** for the Bevy game engine.
 
-Additionally, this repository contains the full version of my **[Bachelor Thesis](https://github.com/kurtkuehnert/terrain_renderer/blob/main/Thesis.pdf)** describing the novel terrain rendering method in great detail.
+Additionally, this repository contains the full version of my **[Bachelor Thesis](https://github.com/kurtkuehnert/terrain_renderer/blob/main/Thesis.pdf)** describing the novel terrain rendering method in great detail. A [citable version](https://monarch.qucosa.de/landing-page/?tx_dlf[id]=https%3A%2F%2Fmonarch.qucosa.de%2Fapi%2Fqucosa%253A82570%2Fmets) is also available.
 
 This [Video](https://youtu.be/ZRMt1GV50nI) showcases the capabilities and features of this terrain renderer.
 
@@ -195,3 +195,5 @@ Saxony Terrain Renderer is dual-licensed under either
 * Apache License, Version 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0)
 
 at your option.
+
+The Thesis.pdf is excluded from both these and is licensed under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license instead.
