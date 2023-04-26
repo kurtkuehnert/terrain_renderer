@@ -196,4 +196,4 @@ Saxony Terrain Renderer is dual-licensed under either
 
 at your option.
 
-The Thesis.pdf is excluded from both these and is licensed under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license instead.
+The Thesis.pdf is excluded from both of these and is licensed under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license instead.
